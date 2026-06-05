@@ -21,16 +21,36 @@ jobs:
       - name: Install dependencies
         run: npm install
 
-      - name: Deploy files to VPS via rsync
-        uses: up9cloud/action-rsync@v1.4
-        env:
-          HOST: ${{ secrets.HOST }}
-          USER: ${{ secrets.USER_NAME_RUTA_GO }}
-          KEY: ${{ secrets.PASSWORD_SSH }}
-          SOURCE: ./
-          TARGET: /home/${{ secrets.USER_NAME_RUTA_GO }}/backend/
+      - name: Compress project files
+        run: tar -czf backend.tar.gz --exclude=.git --exclude=node_modules .
 
-      - name: Run Database Init and Start App via SSH
+      - name: Upload and Deploy via SSH
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.HOST }}
+          username: ${{ secrets.USER_NAME_RUTA_GO }}
+          key: ${{ secrets.PASSWORD_SSH }}
+          port: 22
+          script_stop: true # Detiene el proceso si algún comando falla
+          script: |
+            # Crear la carpeta si no existe y entrar
+            mkdir -p ~/backend
+            cd ~/backend
+            
+            # Limpiar contenido viejo antes de extraer el nuevo (excepto el archivo tar que va llegando)
+            find . -maxdepth 1 ! -name '.' ! -name 'backend.tar.gz' -exec rm -rf {} +
+
+      - name: Transfer Compressed File
+        uses: appleboy/scp-action@v0.1.7
+        with:
+          host: ${{ secrets.HOST }}
+          username: ${{ secrets.USER_NAME_RUTA_GO }}
+          key: ${{ secrets.PASSWORD_SSH }}
+          port: 22
+          source: "backend.tar.gz"
+          target: "/home/${{ secrets.USER_NAME_RUTA_GO }}/backend/"
+
+      - name: Extract and Start Backend
         uses: appleboy/ssh-action@v1.0.3
         with:
           host: ${{ secrets.HOST }}
@@ -39,18 +59,20 @@ jobs:
           port: 22
           script: |
             cd ~/backend
+            tar -xzf backend.tar.gz
+            rm backend.tar.gz
             
-            # 1. Instalar dependencias en el servidor
+            # Instalar dependencias limpias en producción
             npm install --production
             
-            # 2. Inicializar la base de datos
+            # Inicializar Base de Datos
             HOST="${{ secrets.HOST }}" \
             USER_DB="${{ secrets.USER_DB }}" \
             DB_PASSWORD="${{ secrets.DB_PASSWORD }}" \
             DB_NAME="${{ secrets.DB_NAME }}" \
             node init-db.js
             
-            # 3. Iniciar o reiniciar con PM2 usando npx (evita el command not found)
+            # Manejo de PM2 con npx para evitar fallos de comando no encontrado
             PORT=8082 \
             HOST="${{ secrets.HOST }}" \
             USER_DB="${{ secrets.USER_DB }}" \
