@@ -22,8 +22,13 @@ jobs:
         run: npm install
 
       - name: Compress project files
-        run: tar -czf backend.tar.gz --exclude=.git --exclude=node_modules --exclude=backend.tar.gz .
-
+        run: |
+          mkdir ../build_tmp
+          cp -r . ../build_tmp/
+          rm -rf ../build_tmp/.git ../build_tmp/node_modules
+          tar -czf backend.tar.gz -C ../build_tmp .
+          rm -rf ../build_tmp
+          
       - name: Upload and Deploy via SSH
         uses: appleboy/ssh-action@v1.0.3
         with:
