@@ -17,7 +17,7 @@ jobs:
         with:
           host: ${{ secrets.HOST }}
           username: ${{ secrets.USER_NAME_RUTA_GO }}
-          password: ${{ secrets.PASSWORD_SSH }}
+          key: ${{ secrets.PASSWORD_SSH }}  # Corregido: Se usa 'key' porque el secreto guarda una SSH Key, no una contraseña
           port: 22
           script: |
             # 1. Crear la carpeta backend en el HOME si no existe
