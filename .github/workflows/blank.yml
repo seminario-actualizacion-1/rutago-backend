@@ -22,7 +22,7 @@ jobs:
         run: npm install
 
       - name: Compress project files
-        run: tar -czf backend.tar.gz --exclude=.git --exclude=node_modules .
+        run: tar -czf backend.tar.gz --exclude=.git --exclude=node_modules --exclude=backend.tar.gz .
 
       - name: Upload and Deploy via SSH
         uses: appleboy/ssh-action@v1.0.3
