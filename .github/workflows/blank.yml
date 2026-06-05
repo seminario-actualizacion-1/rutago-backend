@@ -1,0 +1,50 @@
+name: Deploy Backend Express
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Deploy to VPS via SSH
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.HOST }}
+          username: ${{ secrets.USER_NAME_RUTA_GO }}
+          password: ${{ secrets.PASSWORD_SSH }}
+          port: 22
+          script: |
+            # 1. Crear la carpeta backend en el HOME si no existe
+            mkdir -p ~/backend
+            cd ~/backend
+            
+            # 2. Sincronizar el código desde tu repositorio (asumiendo que usas Git en el VPS)
+            if [ ! -d ".git" ]; then
+              git clone -b main <URL_DE_TU_REPOSITORIO_BACK> .
+            else
+              git pull origin main
+            fi
+            
+            # 3. Instalar las dependencias de producción
+            npm install --production
+            
+            # 4. Configurar las variables de entorno e iniciar/reiniciar con PM2
+            # Forzamos el puerto 8082 que necesitas
+            PORT=8082 \
+            HOST="${{ secrets.HOST }}" \
+            USER_DB="${{ secrets.USER_DB }}" \
+            DB_PASSWORD="${{ secrets.DB_PASSWORD }}" \
+            DB_NAME="${{ secrets.DB_NAME }}" \
+            pm2 restart express-back || \
+            PORT=8082 \
+            HOST="${{ secrets.HOST }}" \
+            USER_DB="${{ secrets.USER_DB }}" \
+            DB_PASSWORD="${{ secrets.DB_PASSWORD }}" \
+            DB_NAME="${{ secrets.DB_NAME }}" \
+            pm2 start index.js --name "express-back"
