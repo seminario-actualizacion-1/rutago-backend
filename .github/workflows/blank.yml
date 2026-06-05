@@ -12,46 +12,54 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Deploy to VPS via SSH
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Deploy files to VPS via rsync
+        uses: up9cloud/action-rsync@v1.4
+        env:
+          HOST: ${{ secrets.HOST }}
+          USER: ${{ secrets.USER_NAME_RUTA_GO }}
+          KEY: ${{ secrets.PASSWORD_SSH }}
+          SOURCE: ./
+          TARGET: /home/${{ secrets.USER_NAME_RUTA_GO }}/backend/
+
+      - name: Run Database Init and Start App via SSH
         uses: appleboy/ssh-action@v1.0.3
         with:
           host: ${{ secrets.HOST }}
           username: ${{ secrets.USER_NAME_RUTA_GO }}
-          key: ${{ secrets.PASSWORD_SSH }}  # Corregido: Se usa 'key' porque el secreto guarda una SSH Key, no una contraseña
+          key: ${{ secrets.PASSWORD_SSH }}
           port: 22
           script: |
-            # 1. Crear la carpeta backend en el HOME si no existe
-            mkdir -p ~/backend
             cd ~/backend
             
-            # 2. Sincronizar el código desde tu repositorio
-            if [ ! -d ".git" ]; then
-              git clone -b main https://github.com/seminario-actualizacion-1/rutago-backend.git .
-            else
-              git pull origin main
-            fi
-            
-            # 3. Instalar las dependencias de producción
+            # 1. Instalar dependencias en el servidor
             npm install --production
             
-            # 4. EJECUTAR EL SCRIPT DE INICIALIZACIÓN DE LA BD
-            # Le pasamos los secretos para que pueda crear la tabla en el VPS
+            # 2. Inicializar la base de datos
             HOST="${{ secrets.HOST }}" \
             USER_DB="${{ secrets.USER_DB }}" \
             DB_PASSWORD="${{ secrets.DB_PASSWORD }}" \
             DB_NAME="${{ secrets.DB_NAME }}" \
             node init-db.js
             
-            # 5. Configurar las variables de entorno e iniciar/reiniciar con PM2
+            # 3. Iniciar o reiniciar con PM2 usando npx (evita el command not found)
             PORT=8082 \
             HOST="${{ secrets.HOST }}" \
             USER_DB="${{ secrets.USER_DB }}" \
             DB_PASSWORD="${{ secrets.DB_PASSWORD }}" \
             DB_NAME="${{ secrets.DB_NAME }}" \
-            pm2 restart express-back || \
+            npx pm2 restart express-back || \
             PORT=8082 \
             HOST="${{ secrets.HOST }}" \
             USER_DB="${{ secrets.USER_DB }}" \
             DB_PASSWORD="${{ secrets.DB_PASSWORD }}" \
             DB_NAME="${{ secrets.DB_NAME }}" \
-            pm2 start index.js --name "express-back"
+            npx pm2 start index.js --name "express-back"
