@@ -24,9 +24,9 @@ jobs:
             mkdir -p ~/backend
             cd ~/backend
             
-            # 2. Sincronizar el código desde tu repositorio (asumiendo que usas Git en el VPS)
+            # 2. Sincronizar el código desde tu repositorio
             if [ ! -d ".git" ]; then
-              git clone -b main <URL_DE_TU_REPOSITORIO_BACK> .
+              git clone -b main https://github.com/seminario-actualizacion-1/rutago-backend.git .
             else
               git pull origin main
             fi
@@ -34,8 +34,15 @@ jobs:
             # 3. Instalar las dependencias de producción
             npm install --production
             
-            # 4. Configurar las variables de entorno e iniciar/reiniciar con PM2
-            # Forzamos el puerto 8082 que necesitas
+            # 4. EJECUTAR EL SCRIPT DE INICIALIZACIÓN DE LA BD
+            # Le pasamos los secretos para que pueda crear la tabla en el VPS
+            HOST="${{ secrets.HOST }}" \
+            USER_DB="${{ secrets.USER_DB }}" \
+            DB_PASSWORD="${{ secrets.DB_PASSWORD }}" \
+            DB_NAME="${{ secrets.DB_NAME }}" \
+            node init-db.js
+            
+            # 5. Configurar las variables de entorno e iniciar/reiniciar con PM2
             PORT=8082 \
             HOST="${{ secrets.HOST }}" \
             USER_DB="${{ secrets.USER_DB }}" \
