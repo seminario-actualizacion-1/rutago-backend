@@ -79,13 +79,13 @@ jobs:
             
             # Manejo de PM2 con npx para evitar fallos de comando no encontrado
             PORT=8082 \
-            HOST="${{ secrets.HOST }}" \
+            HOST="localhost" \
             USER_DB="${{ secrets.USER_DB }}" \
             DB_PASSWORD="${{ secrets.DB_PASSWORD }}" \
             DB_NAME="${{ secrets.DB_NAME }}" \
             npx pm2 restart express-back || \
             PORT=8082 \
-            HOST="${{ secrets.HOST }}" \
+            HOST="localhost" \
             USER_DB="${{ secrets.USER_DB }}" \
             DB_PASSWORD="${{ secrets.DB_PASSWORD }}" \
             DB_NAME="${{ secrets.DB_NAME }}" \
