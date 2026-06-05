@@ -67,15 +67,28 @@ jobs:
             tar -xzf backend.tar.gz
             rm backend.tar.gz
             
-            # Instalar dependencias limpias en producción
             npm install --production
             
-            # Inicializar Base de Datos
-            HOST="${{ secrets.HOST }}" \
+            # 🚀 1. Corregido: Inicializar DB localmente para saltarse UFW
+            HOST="localhost" \
             USER_DB="${{ secrets.USER_DB }}" \
             DB_PASSWORD="${{ secrets.DB_PASSWORD }}" \
             DB_NAME="${{ secrets.DB_NAME }}" \
             node init-db.js
+            
+            # 🚀 2. Corregido: Usar --update-env para forzar a PM2 a leer el nuevo HOST="localhost"
+            PORT=8082 \
+            HOST="localhost" \
+            USER_DB="${{ secrets.USER_DB }}" \
+            DB_PASSWORD="${{ secrets.DB_PASSWORD }}" \
+            DB_NAME="${{ secrets.DB_NAME }}" \
+            npx pm2 restart express-back --update-env || \
+            PORT=8082 \
+            HOST="localhost" \
+            USER_DB="${{ secrets.USER_DB }}" \
+            DB_PASSWORD="${{ secrets.DB_PASSWORD }}" \
+            DB_NAME="${{ secrets.DB_NAME }}" \
+            npx pm2 start index.js --name "express-back"
             
             # Manejo de PM2 con npx para evitar fallos de comando no encontrado
             PORT=8082 \
