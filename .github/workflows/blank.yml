@@ -67,12 +67,5 @@ jobs:
             # Instalar dependencias para producción
             npm install --production
 
-            # Inicializar la base de datos
-            HOST="localhost" \
-            USER_DB="${{ secrets.USER_DB }}" \
-            DB_PASSWORD="${{ secrets.DB_PASSWORD }}" \
-            DB_NAME="${{ secrets.DB_NAME }}" \
-            node init-db.js
-
-            # Reiniciar el servicio de Systemd tal como pidió el soporte
+            # Reiniciar el servicio de Systemd
             sudo systemctl restart rutago.service
