@@ -21,6 +21,7 @@ jobs:
       - name: Install dependencies
         run: npm install
 
+      # Comprime el proyecto limpio listo para producción (sin .git ni node_modules)
       - name: Compress project files
         run: |
           mkdir ../build_tmp
@@ -29,7 +30,19 @@ jobs:
           tar -czf backend.tar.gz -C ../build_tmp .
           rm -rf ../build_tmp
 
-      - name: Upload and Deploy via SSH
+      # PASO 1: Subir el archivo comprimido al servidor mediante SCP
+      - name: Transfer Compressed File via SCP
+        uses: appleboy/scp-action@v0.1.7
+        with:
+          host: ${{ secrets.HOST }}
+          username: ${{ secrets.USER_NAME_RUTA_GO }}
+          key: ${{ secrets.PASSWORD_SSH }}
+          port: 22
+          source: "backend.tar.gz"
+          target: "/home/${{ secrets.USER_NAME_RUTA_GO }}/backend_tmp/"
+
+      # PASO 2: Procesar en el servidor (Limpiar, Descomprimir, Instalar y Reiniciar)
+      - name: Extract, Install and Restart via SSH
         uses: appleboy/ssh-action@v1.0.3
         with:
           host: ${{ secrets.HOST }}
@@ -38,34 +51,28 @@ jobs:
           port: 22
           script_stop: true
           script: |
+            # Crear la carpeta de producción si no existe
             mkdir -p ~/backend
-            cd ~/backend
-            find . -maxdepth 1 ! -name '.' ! -name 'backend.tar.gz' -exec rm -rf {} +
 
-      - name: Transfer Compressed File
-        uses: appleboy/scp-action@v0.1.7
-        with:
-          host: ${{ secrets.HOST }}
-          username: ${{ secrets.USER_NAME_RUTA_GO }}
-          key: ${{ secrets.PASSWORD_SSH }}
-          port: 22
-          source: "backend.tar.gz"
-          target: "/home/${{ secrets.USER_NAME_RUTA_GO }}/backend/"
+            # Mover el comprimido a la ruta definitiva
+            mv ~/backend_tmp/backend.tar.gz ~/backend/
+            rm -rf ~/backend_tmp
 
-      - name: Extract and Start Backend
-        uses: appleboy/ssh-action@v1.0.3
-        with:
-          host: ${{ secrets.HOST }}
-          username: ${{ secrets.USER_NAME_RUTA_GO }}
-          key: ${{ secrets.PASSWORD_SSH }}
-          port: 22
-          script: |
             cd ~/backend
+
+            # Guardar temporalmente el archivo nuevo y fulminar TODO el código viejo
+            mkdir ../tmp_tar
+            mv backend.tar.gz ../tmp_tar/
+            rm -rf *
+            mv ../tmp_tar/backend.tar.gz .
+            rm -rf ../tmp_tar
+
+            # Descomprimir el nuevo código fuente de Express
             tar -xzf backend.tar.gz
             rm backend.tar.gz
 
-            # Instalar dependencias para producción
-            npm install --production
+            # Instalar dependencias limpias de producción
+            npm install --omit=dev
 
-            # Reiniciar el servicio de Systemd
+            # Reiniciar el servicio de Systemd (Aprovechando el NOPASSWD del sudoers)
             sudo systemctl restart rutago.service
