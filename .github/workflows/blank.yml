@@ -16,7 +16,7 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: 20
-          cache: 'npm'
+          cache: "npm"
 
       - name: Install dependencies
         run: npm install
@@ -28,7 +28,7 @@ jobs:
           rm -rf ../build_tmp/.git ../build_tmp/node_modules
           tar -czf backend.tar.gz -C ../build_tmp .
           rm -rf ../build_tmp
-          
+
       - name: Upload and Deploy via SSH
         uses: appleboy/ssh-action@v1.0.3
         with:
@@ -36,13 +36,10 @@ jobs:
           username: ${{ secrets.USER_NAME_RUTA_GO }}
           key: ${{ secrets.PASSWORD_SSH }}
           port: 22
-          script_stop: true # Detiene el proceso si algún comando falla
+          script_stop: true
           script: |
-            # Crear la carpeta si no existe y entrar
             mkdir -p ~/backend
             cd ~/backend
-            
-            # Limpiar contenido viejo antes de extraer el nuevo (excepto el archivo tar que va llegando)
             find . -maxdepth 1 ! -name '.' ! -name 'backend.tar.gz' -exec rm -rf {} +
 
       - name: Transfer Compressed File
@@ -66,40 +63,16 @@ jobs:
             cd ~/backend
             tar -xzf backend.tar.gz
             rm backend.tar.gz
-            
+
+            # Instalar dependencias para producción
             npm install --production
-            
-            # 🚀 1. Corregido: Inicializar DB localmente para saltarse UFW
+
+            # Inicializar la base de datos
             HOST="localhost" \
             USER_DB="${{ secrets.USER_DB }}" \
             DB_PASSWORD="${{ secrets.DB_PASSWORD }}" \
             DB_NAME="${{ secrets.DB_NAME }}" \
             node init-db.js
-            
-            # 🚀 2. Corregido: Usar --update-env para forzar a PM2 a leer el nuevo HOST="localhost"
-            PORT=8082 \
-            HOST="localhost" \
-            USER_DB="${{ secrets.USER_DB }}" \
-            DB_PASSWORD="${{ secrets.DB_PASSWORD }}" \
-            DB_NAME="${{ secrets.DB_NAME }}" \
-            npx pm2 restart express-back --update-env || \
-            PORT=8082 \
-            HOST="localhost" \
-            USER_DB="${{ secrets.USER_DB }}" \
-            DB_PASSWORD="${{ secrets.DB_PASSWORD }}" \
-            DB_NAME="${{ secrets.DB_NAME }}" \
-            npx pm2 start index.js --name "express-back"
-            
-            # Manejo de PM2 con npx para evitar fallos de comando no encontrado
-            PORT=8082 \
-            HOST="localhost" \
-            USER_DB="${{ secrets.USER_DB }}" \
-            DB_PASSWORD="${{ secrets.DB_PASSWORD }}" \
-            DB_NAME="${{ secrets.DB_NAME }}" \
-            npx pm2 restart express-back || \
-            PORT=8082 \
-            HOST="localhost" \
-            USER_DB="${{ secrets.USER_DB }}" \
-            DB_PASSWORD="${{ secrets.DB_PASSWORD }}" \
-            DB_NAME="${{ secrets.DB_NAME }}" \
-            npx pm2 start index.js --name "express-back"
+
+            # Reiniciar el servicio de Systemd tal como pidió el soporte
+            sudo systemctl restart rutago.service
