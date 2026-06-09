@@ -5,7 +5,9 @@ Backend del proyecto RutaGo
 
 - Cristian David Garcia Valderrama.
 - Jhon Edwar Suarez Quiñonez.
-- Sebastian Guapi Andrade 
+- Sebastian Guapi Andrade
+- Stefany Potosi Reyes
+- Angel Santiago Estupiñan Gomez 
 
 -------
 prueba.
