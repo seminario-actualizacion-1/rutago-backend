@@ -74,5 +74,11 @@ jobs:
             # Instalar dependencias limpias de producción
             npm install --omit=dev
 
+            # Ejecutar migraciones de Sequelize en el servidor
+            npx sequelize-cli db:migrate
+
+            # Ejecutar seeders en el servidor
+            npx sequelize-cli db:seed:all --seeders-path src/seeders
+
             # Reiniciar el servicio de Systemd (Aprovechando el NOPASSWD del sudoers)
             sudo systemctl restart rutago.service

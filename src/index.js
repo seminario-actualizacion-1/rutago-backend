@@ -7,6 +7,13 @@ const swaggerJsdoc = require("swagger-jsdoc");
 
 const { sequelize } = require("./models");
 const usuarioRoutes = require("./routes/usuario.routes");
+const rolRoutes = require("./routes/rol.routes");
+const comunaRoutes = require("./routes/comuna.routes");
+const barrioRoutes = require("./routes/barrio.routes");
+const vehiculoRoutes = require("./routes/vehiculo.routes");
+const perfilConductorRoutes = require("./routes/perfilconductor.routes");
+const perfilEntidadRoutes = require("./routes/perfilentidad.routes");
+const viajeRoutes = require("./routes/viaje.routes");
 
 const app = express();
 
@@ -41,13 +48,20 @@ const swaggerOptions = {
 const swaggerDocs = swaggerJsdoc(swaggerOptions);
 
 app.use(
-  ["/api/docs", "/api/api/docs"],
+  "/api/docs",
   swaggerUi.serve,
   swaggerUi.setup(swaggerDocs),
 );
 app.use("/api/usuarios", usuarioRoutes);
+app.use("/api/roles", rolRoutes);
+app.use("/api/comunas", comunaRoutes);
+app.use("/api/barrios", barrioRoutes);
+app.use("/api/vehiculos", vehiculoRoutes);
+app.use("/api/perfiles-conductor", perfilConductorRoutes);
+app.use("/api/perfiles-entidad", perfilEntidadRoutes);
+app.use("/api/viajes", viajeRoutes);
 
-app.get(["/api/ping", "/api/api/ping"], (req, res) => {
+app.get("/api/ping", (req, res) => {
   res.json({
     status: "ok",
     message: "El servidor de RutaGo está respondiendo",

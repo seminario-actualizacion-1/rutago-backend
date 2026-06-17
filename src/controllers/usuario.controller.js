@@ -1,4 +1,6 @@
 const usuarioService = require("../services/usuario.service");
+const authMiddleware = require("../middlewares/auth.middleware");
+const roleMiddleware = require("../middlewares/role.middleware");
 
 exports.registrarUsuario = async (req, res) => {
   try {
@@ -102,6 +104,66 @@ exports.cambiarContrasena = async (req, res) => {
       success: true,
       message: "Contraseña actualizada correctamente",
     });
+  } catch (error) {
+    res.status(400).json({ success: false, message: error.message });
+  }
+};
+
+exports.obtenerTodos = async (req, res) => {
+  try {
+    const usuarios = await usuarioService.obtenerTodos();
+    res.json({ success: true, data: usuarios });
+  } catch (error) {
+    res.status(400).json({ success: false, message: error.message });
+  }
+};
+
+exports.obtenerPorId = async (req, res) => {
+  try {
+    const usuario = await usuarioService.obtenerPorId(req.params.id);
+    res.json({ success: true, data: usuario });
+  } catch (error) {
+    res.status(400).json({ success: false, message: error.message });
+  }
+};
+
+exports.obtenerMiPerfil = async (req, res) => {
+  try {
+    const usuario = await usuarioService.obtenerMiPerfil(req.usuario.id);
+    res.json({ success: true, data: usuario });
+  } catch (error) {
+    res.status(400).json({ success: false, message: error.message });
+  }
+};
+
+exports.actualizarUsuario = async (req, res) => {
+  try {
+    const { nombres, apellidos, correo } = req.body;
+    const usuario = await usuarioService.actualizarDatos(req.params.id, {
+      nombres,
+      apellidos,
+      correo,
+    });
+    res.json({ success: true, message: "Usuario actualizado", data: usuario });
+  } catch (error) {
+    res.status(400).json({ success: false, message: error.message });
+  }
+};
+
+exports.cambiarRol = async (req, res) => {
+  try {
+    const { rolId } = req.body;
+    const usuario = await usuarioService.actualizarRol(req.params.id, rolId);
+    res.json({ success: true, message: "Rol actualizado", data: usuario });
+  } catch (error) {
+    res.status(400).json({ success: false, message: error.message });
+  }
+};
+
+exports.eliminarUsuario = async (req, res) => {
+  try {
+    await usuarioService.eliminarUsuario(req.params.id);
+    res.json({ success: true, message: "Usuario eliminado" });
   } catch (error) {
     res.status(400).json({ success: false, message: error.message });
   }

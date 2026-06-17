@@ -18,13 +18,3 @@ exports.verificarToken = (req, res, next) => {
     return res.status(403).json({ success: false, message: "Token inválido." });
   }
 };
-
-exports.esAdministrador = (req, res, next) => {
-  if (req.usuario && req.usuario.rolId === 1) {
-    next();
-  } else {
-    return res
-      .status(403)
-      .json({ success: false, message: "Requiere permisos de administrador." });
-  }
-};

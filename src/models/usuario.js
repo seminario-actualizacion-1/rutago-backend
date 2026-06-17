@@ -5,6 +5,16 @@ module.exports = (sequelize, DataTypes) => {
   class Usuario extends Model {
     static associate(models) {
       Usuario.belongsTo(models.Rol, { foreignKey: "rolId" });
+      Usuario.hasOne(models.PerfilConductor, { foreignKey: "usuarioId" });
+      Usuario.hasOne(models.PerfilEntidad, { foreignKey: "usuarioId" });
+      Usuario.hasMany(models.Viaje, {
+        foreignKey: "pasajeroId",
+        as: "viajesComoPasajero",
+      });
+      Usuario.hasMany(models.Viaje, {
+        foreignKey: "conductorId",
+        as: "viajesComoConductor",
+      });
     }
   }
   Usuario.init(

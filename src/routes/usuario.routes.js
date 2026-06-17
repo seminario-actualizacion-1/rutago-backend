@@ -1,6 +1,8 @@
 const express = require("express");
 const router = express.Router();
 const usuarioController = require("../controllers/usuario.controller");
+const authMiddleware = require("../middlewares/auth.middleware");
+const roleMiddleware = require("../middlewares/role.middleware");
 
 /**
  * @swagger
@@ -103,5 +105,133 @@ router.post("/recuperar-contrasena", usuarioController.recuperarContrasena);
  *         description: Error en la solicitud
  */
 router.post("/cambiar-contrasena", usuarioController.cambiarContrasena);
+
+/**
+ * @swagger
+ * /api/usuarios:
+ *   get:
+ *     summary: Obtiene todos los usuarios (solo admin)
+ *     tags: [Usuarios]
+ *     responses:
+ *       '200':
+ *         description: Lista de usuarios
+ */
+router.get("/", authMiddleware.verificarToken, roleMiddleware.esAdministrador, usuarioController.obtenerTodos);
+
+/**
+ * @swagger
+ * /api/usuarios/{id}:
+ *   get:
+ *     summary: Obtiene un usuario por ID (solo admin)
+ *     tags: [Usuarios]
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: integer
+ *     responses:
+ *       '200':
+ *         description: Usuario encontrado
+ *       '400':
+ *         description: Usuario no encontrado
+ */
+router.get("/:id", authMiddleware.verificarToken, roleMiddleware.esAdministrador, usuarioController.obtenerPorId);
+
+/**
+ * @swagger
+ * /api/usuarios/me/perfil:
+ *   get:
+ *     summary: Obtiene el perfil del usuario autenticado
+ *     tags: [Usuarios]
+ *     responses:
+ *       '200':
+ *         description: Perfil del usuario
+ *       '401':
+ *         description: No autorizado
+ */
+router.get("/me/perfil", authMiddleware.verificarToken, usuarioController.obtenerMiPerfil);
+
+/**
+ * @swagger
+ * /api/usuarios/{id}:
+ *   put:
+ *     summary: Actualiza datos de un usuario (solo admin)
+ *     tags: [Usuarios]
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: integer
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               nombres:
+ *                 type: string
+ *               apellidos:
+ *                 type: string
+ *               correo:
+ *                 type: string
+ *     responses:
+ *       '200':
+ *         description: Usuario actualizado
+ *       '400':
+ *         description: Error en la solicitud
+ */
+router.put("/:id", authMiddleware.verificarToken, roleMiddleware.esAdministrador, usuarioController.actualizarUsuario);
+
+/**
+ * @swagger
+ * /api/usuarios/{id}/rol:
+ *   put:
+ *     summary: Cambia el rol de un usuario (solo admin)
+ *     tags: [Usuarios]
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: integer
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               rolId:
+ *                 type: integer
+ *     responses:
+ *       '200':
+ *         description: Rol actualizado
+ *       '400':
+ *         description: Error en la solicitud
+ */
+router.put("/:id/rol", authMiddleware.verificarToken, roleMiddleware.esAdministrador, usuarioController.cambiarRol);
+
+/**
+ * @swagger
+ * /api/usuarios/{id}:
+ *   delete:
+ *     summary: Elimina un usuario (solo admin)
+ *     tags: [Usuarios]
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: integer
+ *     responses:
+ *       '200':
+ *         description: Usuario eliminado
+ *       '400':
+ *         description: Error en la solicitud
+ */
+router.delete("/:id", authMiddleware.verificarToken, roleMiddleware.esAdministrador, usuarioController.eliminarUsuario);
 
 module.exports = router;

@@ -1,11 +1,47 @@
-const { Usuario } = require("../models");
+const { Usuario, Rol } = require("../models");
 
 exports.buscarPorCorreo = async (correo) => {
   return await Usuario.findOne({ where: { correo } });
 };
 
+exports.buscarPorId = async (id) => {
+  return await Usuario.findByPk(id, {
+    include: [{ model: Rol, as: "rol" }],
+  });
+};
+
+exports.buscarTodos = async () => {
+  return await Usuario.findAll({
+    include: [{ model: Rol, as: "rol" }],
+    order: [["id", "ASC"]],
+  });
+};
+
 exports.guardarUsuario = async (datosUsuario) => {
   return await Usuario.create(datosUsuario);
+};
+
+exports.actualizarDatos = async (id, datos) => {
+  const usuario = await Usuario.findByPk(id);
+  if (!usuario) throw new Error("USUARIO_NO_ENCONTRADO");
+  return await usuario.update(datos);
+};
+
+exports.actualizarRol = async (id, rolId) => {
+  const usuario = await Usuario.findByPk(id);
+  if (!usuario) throw new Error("USUARIO_NO_ENCONTRADO");
+
+  const rolExiste = await Rol.findByPk(rolId);
+  if (!rolExiste) throw new Error("ROL_NO_EXISTE");
+
+  return await usuario.update({ rolId });
+};
+
+exports.eliminarUsuario = async (id) => {
+  const usuario = await Usuario.findByPk(id);
+  if (!usuario) throw new Error("USUARIO_NO_ENCONTRADO");
+  await usuario.destroy();
+  return true;
 };
 
 exports.actualizarTokenRecuperacion = async (id, token, expira) => {

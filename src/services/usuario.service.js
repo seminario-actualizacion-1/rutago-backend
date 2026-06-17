@@ -3,6 +3,8 @@ const { Rol } = require("../models");
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const crypto = require("crypto");
+const { encriptarPassword } = require("../helpers/encriptarPassword");
+const { generarToken } = require("../helpers/generarToken");
 
 exports.crearUsuario = async (datosUsuario) => {
   const { nombres, apellidos, correo, contrasena, rolId } = datosUsuario;
@@ -17,8 +19,7 @@ exports.crearUsuario = async (datosUsuario) => {
     throw new Error("ROL_NO_EXISTE");
   }
 
-  const salt = await bcrypt.genSalt(10);
-  const contrasenaEncriptada = await bcrypt.hash(contrasena, salt);
+  const contrasenaEncriptada = await encriptarPassword(contrasena);
 
   return await usuarioRepository.guardarUsuario({
     nombres,
@@ -40,11 +41,7 @@ exports.autenticarUsuario = async (correo, contrasena) => {
     throw new Error("CREDENCIALES_INVALIDAS");
   }
 
-  const token = jwt.sign(
-    { id: usuario.id, rolId: usuario.rolId },
-    process.env.JWT_SECRET,
-    { expiresIn: "8h" },
-  );
+  const token = generarToken(usuario);
 
   return {
     token,
@@ -54,6 +51,33 @@ exports.autenticarUsuario = async (correo, contrasena) => {
       rolId: usuario.rolId,
     },
   };
+};
+
+exports.obtenerTodos = async () => {
+  return await usuarioRepository.buscarTodos();
+};
+
+exports.obtenerPorId = async (id) => {
+  return await usuarioRepository.buscarPorId(id);
+};
+
+exports.obtenerMiPerfil = async (id) => {
+  return await usuarioRepository.buscarPorId(id);
+};
+
+exports.actualizarDatos = async (id, datos) => {
+  if (datos.contrasena) {
+    datos.contrasena = await encriptarPassword(datos.contrasena);
+  }
+  return await usuarioRepository.actualizarDatos(id, datos);
+};
+
+exports.actualizarRol = async (id, rolId) => {
+  return await usuarioRepository.actualizarRol(id, rolId);
+};
+
+exports.eliminarUsuario = async (id) => {
+  return await usuarioRepository.eliminarUsuario(id);
 };
 
 exports.solicitarRecuperacion = async (correo) => {
@@ -78,8 +102,7 @@ exports.cambiarContrasena = async (token, nuevaContrasena) => {
     throw new Error("TOKEN_INVALIDO_O_EXPIRADO");
   }
 
-  const salt = await bcrypt.genSalt(10);
-  const hash = await bcrypt.hash(nuevaContrasena, salt);
+  const hash = await encriptarPassword(nuevaContrasena);
 
   await usuarioRepository.actualizarContrasena(usuario.id, hash);
   return true;
