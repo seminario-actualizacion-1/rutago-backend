@@ -21,7 +21,6 @@ exports.registrarUsuario = async (req, res) => {
 
     const nuevoUsuario = await usuarioService.crearUsuario(datosParaCrear);
 
-    // 5. Respuesta de éxito
     return res.status(201).json({
       success: true,
       message: "¡Usuario registrado con éxito en RutaGo!",

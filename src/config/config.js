@@ -18,7 +18,6 @@ module.exports = {
     dialect: "mysql",
   },
   production: {
-    // Exactamente igual que en local, para que no tenga que adivinar nada
     username: process.env.USER_DB,
     password: process.env.DB_PASSWORD,
     database: process.env.DB_NAME,

@@ -12,16 +12,14 @@ exports.verificarToken = (req, res, next) => {
 
   try {
     const verificado = jwt.verify(token, process.env.JWT_SECRET);
-    req.usuario = verificado; // Guardamos el payload (id y rolId)
+    req.usuario = verificado;
     next();
   } catch (error) {
     return res.status(403).json({ success: false, message: "Token inválido." });
   }
 };
 
-// Middleware para restringir por rol
 exports.esAdministrador = (req, res, next) => {
-  // Asumiendo que 1 es el ID de administrador en tu BD
   if (req.usuario && req.usuario.rolId === 1) {
     next();
   } else {

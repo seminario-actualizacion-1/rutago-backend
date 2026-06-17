@@ -4,7 +4,6 @@ const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const crypto = require("crypto");
 
-// 1. Función de registro
 exports.crearUsuario = async (datosUsuario) => {
   const { nombres, apellidos, correo, contrasena, rolId } = datosUsuario;
 
@@ -30,7 +29,6 @@ exports.crearUsuario = async (datosUsuario) => {
   });
 };
 
-// 2. Función de autenticación (FUERA de crearUsuario)
 exports.autenticarUsuario = async (correo, contrasena) => {
   const usuario = await usuarioRepository.buscarPorCorreo(correo);
   if (!usuario) {
@@ -62,18 +60,16 @@ exports.solicitarRecuperacion = async (correo) => {
   const usuario = await usuarioRepository.buscarPorCorreo(correo);
   if (!usuario) throw new Error("USUARIO_NO_ENCONTRADO");
 
-  // Generar token y expiración (1 hora)
   const token = crypto.randomBytes(20).toString("hex");
   const expira = new Date(Date.now() + 3600000);
 
-  // Guardar en BD (necesitas este método en tu repository)
   await usuarioRepository.actualizarTokenRecuperacion(
     usuario.id,
     token,
     expira,
   );
 
-  return token; // En un sistema real, esto se envía por email
+  return token;
 };
 
 exports.cambiarContrasena = async (token, nuevaContrasena) => {
