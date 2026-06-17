@@ -41,7 +41,7 @@ jobs:
           source: "backend.tar.gz"
           target: "/home/${{ secrets.USER_NAME_RUTA_GO }}/backend_tmp/"
 
-      # PASO 2: Procesar en el servidor (Limpiar, Descomprimir, Instalar y Reiniciar)
+      # PASO 2: Procesar en el servidor (Limpiar, Descomprimir, Instalar, Configurar .env y Reiniciar)
       - name: Extract, Install and Restart via SSH
         uses: appleboy/ssh-action@v1.0.3
         with:
@@ -50,6 +50,7 @@ jobs:
           key: ${{ secrets.PASSWORD_SSH }}
           port: 22
           script_stop: true
+          envs: USER_DB,DB_PASSWORD,DB_NAME,HOST,PORT_DB,JWT_SECRET
           script: |
             # Crear la carpeta de producción si no existe
             mkdir -p ~/backend
@@ -70,6 +71,19 @@ jobs:
             # Descomprimir el nuevo código fuente de Express
             tar -xzf backend.tar.gz
             rm backend.tar.gz
+
+            # Verificar que los archivos nuevos llegaron correctamente
+            ls -la
+            ls -la src/
+
+            # Crear archivo .env con variables de entorno del servidor
+            echo "PORT=8082" >> .env
+            echo "HOST=$HOST" >> .env
+            echo "PORT_DB=$PORT_DB" >> .env
+            echo "USER_DB=$USER_DB" >> .env
+            echo "DB_PASSWORD=$DB_PASSWORD" >> .env
+            echo "DB_NAME=$DB_NAME" >> .env
+            echo "JWT_SECRET=$JWT_SECRET" >> .env
 
             # Instalar dependencias limpias de producción
             npm install --omit=dev
