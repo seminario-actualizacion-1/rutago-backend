@@ -1,4 +1,4 @@
-name: Deploy Backend Express
+name: Deploy Backend RutaGo
 
 on:
   push:
@@ -8,87 +8,42 @@ on:
 jobs:
   deploy:
     runs-on: ubuntu-latest
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Set up Node.js
-        uses: actions/setup-node@v4
+      - name: Set up SSH
+        uses: webfactory/ssh-agent@v0.5.4
         with:
-          node-version: 20
-          cache: "npm"
+          ssh-private-key: ${{ secrets.PASSWORD_SSH }}
 
-      - name: Install dependencies
-        run: npm install
-
-      # Comprime el proyecto limpio listo para producción (sin .git ni node_modules)
-      - name: Compress project files
+      - name: Deploy to server
         run: |
-          mkdir ../build_tmp
-          cp -r . ../build_tmp/
-          rm -rf ../build_tmp/.git ../build_tmp/node_modules
-          tar -czf backend.tar.gz -C ../build_tmp .
-          rm -rf ../build_tmp
+          ssh -o StrictHostKeyChecking=no ${{ secrets.USER_NAME_RUTA_GO }}@${{ secrets.HOST }} <<EOF
+            set -e
 
-      # PASO 1: Subir el archivo comprimido al servidor mediante SCP
-      - name: Transfer Compressed File via SCP
-        uses: appleboy/scp-action@v0.1.7
-        with:
-          host: ${{ secrets.HOST }}
-          username: ${{ secrets.USER_NAME_RUTA_GO }}
-          key: ${{ secrets.PASSWORD_SSH }}
-          port: 22
-          source: "backend.tar.gz"
-          target: "/home/${{ secrets.USER_NAME_RUTA_GO }}/backend_tmp/"
+            echo "Desplegando RutaGo Backend..."
 
-      # PASO 1.5: Generar .env en el runner y subirlo por SCP (evita corrupción de secrets en SSH)
-      - name: Generate .env file
-        run: |
-          cat > .env << 'EOF'
-          PORT=8082
-          HOST=localhost
-          PORT_DB=${{ secrets.PORT_DB }}
-          USER_DB=${{ secrets.USER_DB }}
-          DB_PASSWORD=${{ secrets.DB_PASSWORD }}
-          DB_NAME=${{ secrets.DB_NAME }}
-          JWT_SECRET=${{ secrets.JWT_SECRET }}
-          EOF
+            cd /home/${{ secrets.USER_NAME_RUTA_GO }}/backend
 
-      - name: Transfer .env via SCP
-        uses: appleboy/scp-action@v0.1.7
-        with:
-          host: ${{ secrets.HOST }}
-          username: ${{ secrets.USER_NAME_RUTA_GO }}
-          key: ${{ secrets.PASSWORD_SSH }}
-          port: 22
-          source: ".env"
-          target: "/home/${{ secrets.USER_NAME_RUTA_GO }}/backend_tmp/"
+            echo "→ git pull..."
+            git pull origin main
 
-      # PASO 2: Procesar en el servidor (Limpiar, Descomprimir, Instalar, Migrar y Reiniciar)
-      - name: Extract, Install and Restart via SSH
-        uses: appleboy/ssh-action@v1.0.3
-        with:
-          host: ${{ secrets.HOST }}
-          username: ${{ secrets.USER_NAME_RUTA_GO }}
-          key: ${{ secrets.PASSWORD_SSH }}
-          port: 22
-          script_stop: true
-          script: |
-            cd ~/backend
-
-            mv ~/backend_tmp/backend.tar.gz ~/backend/
-            mv ~/backend_tmp/.env ~/backend/
-            rm -rf ~/backend_tmp
-
-            tar -xzf backend.tar.gz
-            rm backend.tar.gz
-
-            echo "require('./src/index.js');" > index.js
-
+            echo "→ npm install..."
             npm install --omit=dev
 
+            echo "→ db:migrate..."
             npx sequelize-cli db:migrate
 
+            echo "→ db:seed..."
             npx sequelize-cli db:seed:all --seeders-path src/seeders
 
+            echo "→ Reiniciando servicio..."
             sudo systemctl restart rutago.service
+
+            echo "→ Estado del servicio:"
+            sudo systemctl status rutago.service --no-pager
+
+            echo "✅ Deploy finalizado."
+          EOF
