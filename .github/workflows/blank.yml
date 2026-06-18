@@ -41,7 +41,30 @@ jobs:
           source: "backend.tar.gz"
           target: "/home/${{ secrets.USER_NAME_RUTA_GO }}/backend_tmp/"
 
-      # PASO 2: Procesar en el servidor (Limpiar, Descomprimir, Instalar, Configurar .env y Reiniciar)
+      # PASO 1.5: Generar .env en el runner y subirlo por SCP (evita corrupción de secrets en SSH)
+      - name: Generate .env file
+        run: |
+          cat > .env << 'EOF'
+          PORT=8082
+          HOST=localhost
+          PORT_DB=${{ secrets.PORT_DB }}
+          USER_DB=${{ secrets.USER_DB }}
+          DB_PASSWORD=${{ secrets.DB_PASSWORD }}
+          DB_NAME=${{ secrets.DB_NAME }}
+          JWT_SECRET=${{ secrets.JWT_SECRET }}
+          EOF
+
+      - name: Transfer .env via SCP
+        uses: appleboy/scp-action@v0.1.7
+        with:
+          host: ${{ secrets.HOST }}
+          username: ${{ secrets.USER_NAME_RUTA_GO }}
+          key: ${{ secrets.PASSWORD_SSH }}
+          port: 22
+          source: ".env"
+          target: "/home/${{ secrets.USER_NAME_RUTA_GO }}/backend_tmp/"
+
+      # PASO 2: Procesar en el servidor (Limpiar, Descomprimir, Instalar, Migrar y Reiniciar)
       - name: Extract, Install and Restart via SSH
         uses: appleboy/ssh-action@v1.0.3
         with:
@@ -51,46 +74,21 @@ jobs:
           port: 22
           script_stop: true
           script: |
-            # Crear la carpeta de producción si no existe
-            mkdir -p ~/backend
-
-            # Mover el comprimido a la ruta definitiva
-            mv ~/backend_tmp/backend.tar.gz ~/backend/
-            rm -rf ~/backend_tmp
-
             cd ~/backend
 
-            # Guardar temporalmente el archivo nuevo y fulminar TODO el código viejo
-            mkdir ../tmp_tar
-            mv backend.tar.gz ../tmp_tar/
-            rm -rf *
-            mv ../tmp_tar/backend.tar.gz .
-            rm -rf ../tmp_tar
+            mv ~/backend_tmp/backend.tar.gz ~/backend/
+            mv ~/backend_tmp/.env ~/backend/
+            rm -rf ~/backend_tmp
 
-            # Descomprimir el nuevo código fuente de Express
             tar -xzf backend.tar.gz
             rm backend.tar.gz
 
-            # Crear index.js proxy para apuntar a src/index.js (el servicio ejecuta node index.js)
             echo "require('./src/index.js');" > index.js
 
-            # Crear archivo .env con variables de entorno del servidor
-            echo "PORT=8082" > .env
-            echo "HOST=localhost" >> .env
-            echo "PORT_DB='${{ secrets.PORT_DB }}'" >> .env
-            echo "USER_DB='${{ secrets.USER_DB }}'" >> .env
-            echo "DB_PASSWORD='${{ secrets.DB_PASSWORD }}'" >> .env
-            echo "DB_NAME='${{ secrets.DB_NAME }}'" >> .env
-            echo "JWT_SECRET='${{ secrets.JWT_SECRET }}'" >> .env
-
-            # Instalar dependencias limpias de producción
             npm install --omit=dev
 
-            # Ejecutar migraciones de Sequelize en el servidor
             npx sequelize-cli db:migrate
 
-            # Ejecutar seeders en el servidor
             npx sequelize-cli db:seed:all --seeders-path src/seeders
 
-            # Reiniciar el servicio de Systemd (Aprovechando el NOPASSWD del sudoers)
             sudo systemctl restart rutago.service
