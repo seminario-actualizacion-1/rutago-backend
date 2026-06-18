@@ -75,15 +75,13 @@ jobs:
             echo "require('./src/index.js');" > index.js
 
             # Crear archivo .env con variables de entorno del servidor
-            cat > .env << EOF
-PORT=8082
-HOST=${{ secrets.HOST }}
-PORT_DB=${{ secrets.PORT_DB }}
-USER_DB=${{ secrets.USER_DB }}
-DB_PASSWORD=${{ secrets.DB_PASSWORD }}
-DB_NAME=${{ secrets.DB_NAME }}
-JWT_SECRET=${{ secrets.JWT_SECRET }}
-EOF
+            echo "PORT=8082" > .env
+            echo "HOST=${{ secrets.HOST }}" >> .env
+            echo "PORT_DB=${{ secrets.PORT_DB }}" >> .env
+            echo "USER_DB=${{ secrets.USER_DB }}" >> .env
+            echo "DB_PASSWORD=${{ secrets.DB_PASSWORD }}" >> .env
+            echo "DB_NAME=${{ secrets.DB_NAME }}" >> .env
+            echo "JWT_SECRET=${{ secrets.JWT_SECRET }}" >> .env
 
             # Instalar dependencias limpias de producción
             npm install --omit=dev
