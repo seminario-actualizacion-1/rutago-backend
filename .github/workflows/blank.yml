@@ -50,7 +50,7 @@ jobs:
           key: ${{ secrets.PASSWORD_SSH }}
           port: 22
           script_stop: true
-          envs: USER_DB,DB_PASSWORD,DB_NAME,HOST,PORT_DB,JWT_SECRET
+          envs: USER_DB,DB_PASSWORD,DB_NAME,HOST,USER_NAME_RUTA_GO
           script: |
             # Crear la carpeta de producción si no existe
             mkdir -p ~/backend
@@ -79,11 +79,11 @@ jobs:
             # Crear archivo .env con variables de entorno del servidor
             echo "PORT=8082" >> .env
             echo "HOST=$HOST" >> .env
-            echo "PORT_DB=$PORT_DB" >> .env
+            echo "PORT_DB=3307" >> .env
             echo "USER_DB=$USER_DB" >> .env
             echo "DB_PASSWORD=$DB_PASSWORD" >> .env
             echo "DB_NAME=$DB_NAME" >> .env
-            echo "JWT_SECRET=$JWT_SECRET" >> .env
+            echo "JWT_SECRET=clave_super_secreta_rutago" >> .env
 
             # Instalar dependencias limpias de producción
             npm install --omit=dev
