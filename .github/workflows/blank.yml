@@ -76,7 +76,7 @@ jobs:
 
             # Crear archivo .env con variables de entorno del servidor
             echo "PORT=8082" > .env
-            echo "HOST=${{ secrets.HOST }}" >> .env
+            echo "HOST=localhost" >> .env
             echo "PORT_DB=${{ secrets.PORT_DB }}" >> .env
             echo "USER_DB=${{ secrets.USER_DB }}" >> .env
             echo "DB_PASSWORD=${{ secrets.DB_PASSWORD }}" >> .env
