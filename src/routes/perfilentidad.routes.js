@@ -8,19 +8,28 @@ const roleMiddleware = require("../middlewares/role.middleware");
  * @swagger
  * /api/perfiles-entidad:
  *   get:
- *     summary: Obtiene todos los perfiles de entidad
+ *     summary: Obtiene todos los perfiles de entidad (solo admin)
  *     tags: [Perfiles Entidad]
  *     responses:
  *       '200':
  *         description: Lista de perfiles de entidad
+ *       '401':
+ *         description: Token inválido o faltante
+ *       '403':
+ *         description: No tiene rol administrador
  */
-router.get("/", perfilEntidadController.obtenerTodos);
+router.get(
+  "/",
+  authMiddleware.verificarToken,
+  roleMiddleware.esAdministrador,
+  perfilEntidadController.obtenerTodos
+);
 
 /**
  * @swagger
  * /api/perfiles-entidad/{id}:
  *   get:
- *     summary: Obtiene un perfil de entidad por ID
+ *     summary: Obtiene un perfil de entidad por ID (solo admin)
  *     tags: [Perfiles Entidad]
  *     parameters:
  *       - in: path
@@ -33,8 +42,17 @@ router.get("/", perfilEntidadController.obtenerTodos);
  *         description: Perfil encontrado
  *       '404':
  *         description: Perfil no encontrado
+ *       '401':
+ *         description: Token inválido o faltante
+ *       '403':
+ *         description: No tiene rol administrador
  */
-router.get("/:id", perfilEntidadController.obtenerPorId);
+router.get(
+  "/:id",
+  authMiddleware.verificarToken,
+  roleMiddleware.esAdministrador,
+  perfilEntidadController.obtenerPorId
+);
 
 /**
  * @swagger
@@ -45,10 +63,8 @@ router.get("/:id", perfilEntidadController.obtenerPorId);
  *     responses:
  *       '200':
  *         description: Perfil de la entidad
- *       '404':
- *         description: No tiene perfil de entidad
  *       '401':
- *         description: No autorizado
+ *         description: Token inválido o faltante
  *       '403':
  *         description: Requiere rol entidad externa
  */
@@ -80,8 +96,10 @@ router.get("/me/perfil", authMiddleware.verificarToken, roleMiddleware.esEntidad
  *         description: Perfil creado
  *       '400':
  *         description: Error en la solicitud
+ *       '401':
+ *         description: Token inválido o faltante
  *       '403':
- *         description: Requiere rol admin
+ *         description: No tiene rol administrador
  */
 router.post(
   "/",
@@ -120,6 +138,10 @@ router.post(
  *         description: Perfil actualizado
  *       '400':
  *         description: Error en la solicitud
+ *       '401':
+ *         description: Token inválido o faltante
+ *       '403':
+ *         description: No tiene rol administrador
  */
 router.put(
   "/:id",
@@ -145,6 +167,10 @@ router.put(
  *         description: Perfil eliminado
  *       '400':
  *         description: Error en la solicitud
+ *       '401':
+ *         description: Token inválido o faltante
+ *       '403':
+ *         description: No tiene rol administrador
  */
 router.delete(
   "/:id",

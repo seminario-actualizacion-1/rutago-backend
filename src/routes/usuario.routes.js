@@ -25,11 +25,14 @@ const roleMiddleware = require("../middlewares/role.middleware");
  *                 type: string
  *               contrasena:
  *                 type: string
+ *               rolId:
+ *                 type: integer
+ *                 description: ID del rol (opcional, por defecto 3 - Pasajero)
  *     responses:
  *       '201':
  *         description: Usuario registrado con éxito
  *       '400':
- *         description: Error en la solicitud
+ *         description: Error en la solicitud o correo ya existe
  */
 router.post("/registro", usuarioController.registrarUsuario);
 
@@ -75,7 +78,7 @@ router.post("/login", usuarioController.login);
  *                 type: string
  *     responses:
  *       '200':
- *         description: Solicitud enviada correctamente
+ *         description: Token generado para recuperación
  *       '400':
  *         description: Error en la solicitud
  */
@@ -85,7 +88,7 @@ router.post("/recuperar-contrasena", usuarioController.recuperarContrasena);
  * @swagger
  * /api/usuarios/cambiar-contrasena:
  *   post:
- *     summary: Cambiar contraseña
+ *     summary: Cambiar contraseña con token
  *     tags: [Usuarios]
  *     requestBody:
  *       required: true
@@ -102,7 +105,7 @@ router.post("/recuperar-contrasena", usuarioController.recuperarContrasena);
  *       '200':
  *         description: Contraseña actualizada correctamente
  *       '400':
- *         description: Error en la solicitud
+ *         description: Token inválido o error en la solicitud
  */
 router.post("/cambiar-contrasena", usuarioController.cambiarContrasena);
 
@@ -115,6 +118,10 @@ router.post("/cambiar-contrasena", usuarioController.cambiarContrasena);
  *     responses:
  *       '200':
  *         description: Lista de usuarios
+ *       '401':
+ *         description: Token inválido o faltante
+ *       '403':
+ *         description: No tiene rol administrador
  */
 router.get("/", authMiddleware.verificarToken, roleMiddleware.esAdministrador, usuarioController.obtenerTodos);
 
@@ -135,6 +142,10 @@ router.get("/", authMiddleware.verificarToken, roleMiddleware.esAdministrador, u
  *         description: Usuario encontrado
  *       '400':
  *         description: Usuario no encontrado
+ *       '401':
+ *         description: Token inválido o faltante
+ *       '403':
+ *         description: No tiene rol administrador
  */
 router.get("/:id", authMiddleware.verificarToken, roleMiddleware.esAdministrador, usuarioController.obtenerPorId);
 
@@ -148,7 +159,7 @@ router.get("/:id", authMiddleware.verificarToken, roleMiddleware.esAdministrador
  *       '200':
  *         description: Perfil del usuario
  *       '401':
- *         description: No autorizado
+ *         description: Token inválido o faltante
  */
 router.get("/me/perfil", authMiddleware.verificarToken, usuarioController.obtenerMiPerfil);
 
@@ -182,6 +193,10 @@ router.get("/me/perfil", authMiddleware.verificarToken, usuarioController.obtene
  *         description: Usuario actualizado
  *       '400':
  *         description: Error en la solicitud
+ *       '401':
+ *         description: Token inválido o faltante
+ *       '403':
+ *         description: No tiene rol administrador
  */
 router.put("/:id", authMiddleware.verificarToken, roleMiddleware.esAdministrador, usuarioController.actualizarUsuario);
 
@@ -211,6 +226,10 @@ router.put("/:id", authMiddleware.verificarToken, roleMiddleware.esAdministrador
  *         description: Rol actualizado
  *       '400':
  *         description: Error en la solicitud
+ *       '401':
+ *         description: Token inválido o faltante
+ *       '403':
+ *         description: No tiene rol administrador
  */
 router.put("/:id/rol", authMiddleware.verificarToken, roleMiddleware.esAdministrador, usuarioController.cambiarRol);
 
@@ -231,6 +250,10 @@ router.put("/:id/rol", authMiddleware.verificarToken, roleMiddleware.esAdministr
  *         description: Usuario eliminado
  *       '400':
  *         description: Error en la solicitud
+ *       '401':
+ *         description: Token inválido o faltante
+ *       '403':
+ *         description: No tiene rol administrador
  */
 router.delete("/:id", authMiddleware.verificarToken, roleMiddleware.esAdministrador, usuarioController.eliminarUsuario);
 

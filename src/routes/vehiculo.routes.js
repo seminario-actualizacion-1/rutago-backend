@@ -8,7 +8,7 @@ const roleMiddleware = require("../middlewares/role.middleware");
  * @swagger
  * /api/vehiculos:
  *   get:
- *     summary: Obtiene todos los vehículos
+ *     summary: Obtiene todos los vehículos (público)
  *     tags: [Vehículos]
  *     responses:
  *       '200':
@@ -20,7 +20,7 @@ router.get("/", vehiculoController.obtenerTodos);
  * @swagger
  * /api/vehiculos/{id}:
  *   get:
- *     summary: Obtiene un vehículo por ID
+ *     summary: Obtiene un vehículo por ID (público)
  *     tags: [Vehículos]
  *     parameters:
  *       - in: path
@@ -112,6 +112,10 @@ router.post(
  *         description: Vehículo actualizado
  *       '400':
  *         description: Error en la solicitud
+ *       '401':
+ *         description: Token inválido o faltante
+ *       '403':
+ *         description: No tiene rol administrador
  */
 router.put(
   "/:id",
@@ -137,6 +141,10 @@ router.put(
  *         description: Vehículo eliminado
  *       '400':
  *         description: Error en la solicitud
+ *       '401':
+ *         description: Token inválido o faltante
+ *       '403':
+ *         description: No tiene rol administrador
  */
 router.delete(
   "/:id",

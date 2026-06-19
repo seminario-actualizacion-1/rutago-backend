@@ -2,6 +2,7 @@ const express = require("express");
 const router = express.Router();
 const viajeController = require("../controllers/viaje.controller");
 const authMiddleware = require("../middlewares/auth.middleware");
+const roleMiddleware = require("../middlewares/role.middleware");
 
 /**
  * @swagger
@@ -13,7 +14,7 @@ const authMiddleware = require("../middlewares/auth.middleware");
  *       '200':
  *         description: Lista de viajes
  *       '401':
- *         description: No autorizado
+ *         description: Token inválido o faltante
  */
 router.use(authMiddleware.verificarToken);
 
@@ -41,8 +42,12 @@ router.use(authMiddleware.verificarToken);
  *         description: Viaje solicitado
  *       '400':
  *         description: Error en la solicitud
+ *       '401':
+ *         description: Token inválido o faltante
+ *       '403':
+ *         description: Requiere rol pasajero
  */
-router.post("/", viajeController.crearViaje);
+router.post("/", roleMiddleware.esPasajero, viajeController.crearViaje);
 
 /**
  * @swagger
@@ -59,6 +64,8 @@ router.post("/", viajeController.crearViaje);
  *     responses:
  *       '200':
  *         description: Viaje encontrado
+ *       '401':
+ *         description: Token inválido o faltante
  *       '404':
  *         description: Viaje no encontrado
  */
@@ -73,6 +80,8 @@ router.get("/:id", viajeController.obtenerPorId);
  *     responses:
  *       '200':
  *         description: Lista de viajes del usuario
+ *       '401':
+ *         description: Token inválido o faltante
  */
 router.get("/me/mis-viajes", viajeController.obtenerMisViajes);
 
@@ -93,16 +102,18 @@ router.get("/me/mis-viajes", viajeController.obtenerMisViajes);
  *         description: Viaje aceptado
  *       '400':
  *         description: Error en la solicitud
+ *       '401':
+ *         description: Token inválido o faltante
  *       '403':
  *         description: Requiere rol conductor
  */
-router.patch("/:id/aceptar", viajeController.aceptarViaje);
+router.patch("/:id/aceptar", roleMiddleware.esConductor, viajeController.aceptarViaje);
 
 /**
  * @swagger
  * /api/viajes/{id}/iniciar:
  *   patch:
- *     summary: Inicia un viaje (solo conductor)
+ *     summary: Inicia un viaje (solo conductor/admin)
  *     tags: [Viajes]
  *     parameters:
  *       - in: path
@@ -115,14 +126,18 @@ router.patch("/:id/aceptar", viajeController.aceptarViaje);
  *         description: Viaje iniciado
  *       '400':
  *         description: Error en la solicitud
+ *       '401':
+ *         description: Token inválido o faltante
+ *       '403':
+ *         description: Requiere rol conductor o administrador
  */
-router.patch("/:id/iniciar", viajeController.iniciarViaje);
+router.patch("/:id/iniciar", roleMiddleware.esConductorOAdmin, viajeController.iniciarViaje);
 
 /**
  * @swagger
  * /api/viajes/{id}/finalizar:
  *   patch:
- *     summary: Finaliza un viaje
+ *     summary: Finaliza un viaje (solo conductor/admin)
  *     tags: [Viajes]
  *     parameters:
  *       - in: path
@@ -135,14 +150,18 @@ router.patch("/:id/iniciar", viajeController.iniciarViaje);
  *         description: Viaje finalizado
  *       '400':
  *         description: Error en la solicitud
+ *       '401':
+ *         description: Token inválido o faltante
+ *       '403':
+ *         description: Requiere rol conductor o administrador
  */
-router.patch("/:id/finalizar", viajeController.finalizarViaje);
+router.patch("/:id/finalizar", roleMiddleware.esConductorOAdmin, viajeController.finalizarViaje);
 
 /**
  * @swagger
  * /api/viajes/{id}/cancelar:
  *   patch:
- *     summary: Cancela un viaje
+ *     summary: Cancela un viaje (solo pasajero/conductor/admin)
  *     tags: [Viajes]
  *     parameters:
  *       - in: path
@@ -154,8 +173,12 @@ router.patch("/:id/finalizar", viajeController.finalizarViaje);
  *       '200':
  *         description: Viaje cancelado
  *       '400':
- *         description: Error en la solicitud
+ *         descripcion: Error en la solicitud
+ *       '401':
+ *         description: Token inválido o faltante
+ *       '403':
+ *         description: Requiere rol pasajero, conductor o administrador
  */
-router.patch("/:id/cancelar", viajeController.cancelarViaje);
+router.patch("/:id/cancelar", roleMiddleware.esPasajeroOConductorOAdmin, viajeController.cancelarViaje);
 
 module.exports = router;
