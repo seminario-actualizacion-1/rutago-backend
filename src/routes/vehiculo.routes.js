@@ -38,6 +38,64 @@ router.get("/:id", vehiculoController.obtenerPorId);
 
 /**
  * @swagger
+ * /api/vehiculos/{id}/ubicacion:
+ *   get:
+ *     summary: Obtiene la ubicación actual de un vehículo
+ *     tags: [Vehículos]
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: integer
+ *     responses:
+ *       '200':
+ *         description: Ubicación del vehículo
+ *       '404':
+ *         description: Vehículo no encontrado
+ */
+router.get("/:id/ubicacion", vehiculoController.obtenerUbicacion);
+
+/**
+ * @swagger
+ * /api/vehiculos/{id}/ubicacion:
+ *   put:
+ *     summary: Actualiza la ubicación de un vehículo (para conductores)
+ *     tags: [Vehículos]
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: integer
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               latitud:
+ *                 type: number
+ *               longitud:
+ *                 type: number
+ *               estado:
+ *                 type: string
+ *                 enum: [EN_TERMINAL, EN_RUTA, PROXIMO]
+ *     responses:
+ *       '200':
+ *         description: Ubicación actualizada
+ *       '404':
+ *         description: Vehículo no encontrado
+ */
+router.put(
+  "/:id/ubicacion",
+  authMiddleware.verificarToken,
+  vehiculoController.actualizarUbicacion
+);
+
+/**
+ * @swagger
  * /api/vehiculos:
  *   post:
  *     summary: Crea un nuevo vehículo (solo admin)

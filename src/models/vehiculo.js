@@ -20,10 +20,18 @@ module.exports = (sequelize, DataTypes) => {
       color: DataTypes.STRING,
       capacidadPasajeros: DataTypes.INTEGER,
       entidadId: DataTypes.INTEGER,
+      estado: {
+        type: DataTypes.ENUM("EN_TERMINAL", "EN_RUTA", "PROXIMO"),
+        defaultValue: "EN_TERMINAL",
+      },
+      latitud: DataTypes.DECIMAL(10, 8),
+      longitud: DataTypes.DECIMAL(11, 8),
+      ultimaActualizacion: DataTypes.DATE,
     },
     {
       sequelize,
       modelName: "Vehiculo",
+      tableName: "Vehiculos",
     },
   );
   return Vehiculo;

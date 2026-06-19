@@ -14,6 +14,8 @@ const vehiculoRoutes = require("./routes/vehiculo.routes");
 const perfilConductorRoutes = require("./routes/perfilconductor.routes");
 const perfilEntidadRoutes = require("./routes/perfilentidad.routes");
 const viajeRoutes = require("./routes/viaje.routes");
+const rutaRoutes = require("./routes/ruta.routes");
+const horarioRoutes = require("./routes/horario.routes");
 
 const app = express();
 
@@ -60,6 +62,8 @@ app.use("/api/vehiculos", vehiculoRoutes);
 app.use("/api/perfiles-conductor", perfilConductorRoutes);
 app.use("/api/perfiles-entidad", perfilEntidadRoutes);
 app.use("/api/viajes", viajeRoutes);
+app.use("/api/rutas", rutaRoutes);
+app.use("/api/horarios", horarioRoutes);
 
 app.get("/api/ping", (req, res) => {
   res.json({

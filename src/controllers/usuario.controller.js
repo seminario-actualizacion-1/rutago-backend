@@ -129,8 +129,26 @@ exports.obtenerPorId = async (req, res) => {
 
 exports.obtenerMiPerfil = async (req, res) => {
   try {
+    if (!req.usuario || !req.usuario.id) {
+      return res.status(401).json({ success: false, message: "Usuario no autenticado" });
+    }
     const usuario = await usuarioService.obtenerMiPerfil(req.usuario.id);
     res.json({ success: true, data: usuario });
+  } catch (error) {
+    console.error("Error en obtenerMiPerfil:", error);
+    res.status(400).json({ success: false, message: error.message });
+  }
+};
+
+exports.actualizarMiPerfil = async (req, res) => {
+  try {
+    const { nombres, apellidos, correo } = req.body;
+    const usuario = await usuarioService.actualizarDatos(req.usuario.id, {
+      nombres,
+      apellidos,
+      correo,
+    });
+    res.json({ success: true, message: "Perfil actualizado", data: usuario });
   } catch (error) {
     res.status(400).json({ success: false, message: error.message });
   }

@@ -111,6 +111,49 @@ router.post("/cambiar-contrasena", usuarioController.cambiarContrasena);
 
 /**
  * @swagger
+ * /api/usuarios/me/perfil:
+ *   get:
+ *     summary: Obtiene el perfil del usuario autenticado
+ *     tags: [Usuarios]
+ *     responses:
+ *       '200':
+ *         description: Perfil del usuario
+ *       '401':
+ *         description: Token inválido o faltante
+ */
+router.get("/me/perfil", authMiddleware.verificarToken, usuarioController.obtenerMiPerfil);
+
+/**
+ * @swagger
+ * /api/usuarios/me/perfil:
+ *   put:
+ *     summary: Actualiza el perfil del usuario autenticado
+ *     tags: [Usuarios]
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               nombres:
+ *                 type: string
+ *               apellidos:
+ *                 type: string
+ *               correo:
+ *                 type: string
+ *     responses:
+ *       '200':
+ *         description: Perfil actualizado
+ *       '400':
+ *         description: Error en la solicitud
+ *       '401':
+ *         description: Token inválido o faltante
+ */
+router.put("/me/perfil", authMiddleware.verificarToken, usuarioController.actualizarMiPerfil);
+
+/**
+ * @swagger
  * /api/usuarios:
  *   get:
  *     summary: Obtiene todos los usuarios (solo admin)
@@ -148,20 +191,6 @@ router.get("/", authMiddleware.verificarToken, roleMiddleware.esAdministrador, u
  *         description: No tiene rol administrador
  */
 router.get("/:id", authMiddleware.verificarToken, roleMiddleware.esAdministrador, usuarioController.obtenerPorId);
-
-/**
- * @swagger
- * /api/usuarios/me/perfil:
- *   get:
- *     summary: Obtiene el perfil del usuario autenticado
- *     tags: [Usuarios]
- *     responses:
- *       '200':
- *         description: Perfil del usuario
- *       '401':
- *         description: Token inválido o faltante
- */
-router.get("/me/perfil", authMiddleware.verificarToken, usuarioController.obtenerMiPerfil);
 
 /**
  * @swagger
