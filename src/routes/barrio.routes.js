@@ -8,11 +8,13 @@ const roleMiddleware = require("../middlewares/role.middleware");
  * @swagger
  * /api/barrios:
  *   get:
- *     summary: Obtiene todos los barrios
+ *     summary: Obtiene todos los barrios (requiere token)
  *     tags: [Barrios]
  *     responses:
  *       '200':
  *         description: Lista de barrios con su comuna
+ *       '401':
+ *         description: Token inválido o faltante
  */
 router.get("/", authMiddleware.verificarToken, barrioController.obtenerTodos);
 
@@ -20,7 +22,7 @@ router.get("/", authMiddleware.verificarToken, barrioController.obtenerTodos);
  * @swagger
  * /api/barrios/comuna/{comunaId}:
  *   get:
- *     summary: Obtiene barrios por comuna
+ *     summary: Obtiene barrios por comuna (requiere token)
  *     tags: [Barrios]
  *     parameters:
  *       - in: path
@@ -31,6 +33,8 @@ router.get("/", authMiddleware.verificarToken, barrioController.obtenerTodos);
  *     responses:
  *       '200':
  *         description: Lista de barrios de la comuna
+ *       '401':
+ *         description: Token inválido o faltante
  *       '404':
  *         description: Comuna no encontrada
  */
@@ -40,7 +44,7 @@ router.get("/comuna/:comunaId", authMiddleware.verificarToken, barrioController.
  * @swagger
  * /api/barrios/{id}:
  *   get:
- *     summary: Obtiene un barrio por ID
+ *     summary: Obtiene un barrio por ID (requiere token)
  *     tags: [Barrios]
  *     parameters:
  *       - in: path
@@ -51,6 +55,8 @@ router.get("/comuna/:comunaId", authMiddleware.verificarToken, barrioController.
  *     responses:
  *       '200':
  *         description: Barrio encontrado
+ *       '401':
+ *         description: Token inválido o faltante
  *       '404':
  *         description: Barrio no encontrado
  */
@@ -78,8 +84,10 @@ router.get("/:id", authMiddleware.verificarToken, barrioController.obtenerPorId)
  *         description: Barrio creado
  *       '400':
  *         description: Error en la solicitud
+ *       '401':
+ *         description: Token inválido o faltante
  *       '403':
- *         description: Requiere rol admin
+ *         description: No tiene rol administrador
  */
 router.post(
   "/",
@@ -116,6 +124,10 @@ router.post(
  *         description: Barrio actualizado
  *       '400':
  *         description: Error en la solicitud
+ *       '401':
+ *         description: Token inválido o faltante
+ *       '403':
+ *         description: No tiene rol administrador
  */
 router.put(
   "/:id",
@@ -141,6 +153,10 @@ router.put(
  *         description: Barrio eliminado
  *       '400':
  *         description: Error en la solicitud
+ *       '401':
+ *         description: Token inválido o faltante
+ *       '403':
+ *         description: No tiene rol administrador
  */
 router.delete(
   "/:id",

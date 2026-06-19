@@ -8,7 +8,7 @@ const roleMiddleware = require("../middlewares/role.middleware");
  * @swagger
  * /api/perfiles-conductor:
  *   get:
- *     summary: Obtiene todos los perfiles de conductor
+ *     summary: Obtiene todos los perfiles de conductor (público)
  *     tags: [Perfiles Conductor]
  *     responses:
  *       '200':
@@ -20,7 +20,7 @@ router.get("/", perfilConductorController.obtenerTodos);
  * @swagger
  * /api/perfiles-conductor/{id}:
  *   get:
- *     summary: Obtiene un perfil de conductor por ID
+ *     summary: Obtiene un perfil de conductor por ID (público)
  *     tags: [Perfiles Conductor]
  *     parameters:
  *       - in: path
@@ -45,12 +45,12 @@ router.get("/:id", perfilConductorController.obtenerPorId);
  *     responses:
  *       '200':
  *         description: Perfil del conductor
+ *       '401':
+ *         description: Token inválido o faltante
+ *       '403':
+ *         description: No tiene rol conductor
  *       '404':
  *         description: No tiene perfil de conductor
- *       '401':
- *         description: No autorizado
- *       '403':
- *         description: Requiere rol conductor
  */
 router.get("/me/perfil", authMiddleware.verificarToken, roleMiddleware.esConductor, perfilConductorController.obtenerMiPerfil);
 
@@ -80,8 +80,10 @@ router.get("/me/perfil", authMiddleware.verificarToken, roleMiddleware.esConduct
  *         description: Perfil creado
  *       '400':
  *         description: Error en la solicitud
+ *       '401':
+ *         description: Token inválido o faltante
  *       '403':
- *         description: Requiere rol admin
+ *         description: No tiene rol administrador
  */
 router.post(
   "/",
@@ -120,6 +122,10 @@ router.post(
  *         description: Perfil actualizado
  *       '400':
  *         description: Error en la solicitud
+ *       '401':
+ *         description: Token inválido o faltante
+ *       '403':
+ *         description: No tiene rol administrador
  */
 router.put(
   "/:id",
@@ -155,8 +161,10 @@ router.put(
  *         description: Estado actualizado
  *       '400':
  *         description: Error en la solicitud
+ *       '401':
+ *         description: Token inválido o faltante
  *       '403':
- *         description: Requiere rol conductor
+ *         description: No tiene rol conductor
  */
 router.patch(
   "/:id/estado",
@@ -182,6 +190,10 @@ router.patch(
  *         description: Perfil eliminado
  *       '400':
  *         description: Error en la solicitud
+ *       '401':
+ *         description: Token inválido o faltante
+ *       '403':
+ *         description: No tiene rol administrador
  */
 router.delete(
   "/:id",

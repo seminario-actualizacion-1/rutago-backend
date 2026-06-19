@@ -42,3 +42,34 @@ exports.esEntidad = (req, res, next) => {
       });
   }
 };
+
+exports.esConductorOAdmin = (req, res, next) => {
+  if (req.usuario && (req.usuario.rolId === 1 || req.usuario.rolId === 2)) {
+    next();
+  } else {
+    return res
+      .status(403)
+      .json({
+        success: false,
+        message: "Requiere permisos de conductor o administrador.",
+      });
+  }
+};
+
+exports.esPasajeroOConductorOAdmin = (req, res, next) => {
+  if (
+    req.usuario &&
+    (req.usuario.rolId === 1 ||
+      req.usuario.rolId === 2 ||
+      req.usuario.rolId === 3)
+  ) {
+    next();
+  } else {
+    return res
+      .status(403)
+      .json({
+        success: false,
+        message: "Requiere permisos de pasajero, conductor o administrador.",
+      });
+  }
+};
