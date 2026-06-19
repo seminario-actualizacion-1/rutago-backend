@@ -3,7 +3,7 @@ const { Rol } = require("../models");
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const crypto = require("crypto");
-const { encriptarPassword } = require("../helpers/encriptarPassword");
+const { encriptar } = require("../helpers/encriptarPassword");
 const { generarToken } = require("../helpers/generarToken");
 
 exports.crearUsuario = async (datosUsuario) => {
@@ -19,7 +19,7 @@ exports.crearUsuario = async (datosUsuario) => {
     throw new Error("ROL_NO_EXISTE");
   }
 
-  const contrasenaEncriptada = await encriptarPassword(contrasena);
+  const contrasenaEncriptada = await encriptar(contrasena);
 
   return await usuarioRepository.guardarUsuario({
     nombres,
@@ -67,7 +67,7 @@ exports.obtenerMiPerfil = async (id) => {
 
 exports.actualizarDatos = async (id, datos) => {
   if (datos.contrasena) {
-    datos.contrasena = await encriptarPassword(datos.contrasena);
+    datos.contrasena = await encriptar(datos.contrasena);
   }
   return await usuarioRepository.actualizarDatos(id, datos);
 };
@@ -102,7 +102,7 @@ exports.cambiarContrasena = async (token, nuevaContrasena) => {
     throw new Error("TOKEN_INVALIDO_O_EXPIRADO");
   }
 
-  const hash = await encriptarPassword(nuevaContrasena);
+  const hash = await encriptar(nuevaContrasena);
 
   await usuarioRepository.actualizarContrasena(usuario.id, hash);
   return true;
