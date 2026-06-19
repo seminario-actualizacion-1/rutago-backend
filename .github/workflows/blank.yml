@@ -10,40 +10,65 @@ jobs:
     runs-on: ubuntu-latest
 
     env:
+      SSH_HOST: ${{ secrets.HOST }}
+      SSH_USER: ${{ secrets.USER_NAME_RUTA_GO }}
       ACTIONS_ALLOW_USE_UNSECURE_NODE_VERSION: true
 
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Set up SSH
+      - name: Set up SSH agent
         uses: webfactory/ssh-agent@v0.5.4
         with:
           ssh-private-key: ${{ secrets.PASSWORD_SSH }}
 
       - name: Deploy to server
         run: |
-          ssh -o StrictHostKeyChecking=no ${{ secrets.USER_NAME_RUTA_GO }}@${{ secrets.HOST }} <<EOF
-            set -e
+          set -e
 
-            echo "Desplegando RutaGo Backend..."
+          for intento in 1 2 3 4 5; do
+            echo "Intento SSH $intento de 5..."
 
-            cd /home/${{ secrets.USER_NAME_RUTA_GO }}/backend
+            if ssh \
+              -T \
+              -o StrictHostKeyChecking=no \
+              -o ConnectTimeout=20 \
+              -o ServerAliveInterval=15 \
+              -o ServerAliveCountMax=3 \
+              "$SSH_USER@$SSH_HOST" <<EOF
+                set -Eeuo pipefail
 
-            echo "→ git pull..."
-            git pull origin main
+                echo "Desplegando RutaGo Backend..."
 
-            echo "→ npm install..."
-            npm install --omit=dev
+                cd "/home/$SSH_USER/backend"
 
-            echo "→ db:migrate..."
-            npx sequelize-cli db:migrate
+                export NODE_ENV=production
 
-            echo "→ Reiniciando servicio..."
-            sudo systemctl restart rutago.service
+                echo "→ Actualizando repositorio..."
+                git pull origin main
 
-            echo "→ Estado del servicio:"
-            sudo systemctl status rutago.service --no-pager
+                echo "→ Instalando dependencias..."
+                npm install
 
-            echo "✅ Deploy finalizado."
-          EOF
+                echo "→ Ejecutando migraciones..."
+                npx sequelize-cli db:migrate --env production
+
+                echo "→ Reiniciando servicio..."
+                sudo systemctl restart rutago.service
+
+                echo "→ Verificando servicio..."
+                sudo systemctl is-active --quiet rutago.service
+
+                echo "✅ Deploy finalizado."
+            EOF
+            then
+              exit 0
+            fi
+
+            echo "No fue posible conectar. Reintentando..."
+            sleep 15
+          done
+
+          echo "No fue posible conectar al servidor después de 5 intentos."
+          exit 1
