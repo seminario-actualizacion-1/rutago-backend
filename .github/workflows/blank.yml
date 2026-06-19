@@ -17,53 +17,38 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
       - name: Set up SSH agent
         uses: webfactory/ssh-agent@v0.5.4
         with:
           ssh-private-key: ${{ secrets.PASSWORD_SSH }}
 
-      - name: Deploy to server
+      - name: Upload deploy script
+        run: |
+          mkdir -p .github/scripts
+          cp .github/scripts/deploy.sh /tmp/deploy.sh
+
+      - name: Run remote deploy script
         run: |
           set -e
+
+          chmod +x /tmp/deploy.sh
 
           for intento in 1 2 3 4 5; do
             echo "Intento SSH $intento de 5..."
 
-            if ssh \
-              -T \
-              -o StrictHostKeyChecking=no \
-              -o ConnectTimeout=20 \
-              -o ServerAliveInterval=15 \
-              -o ServerAliveCountMax=3 \
-              "$SSH_USER@$SSH_HOST" <<EOF
-                set -Eeuo pipefail
-
-                echo "Desplegando RutaGo Backend..."
-
-                cd "/home/$SSH_USER/backend"
-
-                export NODE_ENV=production
-
-                echo "→ Actualizando repositorio..."
-                git pull origin main
-
-                echo "→ Instalando dependencias..."
-                npm install
-
-                echo "→ Ejecutando migraciones..."
-                npx sequelize-cli db:migrate --env production
-
-                echo "→ Reiniciando servicio..."
-                sudo systemctl restart rutago.service
-
-                echo "→ Verificando servicio..."
-                sudo systemctl is-active --quiet rutago.service
-
-                echo "✅ Deploy finalizado."
-            EOF
-            then
-              exit 0
+            if scp /tmp/deploy.sh "$SSH_USER@$SSH_HOST:/tmp/deploy.sh"; then
+              if ssh -T \
+                -o StrictHostKeyChecking=no \
+                -o ConnectTimeout=20 \
+                -o ServerAliveInterval=15 \
+                -o ServerAliveCountMax=3 \
+                "$SSH_USER@$SSH_HOST" \
+                "bash /tmp/deploy.sh \"$SSH_HOST\" \"$SSH_USER\""; then
+                exit 0
+              fi
             fi
 
             echo "No fue posible conectar. Reintentando..."
