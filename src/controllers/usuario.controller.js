@@ -4,7 +4,7 @@ const roleMiddleware = require("../middlewares/role.middleware");
 
 exports.registrarUsuario = async (req, res) => {
   try {
-    const { nombres, apellidos, correo, contrasena } = req.body;
+    const { nombres, apellidos, correo, contrasena, rolId } = req.body;
 
     if (!nombres || !apellidos || !correo || !contrasena) {
       return res.status(400).json({
@@ -18,7 +18,7 @@ exports.registrarUsuario = async (req, res) => {
       apellidos,
       correo,
       contrasena,
-      rolId: 3,
+      rolId: rolId || 3,
     };
 
     const nuevoUsuario = await usuarioService.crearUsuario(datosParaCrear);
