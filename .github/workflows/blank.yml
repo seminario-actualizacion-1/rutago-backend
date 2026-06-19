@@ -36,9 +36,6 @@ jobs:
             echo "→ db:migrate..."
             npx sequelize-cli db:migrate
 
-            echo "→ db:seed..."
-            npx sequelize-cli db:seed:all --seeders-path src/seeders
-
             echo "→ Reiniciando servicio..."
             sudo systemctl restart rutago.service
 
