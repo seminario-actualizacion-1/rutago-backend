@@ -12,6 +12,7 @@ jobs:
     env:
       SSH_HOST: ${{ secrets.HOST }}
       SSH_USER: ${{ secrets.USER_NAME_RUTA_GO }}
+      SSH_PORT: ${{ secrets.SSH_PORT }}
       ACTIONS_ALLOW_USE_UNSECURE_NODE_VERSION: true
 
     steps:
@@ -25,35 +26,36 @@ jobs:
         with:
           ssh-private-key: ${{ secrets.PASSWORD_SSH }}
 
-      - name: Upload deploy script
-        run: |
-          mkdir -p .github/scripts
-          cp .github/scripts/deploy.sh /tmp/deploy.sh
-
       - name: Run remote deploy script
         run: |
-          set -e
+          set -Eeuo pipefail
 
-          chmod +x /tmp/deploy.sh
+          PORT="${SSH_PORT:-22}"
 
           for intento in 1 2 3 4 5; do
             echo "Intento SSH $intento de 5..."
 
-            if scp /tmp/deploy.sh "$SSH_USER@$SSH_HOST:/tmp/deploy.sh"; then
-              if ssh -T \
-                -o StrictHostKeyChecking=no \
-                -o ConnectTimeout=20 \
-                -o ServerAliveInterval=15 \
-                -o ServerAliveCountMax=3 \
-                "$SSH_USER@$SSH_HOST" \
-                "bash /tmp/deploy.sh \"$SSH_HOST\" \"$SSH_USER\""; then
-                exit 0
-              fi
+            if ssh \
+              -T \
+              -p "$PORT" \
+              -o StrictHostKeyChecking=no \
+              -o ConnectTimeout=20 \
+              -o ServerAliveInterval=15 \
+              -o ServerAliveCountMax=3 \
+              "$SSH_USER@$SSH_HOST" \
+              'bash -s' < .github/scripts/deploy.sh
+            then
+              echo "Despliegue completado."
+              exit 0
             fi
 
-            echo "No fue posible conectar. Reintentando..."
-            sleep 15
+            echo "Falló el intento SSH $intento."
+
+            if [ "$intento" -lt 5 ]; then
+              echo "Reintentando en 15 segundos..."
+              sleep 15
+            fi
           done
 
-          echo "No fue posible conectar al servidor después de 5 intentos."
+          echo "No fue posible desplegar después de 5 intentos."
           exit 1
