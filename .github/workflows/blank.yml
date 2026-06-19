@@ -7,26 +7,23 @@ on:
 
 jobs:
   deploy:
+    name: Deploy RutaGo Backend
     runs-on: ubuntu-latest
 
-    env:
-      SSH_HOST: ${{ secrets.HOST }}
-      SSH_USER: ${{ secrets.USER_NAME_RUTA_GO }}
-      SSH_PORT: ${{ secrets.SSH_PORT }}
-      ACTIONS_ALLOW_USE_UNSECURE_NODE_VERSION: true
-
     steps:
-      - name: Checkout code
+      - name: Descargar repositorio
         uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
 
-      - name: Set up SSH agent
+      - name: Configurar llave SSH
         uses: webfactory/ssh-agent@v0.5.4
         with:
           ssh-private-key: ${{ secrets.PASSWORD_SSH }}
 
-      - name: Run remote deploy script
+      - name: Verificar conexión SSH
+        env:
+          SSH_HOST: ${{ secrets.HOST }}
+          SSH_USER: ${{ secrets.USER_NAME_RUTA_GO }}
+          SSH_PORT: ${{ secrets.SSH_PORT }}
         run: |
           set -Eeuo pipefail
 
@@ -40,22 +37,37 @@ jobs:
               -p "$PORT" \
               -o StrictHostKeyChecking=no \
               -o ConnectTimeout=20 \
-              -o ServerAliveInterval=15 \
-              -o ServerAliveCountMax=3 \
+              -o ConnectionAttempts=1 \
               "$SSH_USER@$SSH_HOST" \
-              'bash -s' < .github/scripts/deploy.sh
+              "echo 'Conexión SSH correcta'"
             then
-              echo "Despliegue completado."
+              echo "✅ Servidor disponible por SSH."
               exit 0
             fi
 
-            echo "Falló el intento SSH $intento."
-
             if [ "$intento" -lt 5 ]; then
-              echo "Reintentando en 15 segundos..."
+              echo "No fue posible conectar. Reintentando..."
               sleep 15
             fi
           done
 
-          echo "No fue posible desplegar después de 5 intentos."
+          echo "❌ No fue posible establecer conexión SSH."
           exit 1
+
+      - name: Ejecutar despliegue
+        env:
+          SSH_HOST: ${{ secrets.HOST }}
+          SSH_USER: ${{ secrets.USER_NAME_RUTA_GO }}
+          SSH_PORT: ${{ secrets.SSH_PORT }}
+        run: |
+          set -Eeuo pipefail
+
+          PORT="${SSH_PORT:-22}"
+
+          ssh \
+            -T \
+            -p "$PORT" \
+            -o StrictHostKeyChecking=no \
+            -o ConnectTimeout=20 \
+            "$SSH_USER@$SSH_HOST" \
+            "bash -s" < .github/scripts/deploy.sh
