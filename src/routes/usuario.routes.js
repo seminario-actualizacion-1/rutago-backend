@@ -3,7 +3,30 @@ const router = express.Router();
 const usuarioController = require("../controllers/usuario.controller");
 const authMiddleware = require("../middlewares/auth.middleware");
 const roleMiddleware = require("../middlewares/role.middleware");
-
+/**
+ * @swagger
+ * /api/usuarios/login:
+ *   post:
+ *     summary: Iniciar sesión
+ *     tags: [Usuarios]
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               correo:
+ *                 type: string
+ *               contrasena:
+ *                 type: string
+ *     responses:
+ *       '200':
+ *         description: Inicio de sesión exitoso
+ *       '401':
+ *         description: Credenciales inválidas
+ */
+router.post("/login", usuarioController.login);
 /**
  * @swagger
  * /api/usuarios/registro:
@@ -35,31 +58,6 @@ const roleMiddleware = require("../middlewares/role.middleware");
  *         description: Error en la solicitud o correo ya existe
  */
 router.post("/registro", usuarioController.registrarUsuario);
-
-/**
- * @swagger
- * /api/usuarios/login:
- *   post:
- *     summary: Iniciar sesión
- *     tags: [Usuarios]
- *     requestBody:
- *       required: true
- *       content:
- *         application/json:
- *           schema:
- *             type: object
- *             properties:
- *               correo:
- *                 type: string
- *               contrasena:
- *                 type: string
- *     responses:
- *       '200':
- *         description: Inicio de sesión exitoso
- *       '401':
- *         description: Credenciales inválidas
- */
-router.post("/login", usuarioController.login);
 
 /**
  * @swagger
@@ -121,7 +119,11 @@ router.post("/cambiar-contrasena", usuarioController.cambiarContrasena);
  *       '401':
  *         description: Token inválido o faltante
  */
-router.get("/me/perfil", authMiddleware.verificarToken, usuarioController.obtenerMiPerfil);
+router.get(
+  "/me/perfil",
+  authMiddleware.verificarToken,
+  usuarioController.obtenerMiPerfil,
+);
 
 /**
  * @swagger
@@ -150,7 +152,11 @@ router.get("/me/perfil", authMiddleware.verificarToken, usuarioController.obtene
  *       '401':
  *         description: Token inválido o faltante
  */
-router.put("/me/perfil", authMiddleware.verificarToken, usuarioController.actualizarMiPerfil);
+router.put(
+  "/me/perfil",
+  authMiddleware.verificarToken,
+  usuarioController.actualizarMiPerfil,
+);
 
 /**
  * @swagger
@@ -166,7 +172,12 @@ router.put("/me/perfil", authMiddleware.verificarToken, usuarioController.actual
  *       '403':
  *         description: No tiene rol administrador
  */
-router.get("/", authMiddleware.verificarToken, roleMiddleware.esAdministrador, usuarioController.obtenerTodos);
+router.get(
+  "/",
+  authMiddleware.verificarToken,
+  roleMiddleware.esAdministrador,
+  usuarioController.obtenerTodos,
+);
 
 /**
  * @swagger
@@ -190,7 +201,12 @@ router.get("/", authMiddleware.verificarToken, roleMiddleware.esAdministrador, u
  *       '403':
  *         description: No tiene rol administrador
  */
-router.get("/:id", authMiddleware.verificarToken, roleMiddleware.esAdministrador, usuarioController.obtenerPorId);
+router.get(
+  "/:id",
+  authMiddleware.verificarToken,
+  roleMiddleware.esAdministrador,
+  usuarioController.obtenerPorId,
+);
 
 /**
  * @swagger
@@ -227,7 +243,12 @@ router.get("/:id", authMiddleware.verificarToken, roleMiddleware.esAdministrador
  *       '403':
  *         description: No tiene rol administrador
  */
-router.put("/:id", authMiddleware.verificarToken, roleMiddleware.esAdministrador, usuarioController.actualizarUsuario);
+router.put(
+  "/:id",
+  authMiddleware.verificarToken,
+  roleMiddleware.esAdministrador,
+  usuarioController.actualizarUsuario,
+);
 
 /**
  * @swagger
@@ -260,7 +281,12 @@ router.put("/:id", authMiddleware.verificarToken, roleMiddleware.esAdministrador
  *       '403':
  *         description: No tiene rol administrador
  */
-router.put("/:id/rol", authMiddleware.verificarToken, roleMiddleware.esAdministrador, usuarioController.cambiarRol);
+router.put(
+  "/:id/rol",
+  authMiddleware.verificarToken,
+  roleMiddleware.esAdministrador,
+  usuarioController.cambiarRol,
+);
 
 /**
  * @swagger
@@ -284,6 +310,11 @@ router.put("/:id/rol", authMiddleware.verificarToken, roleMiddleware.esAdministr
  *       '403':
  *         description: No tiene rol administrador
  */
-router.delete("/:id", authMiddleware.verificarToken, roleMiddleware.esAdministrador, usuarioController.eliminarUsuario);
+router.delete(
+  "/:id",
+  authMiddleware.verificarToken,
+  roleMiddleware.esAdministrador,
+  usuarioController.eliminarUsuario,
+);
 
 module.exports = router;
