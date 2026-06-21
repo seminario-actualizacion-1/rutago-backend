@@ -43,12 +43,19 @@ exports.autenticarUsuario = async (correo, contrasena) => {
 
   const token = generarToken(usuario);
 
+  // Incluir el objeto rol completo
+  const rol = await Rol.findByPk(usuario.rolId);
+
   return {
     token,
     usuario: {
       id: usuario.id,
       nombres: usuario.nombres,
       rolId: usuario.rolId,
+      rol: rol ? {
+        id: rol.id,
+        nombreRol: rol.nombreRol,
+      } : null,
     },
   };
 };
