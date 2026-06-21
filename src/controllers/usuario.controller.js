@@ -56,7 +56,7 @@ exports.registrarUsuario = async (req, res) => {
 
 exports.login = async (req, res) => {
   try {
-    /* const { correo, contrasena } = req.body;
+    const { correo, contrasena } = req.body;
 
     if (!correo || !contrasena) {
       return res
@@ -68,11 +68,11 @@ exports.login = async (req, res) => {
       correo,
       contrasena,
     );
-*/
+
     return res.status(200).json({
       success: true,
       message: "Inicio de sesión exitoso.",
-      //...resultado,
+      ...resultado,
     });
   } catch (error) {
     if (error.message === "CREDENCIALES_INVALIDAS") {
