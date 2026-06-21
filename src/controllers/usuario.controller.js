@@ -56,7 +56,7 @@ exports.registrarUsuario = async (req, res) => {
 
 exports.login = async (req, res) => {
   try {
-    const { correo, contrasena } = req.body;
+    /* const { correo, contrasena } = req.body;
 
     if (!correo || !contrasena) {
       return res
@@ -68,11 +68,11 @@ exports.login = async (req, res) => {
       correo,
       contrasena,
     );
-
+*/
     return res.status(200).json({
       success: true,
       message: "Inicio de sesión exitoso.",
-      ...resultado,
+      //...resultado,
     });
   } catch (error) {
     if (error.message === "CREDENCIALES_INVALIDAS") {
@@ -130,7 +130,9 @@ exports.obtenerPorId = async (req, res) => {
 exports.obtenerMiPerfil = async (req, res) => {
   try {
     if (!req.usuario || !req.usuario.id) {
-      return res.status(401).json({ success: false, message: "Usuario no autenticado" });
+      return res
+        .status(401)
+        .json({ success: false, message: "Usuario no autenticado" });
     }
     const usuario = await usuarioService.obtenerMiPerfil(req.usuario.id);
     res.json({ success: true, data: usuario });
