@@ -84,14 +84,14 @@ const obtenerPorId = async (req, res) => {
 const buscarPorDestino = async (req, res) => {
   try {
     const { destino } = req.params;
+
     const rutas = await Ruta.findAll({
       include: [
         { model: Comuna, as: "origen" },
         { model: Comuna, as: "destino" },
         { 
           model: Horario, 
-          as: "horarios",
-          include: [{ model: Vehiculo, as: "vehiculo" }]
+          as: "horarios"
         },
       ],
       where: {
@@ -100,6 +100,7 @@ const buscarPorDestino = async (req, res) => {
         },
       },
     });
+
     res.json(rutas);
   } catch (error) {
     res.status(500).json({ error: error.message });
