@@ -8,8 +8,8 @@ module.exports = (sequelize, DataTypes) => {
      * The `models/index` file will call this method automatically.
      */
     static associate(models) {
-      PerfilConductor.belongsTo(models.Usuario, { foreignKey: "usuarioId" });
-      PerfilConductor.belongsTo(models.Vehiculo, { foreignKey: "vehiculoId" });
+      PerfilConductor.belongsTo(models.Usuario, { foreignKey: "usuarioId", as: "usuario" });
+      PerfilConductor.belongsTo(models.Vehiculo, { foreignKey: "vehiculoId", as: "vehiculo" });
     }
   }
   PerfilConductor.init(
