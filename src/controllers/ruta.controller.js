@@ -1,4 +1,4 @@
-const { Ruta, Comuna, Barrio, Horario, Vehiculo } = require("../models");
+const { Ruta, Comuna, Barrio, Horario, Vehiculo, PerfilEntidad } = require("../models");
 
 /**
  * @swagger
@@ -90,9 +90,21 @@ const buscarPorDestino = async (req, res) => {
         { model: Comuna, as: "origen" },
         { model: Comuna, as: "destino" },
         { 
-          model: Horario, 
-          as: "horarios"
-        },
+  model: Horario, 
+  as: "horarios",
+  include: [
+    {
+      model: Vehiculo,
+      as: "vehiculo",
+      include: [
+        {
+          model: PerfilEntidad,
+          as: "perfilEntidad"
+        }
+      ]
+    }
+  ]
+},
       ],
       where: {
         "$destino.nombre$": {
