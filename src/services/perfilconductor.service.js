@@ -20,6 +20,23 @@ exports.actualizarPerfil = async (id, datos) => {
   return await perfilConductorRepository.actualizarPerfil(id, datos);
 };
 
+exports.actualizarMiPerfil = async (usuarioId, datos) => {
+  const perfil = await perfilConductorRepository.obtenerPorUsuario(usuarioId);
+  if (!perfil) {
+    throw new Error("PERFIL_CONDUCTOR_NO_ENCONTRADO");
+  }
+
+  const datosPermitidos = {
+    licenciaConducir: datos.licenciaConducir,
+    estado: datos.estado,
+  };
+
+  return await perfilConductorRepository.actualizarPerfil(
+    perfil.id,
+    datosPermitidos,
+  );
+};
+
 exports.actualizarEstado = async (id, estado) => {
   return await perfilConductorRepository.actualizarEstado(id, estado);
 };

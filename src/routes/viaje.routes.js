@@ -69,8 +69,6 @@ router.post("/", roleMiddleware.esPasajero, viajeController.crearViaje);
  *       '404':
  *         description: Viaje no encontrado
  */
-router.get("/:id", viajeController.obtenerPorId);
-
 /**
  * @swagger
  * /api/viajes/me/mis-viajes:
@@ -84,6 +82,8 @@ router.get("/:id", viajeController.obtenerPorId);
  *         description: Token inválido o faltante
  */
 router.get("/me/mis-viajes", viajeController.obtenerMisViajes);
+
+router.get("/:id", viajeController.obtenerPorId);
 
 /**
  * @swagger
@@ -107,7 +107,11 @@ router.get("/me/mis-viajes", viajeController.obtenerMisViajes);
  *       '403':
  *         description: Requiere rol conductor
  */
-router.patch("/:id/aceptar", roleMiddleware.esConductor, viajeController.aceptarViaje);
+router.patch(
+  "/:id/aceptar",
+  roleMiddleware.esConductor,
+  viajeController.aceptarViaje,
+);
 
 /**
  * @swagger
@@ -131,7 +135,11 @@ router.patch("/:id/aceptar", roleMiddleware.esConductor, viajeController.aceptar
  *       '403':
  *         description: Requiere rol conductor o administrador
  */
-router.patch("/:id/iniciar", roleMiddleware.esConductorOAdmin, viajeController.iniciarViaje);
+router.patch(
+  "/:id/iniciar",
+  roleMiddleware.esConductorOAdmin,
+  viajeController.iniciarViaje,
+);
 
 /**
  * @swagger
@@ -155,7 +163,11 @@ router.patch("/:id/iniciar", roleMiddleware.esConductorOAdmin, viajeController.i
  *       '403':
  *         description: Requiere rol conductor o administrador
  */
-router.patch("/:id/finalizar", roleMiddleware.esConductorOAdmin, viajeController.finalizarViaje);
+router.patch(
+  "/:id/finalizar",
+  roleMiddleware.esConductorOAdmin,
+  viajeController.finalizarViaje,
+);
 
 /**
  * @swagger
@@ -179,6 +191,10 @@ router.patch("/:id/finalizar", roleMiddleware.esConductorOAdmin, viajeController
  *       '403':
  *         description: Requiere rol pasajero, conductor o administrador
  */
-router.patch("/:id/cancelar", roleMiddleware.esPasajeroOConductorOAdmin, viajeController.cancelarViaje);
+router.patch(
+  "/:id/cancelar",
+  roleMiddleware.esPasajeroOConductorOAdmin,
+  viajeController.cancelarViaje,
+);
 
 module.exports = router;

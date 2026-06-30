@@ -1,5 +1,20 @@
 const { Viaje, Usuario, Barrio, PerfilConductor } = require("../models");
 
+const ESTADOS_VALIDOS = [
+  "BUSCANDO",
+  "ACEPTADO",
+  "EN_CURSO",
+  "FINALIZADO",
+  "CANCELADO",
+];
+const TRANSICIONES_VALIDAS = {
+  BUSCANDO: ["ACEPTADO", "CANCELADO"],
+  ACEPTADO: ["EN_CURSO", "CANCELADO"],
+  EN_CURSO: ["FINALIZADO", "CANCELADO"],
+  FINALIZADO: [],
+  CANCELADO: [],
+};
+
 exports.obtenerTodos = async () => {
   return await Viaje.findAll({
     include: [
@@ -61,24 +76,26 @@ exports.actualizarEstado = async (id, nuevoEstado, conductorId = null) => {
   const viaje = await Viaje.findByPk(id);
   if (!viaje) throw new Error("VIAJE_NO_ENCONTRADO");
 
+  if (!ESTADOS_VALIDOS.includes(nuevoEstado)) {
+    throw new Error("ESTADO_NO_VALIDO");
+  }
+
+  const transicionesPermitidas = TRANSICIONES_VALIDAS[viaje.estado] || [];
+  if (!transicionesPermitidas.includes(nuevoEstado)) {
+    throw new Error("TRANSICION_ESTADO_NO_VALIDA");
+  }
+
   if (nuevoEstado === "ACEPTADO") {
     if (!conductorId) throw new Error("SE_REQUIERE_CONDUCTOR");
     const perfil = await PerfilConductor.findOne({
       where: { usuarioId: conductorId },
     });
     if (!perfil) throw new Error("CONDUCTOR_SIN_PERFIL");
-    if (perfil.estado !== "DISPONIBLE")
+    if (perfil.estado !== "DISPONIBLE") {
       throw new Error("CONDUCTOR_NO_DISPONIBLE");
+    }
     return await viaje.update({ estado: nuevoEstado, conductorId });
   }
 
-  if (
-    nuevoEstado === "EN_CURSO" ||
-    nuevoEstado === "FINALIZADO" ||
-    nuevoEstado === "CANCELADO"
-  ) {
-    return await viaje.update({ estado: nuevoEstado });
-  }
-
-  throw new Error("ESTADO_NO_VALIDO");
+  return await viaje.update({ estado: nuevoEstado });
 };
