@@ -1,5 +1,7 @@
 const { PerfilConductor, Usuario, Vehiculo } = require("../models");
 
+const ESTADOS_VALIDOS = ["DISPONIBLE", "EN_VIAJE", "INACTIVO"];
+
 exports.obtenerTodos = async () => {
   return await PerfilConductor.findAll({
     include: [
@@ -31,7 +33,7 @@ exports.obtenerPorUsuario = async (usuarioId) => {
 };
 
 exports.crearPerfil = async (datos) => {
-  const { usuarioId, vehiculoId } = datos;
+  const { usuarioId, vehiculoId, estado } = datos;
 
   const usuario = await Usuario.findByPk(usuarioId);
   if (!usuario) throw new Error("USUARIO_NO_ENCONTRADO");
@@ -42,10 +44,17 @@ exports.crearPerfil = async (datos) => {
     if (!vehiculo) throw new Error("VEHICULO_NO_ENCONTRADO");
   }
 
+  if (estado && !ESTADOS_VALIDOS.includes(estado)) {
+    throw new Error("ESTADO_CONDUCTOR_INVALIDO");
+  }
+
   const existente = await PerfilConductor.findOne({ where: { usuarioId } });
   if (existente) throw new Error("EL_CONDUCTOR_YA_TIENE_PERFIL");
 
-  return await PerfilConductor.create(datos);
+  return await PerfilConductor.create({
+    ...datos,
+    estado: estado || "DISPONIBLE",
+  });
 };
 
 exports.actualizarPerfil = async (id, datos) => {
@@ -57,12 +66,19 @@ exports.actualizarPerfil = async (id, datos) => {
     if (!vehiculo) throw new Error("VEHICULO_NO_ENCONTRADO");
   }
 
+  if (datos.estado && !ESTADOS_VALIDOS.includes(datos.estado)) {
+    throw new Error("ESTADO_CONDUCTOR_INVALIDO");
+  }
+
   return await perfil.update(datos);
 };
 
 exports.actualizarEstado = async (id, estado) => {
   const perfil = await PerfilConductor.findByPk(id);
   if (!perfil) throw new Error("PERFIL_CONDUCTOR_NO_ENCONTRADO");
+  if (!ESTADOS_VALIDOS.includes(estado)) {
+    throw new Error("ESTADO_CONDUCTOR_INVALIDO");
+  }
   return await perfil.update({ estado });
 };
 

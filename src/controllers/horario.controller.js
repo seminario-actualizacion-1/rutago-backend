@@ -1,5 +1,21 @@
 const { Horario, Vehiculo, Ruta } = require("../models");
 
+const validarHorarioPayload = async ({ vehiculoId, rutaId, horaSalida }) => {
+  if (!vehiculoId || !rutaId || !horaSalida) {
+    throw new Error("VEHICULO_RUTA_Y_HORA_SON_OBLIGATORIOS");
+  }
+
+  const vehiculo = await Vehiculo.findByPk(vehiculoId);
+  if (!vehiculo) {
+    throw new Error("VEHICULO_NO_ENCONTRADO");
+  }
+
+  const ruta = await Ruta.findByPk(rutaId);
+  if (!ruta) {
+    throw new Error("RUTA_NO_ENCONTRADA");
+  }
+};
+
 /**
  * @swagger
  * /api/horarios:
@@ -18,9 +34,9 @@ const obtenerTodos = async (req, res) => {
         { model: Ruta, as: "ruta" },
       ],
     });
-    res.json(horarios);
+    res.json({ success: true, data: horarios });
   } catch (error) {
-    res.status(500).json({ error: error.message });
+    res.status(400).json({ success: false, message: error.message });
   }
 };
 
@@ -51,11 +67,13 @@ const obtenerPorId = async (req, res) => {
       ],
     });
     if (!horario) {
-      return res.status(404).json({ error: "Horario no encontrado" });
+      return res
+        .status(404)
+        .json({ success: false, message: "Horario no encontrado" });
     }
-    res.json(horario);
+    res.json({ success: true, data: horario });
   } catch (error) {
-    res.status(500).json({ error: error.message });
+    res.status(400).json({ success: false, message: error.message });
   }
 };
 
@@ -84,9 +102,9 @@ const obtenerPorRuta = async (req, res) => {
         { model: Ruta, as: "ruta" },
       ],
     });
-    res.json(horarios);
+    res.json({ success: true, data: horarios });
   } catch (error) {
-    res.status(500).json({ error: error.message });
+    res.status(400).json({ success: false, message: error.message });
   }
 };
 
@@ -115,9 +133,9 @@ const obtenerPorVehiculo = async (req, res) => {
         { model: Ruta, as: "ruta" },
       ],
     });
-    res.json(horarios);
+    res.json({ success: true, data: horarios });
   } catch (error) {
-    res.status(500).json({ error: error.message });
+    res.status(400).json({ success: false, message: error.message });
   }
 };
 
@@ -153,10 +171,13 @@ const obtenerPorVehiculo = async (req, res) => {
  */
 const crearHorario = async (req, res) => {
   try {
+    await validarHorarioPayload(req.body);
     const horario = await Horario.create(req.body);
-    res.status(201).json(horario);
+    res
+      .status(201)
+      .json({ success: true, message: "Horario creado", data: horario });
   } catch (error) {
-    res.status(400).json({ error: error.message });
+    res.status(400).json({ success: false, message: error.message });
   }
 };
 
@@ -200,12 +221,15 @@ const actualizarHorario = async (req, res) => {
   try {
     const horario = await Horario.findByPk(req.params.id);
     if (!horario) {
-      return res.status(404).json({ error: "Horario no encontrado" });
+      return res
+        .status(404)
+        .json({ success: false, message: "Horario no encontrado" });
     }
+    await validarHorarioPayload(req.body);
     await horario.update(req.body);
-    res.json(horario);
+    res.json({ success: true, message: "Horario actualizado", data: horario });
   } catch (error) {
-    res.status(400).json({ error: error.message });
+    res.status(400).json({ success: false, message: error.message });
   }
 };
 
@@ -231,12 +255,14 @@ const eliminarHorario = async (req, res) => {
   try {
     const horario = await Horario.findByPk(req.params.id);
     if (!horario) {
-      return res.status(404).json({ error: "Horario no encontrado" });
+      return res
+        .status(404)
+        .json({ success: false, message: "Horario no encontrado" });
     }
     await horario.destroy();
-    res.json({ message: "Horario eliminado" });
+    res.json({ success: true, message: "Horario eliminado" });
   } catch (error) {
-    res.status(500).json({ error: error.message });
+    res.status(400).json({ success: false, message: error.message });
   }
 };
 

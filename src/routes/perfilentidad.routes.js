@@ -22,7 +22,7 @@ router.get(
   "/",
   authMiddleware.verificarToken,
   roleMiddleware.esAdministrador,
-  perfilEntidadController.obtenerTodos
+  perfilEntidadController.obtenerTodos,
 );
 
 /**
@@ -47,13 +47,6 @@ router.get(
  *       '403':
  *         description: No tiene rol administrador
  */
-router.get(
-  "/:id",
-  authMiddleware.verificarToken,
-  roleMiddleware.esAdministrador,
-  perfilEntidadController.obtenerPorId
-);
-
 /**
  * @swagger
  * /api/perfiles-entidad/me/perfil:
@@ -68,7 +61,26 @@ router.get(
  *       '403':
  *         description: Requiere rol entidad externa
  */
-router.get("/me/perfil", authMiddleware.verificarToken, roleMiddleware.esEntidad, perfilEntidadController.obtenerMiEntidad);
+router.get(
+  "/me/perfil",
+  authMiddleware.verificarToken,
+  roleMiddleware.esEntidad,
+  perfilEntidadController.obtenerMiEntidad,
+);
+
+router.put(
+  "/me/perfil",
+  authMiddleware.verificarToken,
+  roleMiddleware.esEntidad,
+  perfilEntidadController.actualizarMiEntidad,
+);
+
+router.get(
+  "/:id",
+  authMiddleware.verificarToken,
+  roleMiddleware.esAdministrador,
+  perfilEntidadController.obtenerPorId,
+);
 
 /**
  * @swagger
@@ -105,7 +117,7 @@ router.post(
   "/",
   authMiddleware.verificarToken,
   roleMiddleware.esAdministrador,
-  perfilEntidadController.crearEntidad
+  perfilEntidadController.crearEntidad,
 );
 
 /**
@@ -147,7 +159,7 @@ router.put(
   "/:id",
   authMiddleware.verificarToken,
   roleMiddleware.esAdministrador,
-  perfilEntidadController.actualizarEntidad
+  perfilEntidadController.actualizarEntidad,
 );
 
 /**
@@ -176,7 +188,7 @@ router.delete(
   "/:id",
   authMiddleware.verificarToken,
   roleMiddleware.esAdministrador,
-  perfilEntidadController.eliminarEntidad
+  perfilEntidadController.eliminarEntidad,
 );
 
 module.exports = router;

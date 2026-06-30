@@ -22,7 +22,11 @@ exports.obtenerPorUsuario = async (usuarioId) => {
 };
 
 exports.crearEntidad = async (datos) => {
-  const { usuarioId } = datos;
+  const { usuarioId, razonSocial } = datos;
+
+  if (!usuarioId || !razonSocial) {
+    throw new Error("USUARIO_Y_RAZON_SOCIAL_SON_OBLIGATORIOS");
+  }
 
   const usuario = await Usuario.findByPk(usuarioId);
   if (!usuario) throw new Error("USUARIO_NO_ENCONTRADO");
@@ -37,6 +41,11 @@ exports.crearEntidad = async (datos) => {
 exports.actualizarEntidad = async (id, datos) => {
   const entidad = await PerfilEntidad.findByPk(id);
   if (!entidad) throw new Error("ENTIDAD_NO_ENCONTRADA");
+
+  if (!datos.razonSocial) {
+    throw new Error("RAZON_SOCIAL_OBLIGATORIA");
+  }
+
   return await entidad.update(datos);
 };
 

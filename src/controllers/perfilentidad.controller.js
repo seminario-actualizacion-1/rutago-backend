@@ -37,13 +37,11 @@ exports.obtenerMiEntidad = async (req, res) => {
 exports.crearEntidad = async (req, res) => {
   try {
     const entidad = await perfilEntidadService.crearEntidad(req.body);
-    res
-      .status(201)
-      .json({
-        success: true,
-        message: "Perfil de entidad creado",
-        data: entidad,
-      });
+    res.status(201).json({
+      success: true,
+      message: "Perfil de entidad creado",
+      data: entidad,
+    });
   } catch (error) {
     res.status(400).json({ success: false, message: error.message });
   }
@@ -56,6 +54,22 @@ exports.actualizarEntidad = async (req, res) => {
       req.body,
     );
     res.json({ success: true, message: "Perfil actualizado", data: entidad });
+  } catch (error) {
+    res.status(400).json({ success: false, message: error.message });
+  }
+};
+
+exports.actualizarMiEntidad = async (req, res) => {
+  try {
+    const entidad = await perfilEntidadService.actualizarMiEntidad(
+      req.usuario.id,
+      req.body,
+    );
+    res.json({
+      success: true,
+      message: "Perfil de entidad actualizado",
+      data: entidad,
+    });
   } catch (error) {
     res.status(400).json({ success: false, message: error.message });
   }

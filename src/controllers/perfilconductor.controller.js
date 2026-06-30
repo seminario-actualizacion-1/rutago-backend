@@ -39,13 +39,11 @@ exports.obtenerMiPerfil = async (req, res) => {
 exports.crearPerfil = async (req, res) => {
   try {
     const perfil = await perfilConductorService.crearPerfil(req.body);
-    res
-      .status(201)
-      .json({
-        success: true,
-        message: "Perfil de conductor creado",
-        data: perfil,
-      });
+    res.status(201).json({
+      success: true,
+      message: "Perfil de conductor creado",
+      data: perfil,
+    });
   } catch (error) {
     res.status(400).json({ success: false, message: error.message });
   }
@@ -58,6 +56,22 @@ exports.actualizarPerfil = async (req, res) => {
       req.body,
     );
     res.json({ success: true, message: "Perfil actualizado", data: perfil });
+  } catch (error) {
+    res.status(400).json({ success: false, message: error.message });
+  }
+};
+
+exports.actualizarMiPerfil = async (req, res) => {
+  try {
+    const perfil = await perfilConductorService.actualizarMiPerfil(
+      req.usuario.id,
+      req.body,
+    );
+    res.json({
+      success: true,
+      message: "Perfil de conductor actualizado",
+      data: perfil,
+    });
   } catch (error) {
     res.status(400).json({ success: false, message: error.message });
   }

@@ -1,4 +1,4 @@
-const { Usuario, Rol } = require("../models");
+const { Usuario, Rol, PerfilConductor, PerfilEntidad } = require("../models");
 
 exports.buscarPorCorreo = async (correo) => {
   return await Usuario.findOne({ where: { correo } });
@@ -6,13 +6,21 @@ exports.buscarPorCorreo = async (correo) => {
 
 exports.buscarPorId = async (id) => {
   return await Usuario.findByPk(id, {
-    include: [{ model: Rol, as: "rol" }],
+    include: [
+      { model: Rol, as: "rol" },
+      { model: PerfilConductor, as: "perfilConductor" },
+      { model: PerfilEntidad, as: "perfilEntidad" },
+    ],
   });
 };
 
 exports.buscarTodos = async () => {
   return await Usuario.findAll({
-    include: [{ model: Rol, as: "rol" }],
+    include: [
+      { model: Rol, as: "rol" },
+      { model: PerfilConductor, as: "perfilConductor" },
+      { model: PerfilEntidad, as: "perfilEntidad" },
+    ],
     order: [["id", "ASC"]],
   });
 };

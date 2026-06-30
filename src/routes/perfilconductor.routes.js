@@ -34,8 +34,6 @@ router.get("/", perfilConductorController.obtenerTodos);
  *       '404':
  *         description: Perfil no encontrado
  */
-router.get("/:id", perfilConductorController.obtenerPorId);
-
 /**
  * @swagger
  * /api/perfiles-conductor/me/perfil:
@@ -52,7 +50,21 @@ router.get("/:id", perfilConductorController.obtenerPorId);
  *       '404':
  *         description: No tiene perfil de conductor
  */
-router.get("/me/perfil", authMiddleware.verificarToken, roleMiddleware.esConductor, perfilConductorController.obtenerMiPerfil);
+router.get(
+  "/me/perfil",
+  authMiddleware.verificarToken,
+  roleMiddleware.esConductor,
+  perfilConductorController.obtenerMiPerfil,
+);
+
+router.put(
+  "/me/perfil",
+  authMiddleware.verificarToken,
+  roleMiddleware.esConductor,
+  perfilConductorController.actualizarMiPerfil,
+);
+
+router.get("/:id", perfilConductorController.obtenerPorId);
 
 /**
  * @swagger
@@ -89,7 +101,7 @@ router.post(
   "/",
   authMiddleware.verificarToken,
   roleMiddleware.esAdministrador,
-  perfilConductorController.crearPerfil
+  perfilConductorController.crearPerfil,
 );
 
 /**
@@ -131,7 +143,7 @@ router.put(
   "/:id",
   authMiddleware.verificarToken,
   roleMiddleware.esAdministrador,
-  perfilConductorController.actualizarPerfil
+  perfilConductorController.actualizarPerfil,
 );
 
 /**
@@ -170,7 +182,7 @@ router.patch(
   "/:id/estado",
   authMiddleware.verificarToken,
   roleMiddleware.esConductor,
-  perfilConductorController.cambiarEstado
+  perfilConductorController.cambiarEstado,
 );
 
 /**
@@ -199,7 +211,7 @@ router.delete(
   "/:id",
   authMiddleware.verificarToken,
   roleMiddleware.esAdministrador,
-  perfilConductorController.eliminarPerfil
+  perfilConductorController.eliminarPerfil,
 );
 
 module.exports = router;
