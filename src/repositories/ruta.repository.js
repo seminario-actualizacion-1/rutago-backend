@@ -1,0 +1,90 @@
+const { Ruta, Comuna, Barrio, Horario, Vehiculo } = require("../models");
+
+exports.obtenerTodas = async () => {
+  return await Ruta.findAll({
+    include: [
+      { model: Comuna, as: "origen" },
+      { model: Comuna, as: "destino" },
+    ],
+  });
+};
+
+exports.obtenerTodasConPaginacion = async (limit, offset) => {
+  return await Ruta.findAndCountAll({
+    include: [
+      { model: Comuna, as: "origen" },
+      { model: Comuna, as: "destino" },
+    ],
+    limit,
+    offset,
+    order: [["id", "ASC"]],
+    distinct: true,
+  });
+};
+
+exports.obtenerPorId = async (id) => {
+  const ruta = await Ruta.findByPk(id, {
+    include: [
+      { model: Comuna, as: "origen" },
+      { model: Comuna, as: "destino" },
+      { model: Barrio, as: "barrios" },
+      {
+        model: Horario,
+        as: "horarios",
+        include: [{ model: Vehiculo, as: "vehiculo" }],
+      },
+    ],
+  });
+  if (!ruta) throw new Error("RUTA_NO_ENCONTRADA");
+  return ruta;
+};
+
+exports.buscarPorDestino = async (destino) => {
+  const { Op } = require("sequelize");
+  const { PerfilEntidad } = require("../models");
+
+  return await Ruta.findAll({
+    include: [
+      { model: Comuna, as: "origen" },
+      { model: Comuna, as: "destino" },
+      {
+        model: Horario,
+        as: "horarios",
+        include: [
+          {
+            model: Vehiculo,
+            as: "vehiculo",
+            include: [
+              {
+                model: PerfilEntidad,
+                as: "perfilEntidad",
+              },
+            ],
+          },
+        ],
+      },
+    ],
+    where: {
+      "$destino.nombre$": {
+        [Op.like]: `%${destino}%`,
+      },
+    },
+  });
+};
+
+exports.crearRuta = async (datos) => {
+  return await Ruta.create(datos);
+};
+
+exports.actualizarRuta = async (id, datos) => {
+  const ruta = await Ruta.findByPk(id);
+  if (!ruta) throw new Error("RUTA_NO_ENCONTRADA");
+  return await ruta.update(datos);
+};
+
+exports.eliminarRuta = async (id) => {
+  const ruta = await Ruta.findByPk(id);
+  if (!ruta) throw new Error("RUTA_NO_ENCONTRADA");
+  await ruta.destroy();
+  return true;
+};

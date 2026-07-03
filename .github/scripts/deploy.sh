@@ -12,6 +12,8 @@ npm ci --include=dev
 echo "→ Ejecutando migraciones de producción..."
 export NODE_ENV=production
 npx sequelize-cli db:migrate --env production
+echo "→ Migrando pasajeros existentes a PerfilPasajero..."
+node scripts/migrarPasajeros.js
 echo "→ Eliminando dependencias de desarrollo..."
 npm prune --omit=dev
 echo "→ Reiniciando únicamente RutaGo Backend..."

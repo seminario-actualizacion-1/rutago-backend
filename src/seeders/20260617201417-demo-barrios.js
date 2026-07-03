@@ -2,6 +2,11 @@
 
 module.exports = {
   up: async (queryInterface, Sequelize) => {
+    const existing = await queryInterface.sequelize.query(
+      "SELECT COUNT(*) as cnt FROM Barrios",
+      { type: Sequelize.QueryTypes.SELECT }
+    );
+    if (existing[0].cnt > 0) return;
     return queryInterface.bulkInsert("Barrios", [
       {
         nombre: "Nayita",

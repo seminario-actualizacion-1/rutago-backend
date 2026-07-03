@@ -3,20 +3,44 @@ const router = express.Router();
 const viajeController = require("../controllers/viaje.controller");
 const authMiddleware = require("../middlewares/auth.middleware");
 const roleMiddleware = require("../middlewares/role.middleware");
+const {
+  validarPaginacion,
+  establecerPaginacionPorDefecto,
+} = require("../middlewares/paginacion.validator");
 
 /**
  * @swagger
  * /api/viajes:
  *   get:
- *     summary: Obtiene todos los viajes (requiere token)
+ *     summary: Obtiene todos los viajes con paginación (solo admin)
  *     tags: [Viajes]
+ *     parameters:
+ *       - in: query
+ *         name: paginaActual
+ *         schema:
+ *           type: integer
+ *           default: 1
+ *       - in: query
+ *         name: registrosPorPagina
+ *         schema:
+ *           type: integer
+ *           default: 10
  *     responses:
  *       '200':
- *         description: Lista de viajes
+ *         description: Lista de viajes con paginación
  *       '401':
  *         description: Token inválido o faltante
+ *       '403':
+ *         description: Requiere rol administrador
  */
-router.use(authMiddleware.verificarToken);
+router.get(
+  "/",
+  authMiddleware.verificarToken,
+  roleMiddleware.esAdministrador,
+  establecerPaginacionPorDefecto,
+  validarPaginacion,
+  viajeController.obtenerTodos
+);
 
 /**
  * @swagger
@@ -47,7 +71,12 @@ router.use(authMiddleware.verificarToken);
  *       '403':
  *         description: Requiere rol pasajero
  */
-router.post("/", roleMiddleware.esPasajero, viajeController.crearViaje);
+router.post(
+  "/",
+  authMiddleware.verificarToken,
+  roleMiddleware.esPasajero,
+  viajeController.crearViaje
+);
 
 /**
  * @swagger
@@ -81,9 +110,13 @@ router.post("/", roleMiddleware.esPasajero, viajeController.crearViaje);
  *       '401':
  *         description: Token inválido o faltante
  */
-router.get("/me/mis-viajes", viajeController.obtenerMisViajes);
+router.get(
+  "/me/mis-viajes",
+  authMiddleware.verificarToken,
+  viajeController.obtenerMisViajes
+);
 
-router.get("/:id", viajeController.obtenerPorId);
+router.get("/:id", authMiddleware.verificarToken, viajeController.obtenerPorId);
 
 /**
  * @swagger
@@ -109,8 +142,9 @@ router.get("/:id", viajeController.obtenerPorId);
  */
 router.patch(
   "/:id/aceptar",
+  authMiddleware.verificarToken,
   roleMiddleware.esConductor,
-  viajeController.aceptarViaje,
+  viajeController.aceptarViaje
 );
 
 /**
@@ -137,8 +171,9 @@ router.patch(
  */
 router.patch(
   "/:id/iniciar",
+  authMiddleware.verificarToken,
   roleMiddleware.esConductorOAdmin,
-  viajeController.iniciarViaje,
+  viajeController.iniciarViaje
 );
 
 /**
@@ -165,8 +200,9 @@ router.patch(
  */
 router.patch(
   "/:id/finalizar",
+  authMiddleware.verificarToken,
   roleMiddleware.esConductorOAdmin,
-  viajeController.finalizarViaje,
+  viajeController.finalizarViaje
 );
 
 /**
@@ -193,8 +229,9 @@ router.patch(
  */
 router.patch(
   "/:id/cancelar",
+  authMiddleware.verificarToken,
   roleMiddleware.esPasajeroOConductorOAdmin,
-  viajeController.cancelarViaje,
+  viajeController.cancelarViaje
 );
 
 module.exports = router;

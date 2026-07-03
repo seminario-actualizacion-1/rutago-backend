@@ -1,7 +1,22 @@
 const perfilEntidadRepository = require("../repositories/perfilentidad.repository");
+const {
+  formatearRespuestaPaginada,
+  calcularOffset,
+} = require("../helpers/paginacion.helper");
 
-exports.obtenerTodos = async () => {
-  return await perfilEntidadRepository.obtenerTodos();
+exports.obtenerTodos = async (paginaActual = 1, registrosPorPagina = 10) => {
+  const offset = calcularOffset(paginaActual, registrosPorPagina);
+  const limit = parseInt(registrosPorPagina);
+
+  const { count, rows } =
+    await perfilEntidadRepository.obtenerTodosConPaginacion(limit, offset);
+
+  return formatearRespuestaPaginada(
+    rows,
+    count,
+    paginaActual,
+    registrosPorPagina
+  );
 };
 
 exports.obtenerPorId = async (id) => {
@@ -9,7 +24,11 @@ exports.obtenerPorId = async (id) => {
 };
 
 exports.obtenerPorUsuario = async (usuarioId) => {
-  return await perfilEntidadRepository.obtenerPorUsuario(usuarioId);
+  const entidad = await perfilEntidadRepository.obtenerPorUsuario(usuarioId);
+  if (!entidad) {
+    throw new Error("ENTIDAD_NO_ENCONTRADA");
+  }
+  return entidad;
 };
 
 exports.crearEntidad = async (datos) => {

@@ -16,6 +16,7 @@ const perfilEntidadRoutes = require("./routes/perfilentidad.routes");
 const viajeRoutes = require("./routes/viaje.routes");
 const rutaRoutes = require("./routes/ruta.routes");
 const horarioRoutes = require("./routes/horario.routes");
+const perfilPasajeroRoutes = require("./routes/perfilpasajero.routes");
 
 const app = express();
 
@@ -64,6 +65,7 @@ app.use("/api/perfiles-entidad", perfilEntidadRoutes);
 app.use("/api/viajes", viajeRoutes);
 app.use("/api/rutas", rutaRoutes);
 app.use("/api/horarios", horarioRoutes);
+app.use("/api/perfiles-pasajero", perfilPasajeroRoutes);
 
 app.get("/api/ping", (req, res) => {
   res.json({
@@ -72,15 +74,17 @@ app.get("/api/ping", (req, res) => {
   });
 });
 
-sequelize
-  .sync()
-  .then(() => {
-    console.log("Base de datos sincronizada.");
-    app.listen(PORT, () => {
-      console.log(`Servidor corriendo en el puerto ${PORT}`);
-    });
-  })
-  .catch((err) => {
-    console.error("No se pudo conectar a la base de datos:", err.message);
-    process.exit(1);
+const iniciarServidor = async () => {
+  if (process.env.NODE_ENV !== "production") {
+    await sequelize.sync();
+    console.log("Base de datos sincronizada (modo desarrollo).");
+  }
+  app.listen(PORT, () => {
+    console.log(`Servidor corriendo en el puerto ${PORT}`);
   });
+};
+
+iniciarServidor().catch((err) => {
+  console.error("No se pudo conectar a la base de datos:", err.message);
+  process.exit(1);
+});

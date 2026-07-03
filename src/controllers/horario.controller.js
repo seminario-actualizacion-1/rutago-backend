@@ -1,20 +1,4 @@
-const { Horario, Vehiculo, Ruta } = require("../models");
-
-const validarHorarioPayload = async ({ vehiculoId, rutaId, horaSalida }) => {
-  if (!vehiculoId || !rutaId || !horaSalida) {
-    throw new Error("VEHICULO_RUTA_Y_HORA_SON_OBLIGATORIOS");
-  }
-
-  const vehiculo = await Vehiculo.findByPk(vehiculoId);
-  if (!vehiculo) {
-    throw new Error("VEHICULO_NO_ENCONTRADO");
-  }
-
-  const ruta = await Ruta.findByPk(rutaId);
-  if (!ruta) {
-    throw new Error("RUTA_NO_ENCONTRADA");
-  }
-};
+const horarioService = require("../services/horario.service");
 
 /**
  * @swagger
@@ -26,15 +10,14 @@ const validarHorarioPayload = async ({ vehiculoId, rutaId, horaSalida }) => {
  *       '200':
  *         description: Lista de horarios
  */
-const obtenerTodos = async (req, res) => {
+exports.obtenerTodos = async (req, res) => {
   try {
-    const horarios = await Horario.findAll({
-      include: [
-        { model: Vehiculo, as: "vehiculo" },
-        { model: Ruta, as: "ruta" },
-      ],
-    });
-    res.json({ success: true, data: horarios });
+    const { paginaActual, registrosPorPagina } = req.query;
+    const resultado = await horarioService.obtenerTodos(
+      paginaActual,
+      registrosPorPagina
+    );
+    res.json({ success: true, ...resultado });
   } catch (error) {
     res.status(400).json({ success: false, message: error.message });
   }
@@ -58,21 +41,16 @@ const obtenerTodos = async (req, res) => {
  *       '404':
  *         description: Horario no encontrado
  */
-const obtenerPorId = async (req, res) => {
+exports.obtenerPorId = async (req, res) => {
   try {
-    const horario = await Horario.findByPk(req.params.id, {
-      include: [
-        { model: Vehiculo, as: "vehiculo" },
-        { model: Ruta, as: "ruta" },
-      ],
-    });
-    if (!horario) {
+    const horario = await horarioService.obtenerPorId(req.params.id);
+    res.json({ success: true, data: horario });
+  } catch (error) {
+    if (error.message === "HORARIO_NO_ENCONTRADO") {
       return res
         .status(404)
         .json({ success: false, message: "Horario no encontrado" });
     }
-    res.json({ success: true, data: horario });
-  } catch (error) {
     res.status(400).json({ success: false, message: error.message });
   }
 };
@@ -93,15 +71,9 @@ const obtenerPorId = async (req, res) => {
  *       '200':
  *         description: Lista de horarios de la ruta
  */
-const obtenerPorRuta = async (req, res) => {
+exports.obtenerPorRuta = async (req, res) => {
   try {
-    const horarios = await Horario.findAll({
-      where: { rutaId: req.params.rutaId },
-      include: [
-        { model: Vehiculo, as: "vehiculo" },
-        { model: Ruta, as: "ruta" },
-      ],
-    });
+    const horarios = await horarioService.obtenerPorRuta(req.params.rutaId);
     res.json({ success: true, data: horarios });
   } catch (error) {
     res.status(400).json({ success: false, message: error.message });
@@ -124,15 +96,11 @@ const obtenerPorRuta = async (req, res) => {
  *       '200':
  *         description: Lista de horarios del vehículo
  */
-const obtenerPorVehiculo = async (req, res) => {
+exports.obtenerPorVehiculo = async (req, res) => {
   try {
-    const horarios = await Horario.findAll({
-      where: { vehiculoId: req.params.vehiculoId },
-      include: [
-        { model: Vehiculo, as: "vehiculo" },
-        { model: Ruta, as: "ruta" },
-      ],
-    });
+    const horarios = await horarioService.obtenerPorVehiculo(
+      req.params.vehiculoId
+    );
     res.json({ success: true, data: horarios });
   } catch (error) {
     res.status(400).json({ success: false, message: error.message });
@@ -169,10 +137,9 @@ const obtenerPorVehiculo = async (req, res) => {
  *       '400':
  *         description: Error en la solicitud
  */
-const crearHorario = async (req, res) => {
+exports.crearHorario = async (req, res) => {
   try {
-    await validarHorarioPayload(req.body);
-    const horario = await Horario.create(req.body);
+    const horario = await horarioService.crearHorario(req.body);
     res
       .status(201)
       .json({ success: true, message: "Horario creado", data: horario });
@@ -217,18 +184,19 @@ const crearHorario = async (req, res) => {
  *       '400':
  *         description: Error en la solicitud
  */
-const actualizarHorario = async (req, res) => {
+exports.actualizarHorario = async (req, res) => {
   try {
-    const horario = await Horario.findByPk(req.params.id);
-    if (!horario) {
+    const horario = await horarioService.actualizarHorario(
+      req.params.id,
+      req.body
+    );
+    res.json({ success: true, message: "Horario actualizado", data: horario });
+  } catch (error) {
+    if (error.message === "HORARIO_NO_ENCONTRADO") {
       return res
         .status(404)
         .json({ success: false, message: "Horario no encontrado" });
     }
-    await validarHorarioPayload(req.body);
-    await horario.update(req.body);
-    res.json({ success: true, message: "Horario actualizado", data: horario });
-  } catch (error) {
     res.status(400).json({ success: false, message: error.message });
   }
 };
@@ -251,27 +219,16 @@ const actualizarHorario = async (req, res) => {
  *       '404':
  *         description: Horario no encontrado
  */
-const eliminarHorario = async (req, res) => {
+exports.eliminarHorario = async (req, res) => {
   try {
-    const horario = await Horario.findByPk(req.params.id);
-    if (!horario) {
+    await horarioService.eliminarHorario(req.params.id);
+    res.json({ success: true, message: "Horario eliminado" });
+  } catch (error) {
+    if (error.message === "HORARIO_NO_ENCONTRADO") {
       return res
         .status(404)
         .json({ success: false, message: "Horario no encontrado" });
     }
-    await horario.destroy();
-    res.json({ success: true, message: "Horario eliminado" });
-  } catch (error) {
     res.status(400).json({ success: false, message: error.message });
   }
-};
-
-module.exports = {
-  obtenerTodos,
-  obtenerPorId,
-  obtenerPorRuta,
-  obtenerPorVehiculo,
-  crearHorario,
-  actualizarHorario,
-  eliminarHorario,
 };

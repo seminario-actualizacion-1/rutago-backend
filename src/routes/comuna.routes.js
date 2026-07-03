@@ -3,6 +3,10 @@ const router = express.Router();
 const comunaController = require("../controllers/comuna.controller");
 const authMiddleware = require("../middlewares/auth.middleware");
 const roleMiddleware = require("../middlewares/role.middleware");
+const {
+  validarPaginacion,
+  establecerPaginacionPorDefecto,
+} = require("../middlewares/paginacion.validator");
 
 /**
  * @swagger
@@ -16,7 +20,13 @@ const roleMiddleware = require("../middlewares/role.middleware");
  *       '401':
  *         description: Token inválido o faltante
  */
-router.get("/", authMiddleware.verificarToken, comunaController.obtenerTodas);
+router.get(
+  "/",
+  authMiddleware.verificarToken,
+  establecerPaginacionPorDefecto,
+  validarPaginacion,
+  comunaController.obtenerTodas
+);
 
 /**
  * @swagger

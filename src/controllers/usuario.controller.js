@@ -1,6 +1,11 @@
 const usuarioService = require("../services/usuario.service");
-const authMiddleware = require("../middlewares/auth.middleware");
-const roleMiddleware = require("../middlewares/role.middleware");
+
+const manejarError = (res, error) => {
+  if (error.message?.includes("_NO_ENCONTRADO")) {
+    return res.status(404).json({ success: false, message: error.message });
+  }
+  res.status(400).json({ success: false, message: error.message });
+};
 
 exports.registrarUsuario = async (req, res) => {
   try {
@@ -92,7 +97,7 @@ exports.recuperarContrasena = async (req, res) => {
     const token = await usuarioService.solicitarRecuperacion(correo);
     res.json({ success: true, message: "Token generado", token });
   } catch (error) {
-    res.status(400).json({ success: false, message: error.message });
+    res.status(400).json({ success: false, message: "Si el correo está registrado, recibirás un enlace de recuperación" });
   }
 };
 
@@ -111,10 +116,16 @@ exports.cambiarContrasena = async (req, res) => {
 
 exports.obtenerTodos = async (req, res) => {
   try {
-    const usuarios = await usuarioService.obtenerTodos();
-    res.json({ success: true, data: usuarios });
+    const { paginaActual, registrosPorPagina, rolId, correo } = req.query;
+    const filtrosAplicados = { rolId, correo };
+    const resultado = await usuarioService.obtenerTodos(
+      paginaActual,
+      registrosPorPagina,
+      filtrosAplicados,
+    );
+    res.json({ success: true, ...resultado });
   } catch (error) {
-    res.status(400).json({ success: false, message: error.message });
+    manejarError(res, error);
   }
 };
 
@@ -123,7 +134,7 @@ exports.obtenerPorId = async (req, res) => {
     const usuario = await usuarioService.obtenerPorId(req.params.id);
     res.json({ success: true, data: usuario });
   } catch (error) {
-    res.status(400).json({ success: false, message: error.message });
+    manejarError(res, error);
   }
 };
 
@@ -137,8 +148,7 @@ exports.obtenerMiPerfil = async (req, res) => {
     const usuario = await usuarioService.obtenerMiPerfil(req.usuario.id);
     res.json({ success: true, data: usuario });
   } catch (error) {
-    console.error("Error en obtenerMiPerfil:", error);
-    res.status(400).json({ success: false, message: error.message });
+    manejarError(res, error);
   }
 };
 
@@ -152,7 +162,7 @@ exports.actualizarMiPerfil = async (req, res) => {
     });
     res.json({ success: true, message: "Perfil actualizado", data: usuario });
   } catch (error) {
-    res.status(400).json({ success: false, message: error.message });
+    manejarError(res, error);
   }
 };
 
@@ -166,7 +176,7 @@ exports.actualizarUsuario = async (req, res) => {
     });
     res.json({ success: true, message: "Usuario actualizado", data: usuario });
   } catch (error) {
-    res.status(400).json({ success: false, message: error.message });
+    manejarError(res, error);
   }
 };
 
@@ -176,7 +186,7 @@ exports.cambiarRol = async (req, res) => {
     const usuario = await usuarioService.actualizarRol(req.params.id, rolId);
     res.json({ success: true, message: "Rol actualizado", data: usuario });
   } catch (error) {
-    res.status(400).json({ success: false, message: error.message });
+    manejarError(res, error);
   }
 };
 
@@ -185,6 +195,38 @@ exports.eliminarUsuario = async (req, res) => {
     await usuarioService.eliminarUsuario(req.params.id);
     res.json({ success: true, message: "Usuario eliminado" });
   } catch (error) {
-    res.status(400).json({ success: false, message: error.message });
+    manejarError(res, error);
+  }
+};
+
+exports.verificarToken = async (req, res) => {
+  try {
+    // El middleware verificarToken ya validó el token y puso req.usuario
+    if (!req.usuario || !req.usuario.id) {
+      return res
+        .status(401)
+        .json({ success: false, message: "Token inválido" });
+    }
+
+    // Obtener datos actualizados del usuario desde la BD
+    const usuario = await usuarioService.obtenerPorId(req.usuario.id);
+
+    return res.status(200).json({
+      success: true,
+      usuario: {
+        id: usuario.id,
+        nombres: usuario.nombres,
+        apellidos: usuario.apellidos,
+        correo: usuario.correo,
+        rolId: usuario.rolId,
+        rol: usuario.rol ? usuario.rol.nombreRol : null,
+      },
+    });
+  } catch (error) {
+    console.error("Error en verificarToken:", error);
+    return res.status(401).json({
+      success: false,
+      message: "Token inválido o usuario no encontrado",
+    });
   }
 };

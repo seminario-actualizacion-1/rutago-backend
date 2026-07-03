@@ -21,8 +21,8 @@ module.exports = (sequelize, DataTypes) => {
   }
   Barrio.init(
     {
-      nombre: DataTypes.STRING,
-      comunaId: DataTypes.INTEGER,
+      nombre: { type: DataTypes.STRING, allowNull: false },
+      comunaId: { type: DataTypes.INTEGER, allowNull: false },
     },
     {
       sequelize,

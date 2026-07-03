@@ -2,45 +2,26 @@
 
 module.exports = {
   async up(queryInterface, Sequelize) {
-    await queryInterface.createTable("Rutas", {
+    await queryInterface.createTable("RutaBarrio", {
       id: {
         allowNull: false,
         autoIncrement: true,
         primaryKey: true,
         type: Sequelize.INTEGER,
       },
-      nombre: {
-        type: Sequelize.STRING,
-        allowNull: false,
-      },
-      origenId: {
+      rutaId: {
         type: Sequelize.INTEGER,
         allowNull: false,
-        references: {
-          model: "Comunas",
-          key: "id",
-        },
+        references: { model: "Rutas", key: "id" },
         onUpdate: "CASCADE",
-        onDelete: "SET NULL",
+        onDelete: "CASCADE",
       },
-      destinoId: {
+      barrioId: {
         type: Sequelize.INTEGER,
         allowNull: false,
-        references: {
-          model: "Comunas",
-          key: "id",
-        },
+        references: { model: "Barrios", key: "id" },
         onUpdate: "CASCADE",
-        onDelete: "SET NULL",
-      },
-      descripcion: {
-        type: Sequelize.TEXT,
-      },
-      distanciaKm: {
-        type: Sequelize.DECIMAL,
-      },
-      tiempoEstimadoMinutos: {
-        type: Sequelize.INTEGER,
+        onDelete: "CASCADE",
       },
       createdAt: {
         allowNull: false,
@@ -54,6 +35,6 @@ module.exports = {
   },
 
   async down(queryInterface, Sequelize) {
-    await queryInterface.dropTable("Rutas");
+    await queryInterface.dropTable("RutaBarrio");
   },
 };
