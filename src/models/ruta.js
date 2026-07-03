@@ -16,9 +16,9 @@ module.exports = (sequelize, DataTypes) => {
   }
   Ruta.init(
     {
-      nombre: DataTypes.STRING,
-      origenId: DataTypes.INTEGER,
-      destinoId: DataTypes.INTEGER,
+      nombre: { type: DataTypes.STRING, allowNull: false },
+      origenId: { type: DataTypes.INTEGER, allowNull: false },
+      destinoId: { type: DataTypes.INTEGER, allowNull: false },
       descripcion: DataTypes.TEXT,
       distanciaKm: DataTypes.DECIMAL,
       tiempoEstimadoMinutos: DataTypes.INTEGER,

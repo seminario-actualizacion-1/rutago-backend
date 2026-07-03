@@ -5,6 +5,10 @@ const jwt = require("jsonwebtoken");
 const crypto = require("crypto");
 const { encriptar } = require("../helpers/encriptarPassword");
 const { generarToken } = require("../helpers/generarToken");
+const {
+  formatearRespuestaPaginada,
+  calcularOffset,
+} = require("../helpers/paginacion.helper");
 
 exports.crearUsuario = async (datosUsuario) => {
   const { nombres, apellidos, correo, contrasena, rolId } = datosUsuario;
@@ -52,16 +56,36 @@ exports.autenticarUsuario = async (correo, contrasena) => {
       id: usuario.id,
       nombres: usuario.nombres,
       rolId: usuario.rolId,
-      rol: rol ? {
-        id: rol.id,
-        nombreRol: rol.nombreRol,
-      } : null,
+      rol: rol
+        ? {
+            id: rol.id,
+            nombreRol: rol.nombreRol,
+          }
+        : null,
     },
   };
 };
 
-exports.obtenerTodos = async () => {
-  return await usuarioRepository.buscarTodos();
+exports.obtenerTodos = async (
+  paginaActual = 1,
+  registrosPorPagina = 10,
+  filtros = {},
+) => {
+  const offset = calcularOffset(paginaActual, registrosPorPagina);
+  const limit = parseInt(registrosPorPagina);
+
+  const { count, rows } = await usuarioRepository.buscarTodosConPaginacion(
+    limit,
+    offset,
+    filtros,
+  );
+
+  return formatearRespuestaPaginada(
+    rows,
+    count,
+    paginaActual,
+    registrosPorPagina,
+  );
 };
 
 exports.obtenerPorId = async (id) => {

@@ -1,11 +1,22 @@
 const vehiculoService = require("../services/vehiculo.service");
 
+const manejarError = (res, error) => {
+  if (error.message?.includes("_NO_ENCONTRADO")) {
+    return res.status(404).json({ success: false, message: error.message });
+  }
+  res.status(400).json({ success: false, message: error.message });
+};
+
 exports.obtenerTodos = async (req, res) => {
   try {
-    const vehiculos = await vehiculoService.obtenerTodos();
-    res.json({ success: true, data: vehiculos });
+    const { paginaActual, registrosPorPagina } = req.query;
+    const resultado = await vehiculoService.obtenerTodos(
+      paginaActual,
+      registrosPorPagina
+    );
+    res.json({ success: true, ...resultado });
   } catch (error) {
-    res.status(400).json({ success: false, message: error.message });
+    manejarError(res, error);
   }
 };
 
@@ -14,7 +25,7 @@ exports.obtenerPorId = async (req, res) => {
     const vehiculo = await vehiculoService.obtenerPorId(req.params.id);
     res.json({ success: true, data: vehiculo });
   } catch (error) {
-    res.status(400).json({ success: false, message: error.message });
+    manejarError(res, error);
   }
 };
 
@@ -38,24 +49,13 @@ exports.obtenerPorId = async (req, res) => {
  */
 exports.obtenerUbicacion = async (req, res) => {
   try {
-    const vehiculo = await vehiculoService.obtenerPorId(req.params.id);
-    if (!vehiculo) {
+    const ubicacion = await vehiculoService.obtenerUbicacion(req.params.id);
+    res.json({ success: true, data: ubicacion });
+  } catch (error) {
+    if (error.message === "VEHICULO_NO_ENCONTRADO") {
       return res.status(404).json({ success: false, message: "Vehículo no encontrado" });
     }
-    
-    res.json({
-      success: true,
-      data: {
-        id: vehiculo.id,
-        placa: vehiculo.placa,
-        estado: vehiculo.estado,
-        latitud: vehiculo.latitud,
-        longitud: vehiculo.longitud,
-        ultimaActualizacion: vehiculo.ultimaActualizacion,
-      }
-    });
-  } catch (error) {
-    res.status(400).json({ success: false, message: error.message });
+    manejarError(res, error);
   }
 };
 
@@ -93,20 +93,14 @@ exports.obtenerUbicacion = async (req, res) => {
  */
 exports.actualizarUbicacion = async (req, res) => {
   try {
-    const { latitud, longitud, estado } = req.body;
-    const vehiculo = await vehiculoService.actualizarVehiculo(req.params.id, {
-      latitud,
-      longitud,
-      estado,
-      ultimaActualizacion: new Date(),
-    });
+    const vehiculo = await vehiculoService.actualizarUbicacion(req.params.id, req.body);
     res.json({
       success: true,
       message: "Ubicación actualizada",
       data: vehiculo,
     });
   } catch (error) {
-    res.status(400).json({ success: false, message: error.message });
+    manejarError(res, error);
   }
 };
 
@@ -117,7 +111,7 @@ exports.crearVehiculo = async (req, res) => {
       .status(201)
       .json({ success: true, message: "Vehículo creado", data: vehiculo });
   } catch (error) {
-    res.status(400).json({ success: false, message: error.message });
+    manejarError(res, error);
   }
 };
 
@@ -133,7 +127,7 @@ exports.actualizarVehiculo = async (req, res) => {
       data: vehiculo,
     });
   } catch (error) {
-    res.status(400).json({ success: false, message: error.message });
+    manejarError(res, error);
   }
 };
 
@@ -142,6 +136,6 @@ exports.eliminarVehiculo = async (req, res) => {
     await vehiculoService.eliminarVehiculo(req.params.id);
     res.json({ success: true, message: "Vehículo eliminado" });
   } catch (error) {
-    res.status(400).json({ success: false, message: error.message });
+    manejarError(res, error);
   }
 };

@@ -1,7 +1,25 @@
 const barrioRepository = require("../repositories/barrio.repository");
+const {
+  formatearRespuestaPaginada,
+  calcularOffset,
+} = require("../helpers/paginacion.helper");
 
-exports.obtenerTodos = async () => {
-  return await barrioRepository.obtenerTodos();
+exports.obtenerTodos = async (paginaActual = 1, registrosPorPagina = 10, filtros = {}) => {
+  const offset = calcularOffset(paginaActual, registrosPorPagina);
+  const limit = parseInt(registrosPorPagina);
+
+  const { count, rows } = await barrioRepository.obtenerTodosConPaginacion(
+    limit,
+    offset,
+    filtros
+  );
+
+  return formatearRespuestaPaginada(
+    rows,
+    count,
+    paginaActual,
+    registrosPorPagina
+  );
 };
 
 exports.obtenerPorId = async (id) => {

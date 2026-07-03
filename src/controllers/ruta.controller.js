@@ -1,32 +1,4 @@
-const {
-  Ruta,
-  Comuna,
-  Barrio,
-  Horario,
-  Vehiculo,
-  PerfilEntidad,
-} = require("../models");
-
-const validarRutaPayload = async ({ nombre, origenId, destinoId }) => {
-  if (!nombre || !origenId || !destinoId) {
-    throw new Error("NOMBRE_ORIGEN_Y_DESTINO_SON_OBLIGATORIOS");
-  }
-
-  if (Number(origenId) === Number(destinoId)) {
-    throw new Error("ORIGEN_Y_DESTINO_NO_PUEDEN_SER_IGUALES");
-  }
-
-  const origen = await Comuna.findByPk(origenId);
-  if (!origen) {
-    throw new Error("COMUNA_ORIGEN_NO_ENCONTRADA");
-  }
-
-  const destino = await Comuna.findByPk(destinoId);
-  if (!destino) {
-    throw new Error("COMUNA_DESTINO_NO_ENCONTRADA");
-  }
-};
-const { Op } = require("sequelize");
+const rutaService = require("../services/ruta.service");
 
 /**
  * @swagger
@@ -38,15 +10,14 @@ const { Op } = require("sequelize");
  *       '200':
  *         description: Lista de rutas
  */
-const obtenerTodas = async (req, res) => {
+exports.obtenerTodas = async (req, res) => {
   try {
-    const rutas = await Ruta.findAll({
-      include: [
-        { model: Comuna, as: "origen" },
-        { model: Comuna, as: "destino" },
-      ],
-    });
-    res.json({ success: true, data: rutas });
+    const { paginaActual, registrosPorPagina } = req.query;
+    const resultado = await rutaService.obtenerTodas(
+      paginaActual,
+      registrosPorPagina
+    );
+    res.json({ success: true, ...resultado });
   } catch (error) {
     res.status(400).json({ success: false, message: error.message });
   }
@@ -70,27 +41,16 @@ const obtenerTodas = async (req, res) => {
  *       '404':
  *         description: Ruta no encontrada
  */
-const obtenerPorId = async (req, res) => {
+exports.obtenerPorId = async (req, res) => {
   try {
-    const ruta = await Ruta.findByPk(req.params.id, {
-      include: [
-        { model: Comuna, as: "origen" },
-        { model: Comuna, as: "destino" },
-        { model: Barrio, as: "barrios" },
-        {
-          model: Horario,
-          as: "horarios",
-          include: [{ model: Vehiculo, as: "vehiculo" }],
-        },
-      ],
-    });
-    if (!ruta) {
+    const ruta = await rutaService.obtenerPorId(req.params.id);
+    res.json({ success: true, data: ruta });
+  } catch (error) {
+    if (error.message === "RUTA_NO_ENCONTRADA") {
       return res
         .status(404)
         .json({ success: false, message: "Ruta no encontrada" });
     }
-    res.json({ success: true, data: ruta });
-  } catch (error) {
     res.status(400).json({ success: false, message: error.message });
   }
 };
@@ -111,38 +71,10 @@ const obtenerPorId = async (req, res) => {
  *       '200':
  *         description: Lista de rutas hacia el destino con buses y horarios
  */
-const buscarPorDestino = async (req, res) => {
+exports.buscarPorDestino = async (req, res) => {
   try {
     const { destino } = req.params;
-
-    const rutas = await Ruta.findAll({
-      include: [
-        { model: Comuna, as: "origen" },
-        { model: Comuna, as: "destino" },
-        {
-          model: Horario,
-          as: "horarios",
-          include: [
-            {
-              model: Vehiculo,
-              as: "vehiculo",
-              include: [
-                {
-                  model: PerfilEntidad,
-                  as: "perfilEntidad",
-                },
-              ],
-            },
-          ],
-        },
-      ],
-      where: {
-        "$destino.nombre$": {
-          [Op.like]: `%${destino}%`,
-        },
-      },
-    });
-
+    const rutas = await rutaService.buscarPorDestino(destino);
     res.json({ success: true, data: rutas });
   } catch (error) {
     res.status(400).json({ success: false, message: error.message });
@@ -180,10 +112,9 @@ const buscarPorDestino = async (req, res) => {
  *       '400':
  *         description: Error en la solicitud
  */
-const crearRuta = async (req, res) => {
+exports.crearRuta = async (req, res) => {
   try {
-    await validarRutaPayload(req.body);
-    const ruta = await Ruta.create(req.body);
+    const ruta = await rutaService.crearRuta(req.body);
     res.status(201).json({ success: true, message: "Ruta creada", data: ruta });
   } catch (error) {
     res.status(400).json({ success: false, message: error.message });
@@ -227,18 +158,16 @@ const crearRuta = async (req, res) => {
  *       '400':
  *         description: Error en la solicitud
  */
-const actualizarRuta = async (req, res) => {
+exports.actualizarRuta = async (req, res) => {
   try {
-    const ruta = await Ruta.findByPk(req.params.id);
-    if (!ruta) {
+    const ruta = await rutaService.actualizarRuta(req.params.id, req.body);
+    res.json({ success: true, message: "Ruta actualizada", data: ruta });
+  } catch (error) {
+    if (error.message === "RUTA_NO_ENCONTRADA") {
       return res
         .status(404)
         .json({ success: false, message: "Ruta no encontrada" });
     }
-    await validarRutaPayload(req.body);
-    await ruta.update(req.body);
-    res.json({ success: true, message: "Ruta actualizada", data: ruta });
-  } catch (error) {
     res.status(400).json({ success: false, message: error.message });
   }
 };
@@ -261,26 +190,16 @@ const actualizarRuta = async (req, res) => {
  *       '404':
  *         description: Ruta no encontrada
  */
-const eliminarRuta = async (req, res) => {
+exports.eliminarRuta = async (req, res) => {
   try {
-    const ruta = await Ruta.findByPk(req.params.id);
-    if (!ruta) {
+    await rutaService.eliminarRuta(req.params.id);
+    res.json({ success: true, message: "Ruta eliminada" });
+  } catch (error) {
+    if (error.message === "RUTA_NO_ENCONTRADA") {
       return res
         .status(404)
         .json({ success: false, message: "Ruta no encontrada" });
     }
-    await ruta.destroy();
-    res.json({ success: true, message: "Ruta eliminada" });
-  } catch (error) {
     res.status(400).json({ success: false, message: error.message });
   }
-};
-
-module.exports = {
-  obtenerTodas,
-  obtenerPorId,
-  buscarPorDestino,
-  crearRuta,
-  actualizarRuta,
-  eliminarRuta,
 };

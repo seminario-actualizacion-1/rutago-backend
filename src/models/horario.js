@@ -9,9 +9,9 @@ module.exports = (sequelize, DataTypes) => {
   }
   Horario.init(
     {
-      vehiculoId: DataTypes.INTEGER,
-      rutaId: DataTypes.INTEGER,
-      horaSalida: DataTypes.TIME,
+      vehiculoId: { type: DataTypes.INTEGER, allowNull: false },
+      rutaId: { type: DataTypes.INTEGER, allowNull: false },
+      horaSalida: { type: DataTypes.TIME, allowNull: false },
       frecuenciaMinutos: DataTypes.INTEGER,
       diasSemana: DataTypes.STRING,
     },

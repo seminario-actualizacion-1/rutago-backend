@@ -16,6 +16,8 @@ module.exports = {
           model: "Vehiculos",
           key: "id",
         },
+        onUpdate: "CASCADE",
+        onDelete: "CASCADE",
       },
       rutaId: {
         type: Sequelize.INTEGER,
@@ -24,6 +26,8 @@ module.exports = {
           model: "Rutas",
           key: "id",
         },
+        onUpdate: "CASCADE",
+        onDelete: "CASCADE",
       },
       horaSalida: {
         type: Sequelize.TIME,

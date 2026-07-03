@@ -30,6 +30,16 @@ exports.obtenerTodos = async () => {
   });
 };
 
+exports.obtenerTodosConPaginacion = async (limit, offset) => {
+  return await Vehiculo.findAndCountAll({
+    include: [{ model: PerfilEntidad, as: "perfilEntidad" }],
+    limit,
+    offset,
+    order: [["id", "ASC"]],
+    distinct: true,
+  });
+};
+
 exports.obtenerPorId = async (id) => {
   const vehiculo = await Vehiculo.findByPk(id, {
     include: [{ model: PerfilEntidad, as: "perfilEntidad" }],

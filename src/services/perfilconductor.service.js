@@ -1,7 +1,22 @@
 const perfilConductorRepository = require("../repositories/perfilconductor.repository");
+const {
+  formatearRespuestaPaginada,
+  calcularOffset,
+} = require("../helpers/paginacion.helper");
 
-exports.obtenerTodos = async () => {
-  return await perfilConductorRepository.obtenerTodos();
+exports.obtenerTodos = async (paginaActual = 1, registrosPorPagina = 10) => {
+  const offset = calcularOffset(paginaActual, registrosPorPagina);
+  const limit = parseInt(registrosPorPagina);
+
+  const { count, rows } =
+    await perfilConductorRepository.obtenerTodosConPaginacion(limit, offset);
+
+  return formatearRespuestaPaginada(
+    rows,
+    count,
+    paginaActual,
+    registrosPorPagina
+  );
 };
 
 exports.obtenerPorId = async (id) => {
@@ -9,7 +24,11 @@ exports.obtenerPorId = async (id) => {
 };
 
 exports.obtenerPorUsuario = async (usuarioId) => {
-  return await perfilConductorRepository.obtenerPorUsuario(usuarioId);
+  const perfil = await perfilConductorRepository.obtenerPorUsuario(usuarioId);
+  if (!perfil) {
+    throw new Error("PERFIL_CONDUCTOR_NO_ENCONTRADO");
+  }
+  return perfil;
 };
 
 exports.crearPerfil = async (datos) => {

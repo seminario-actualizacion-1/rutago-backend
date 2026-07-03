@@ -3,6 +3,17 @@ const router = express.Router();
 const usuarioController = require("../controllers/usuario.controller");
 const authMiddleware = require("../middlewares/auth.middleware");
 const roleMiddleware = require("../middlewares/role.middleware");
+const {
+  validarRegistro,
+  validarLogin,
+  validarRecuperarContrasena,
+  validarCambiarContrasena,
+  validarActualizarPerfil,
+} = require("../middlewares/usuario.validator");
+const {
+  validarPaginacion,
+  establecerPaginacionPorDefecto,
+} = require("../middlewares/paginacion.validator");
 /**
  * @swagger
  * /api/usuarios/login:
@@ -26,7 +37,7 @@ const roleMiddleware = require("../middlewares/role.middleware");
  *       '401':
  *         description: Credenciales inválidas
  */
-router.post("/login", usuarioController.login);
+router.post("/login", validarLogin, usuarioController.login);
 /**
  * @swagger
  * /api/usuarios/registro:
@@ -53,11 +64,11 @@ router.post("/login", usuarioController.login);
  *                 description: ID del rol (opcional, por defecto 3 - Pasajero)
  *     responses:
  *       '201':
- *         description: Usuario registrado con éxito
+ *         descripción: Usuario registrado con éxito
  *       '400':
  *         description: Error en la solicitud o correo ya existe
  */
-router.post("/registro", usuarioController.registrarUsuario);
+router.post("/registro", validarRegistro, usuarioController.registrarUsuario);
 
 /**
  * @swagger
@@ -80,7 +91,11 @@ router.post("/registro", usuarioController.registrarUsuario);
  *       '400':
  *         description: Error en la solicitud
  */
-router.post("/recuperar-contrasena", usuarioController.recuperarContrasena);
+router.post(
+  "/recuperar-contrasena",
+  validarRecuperarContrasena,
+  usuarioController.recuperarContrasena
+);
 
 /**
  * @swagger
@@ -105,7 +120,53 @@ router.post("/recuperar-contrasena", usuarioController.recuperarContrasena);
  *       '400':
  *         description: Token inválido o error en la solicitud
  */
-router.post("/cambiar-contrasena", usuarioController.cambiarContrasena);
+router.post(
+  "/cambiar-contrasena",
+  validarCambiarContrasena,
+  usuarioController.cambiarContrasena
+);
+
+/**
+ * @swagger
+ * /api/usuarios/verificar-token:
+ *   get:
+ *     summary: Verifica si el token del usuario es válido
+ *     tags: [Usuarios]
+ *     security:
+ *       - bearerAuth: []
+ *     responses:
+ *       '200':
+ *         description: Token válido
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                 usuario:
+ *                   type: object
+ *                   properties:
+ *                     id:
+ *                       type: integer
+ *                     nombres:
+ *                       type: string
+ *                     apellidos:
+ *                       type: string
+ *                     correo:
+ *                       type: string
+ *                     rolId:
+ *                       type: integer
+ *                     rol:
+ *                       type: string
+ *       '401':
+ *         description: Token inválido o expirado
+ */
+router.get(
+  "/verificar-token",
+  authMiddleware.verificarToken,
+  usuarioController.verificarToken
+);
 
 /**
  * @swagger
@@ -122,7 +183,7 @@ router.post("/cambiar-contrasena", usuarioController.cambiarContrasena);
 router.get(
   "/me/perfil",
   authMiddleware.verificarToken,
-  usuarioController.obtenerMiPerfil,
+  usuarioController.obtenerMiPerfil
 );
 
 /**
@@ -155,18 +216,32 @@ router.get(
 router.put(
   "/me/perfil",
   authMiddleware.verificarToken,
-  usuarioController.actualizarMiPerfil,
+  validarActualizarPerfil,
+  usuarioController.actualizarMiPerfil
 );
 
 /**
  * @swagger
  * /api/usuarios:
  *   get:
- *     summary: Obtiene todos los usuarios (solo admin)
+ *     summary: Obtiene todos los usuarios (solo admin) con paginación
  *     tags: [Usuarios]
+ *     parameters:
+ *       - in: query
+ *         name: paginaActual
+ *         schema:
+ *           type: integer
+ *           default: 1
+ *         description: Número de página actual
+ *       - in: query
+ *         name: registrosPorPagina
+ *         schema:
+ *           type: integer
+ *           default: 10
+ *         description: Cantidad de registros por página
  *     responses:
  *       '200':
- *         description: Lista de usuarios
+ *         description: Lista de usuarios con paginación
  *       '401':
  *         description: Token inválido o faltante
  *       '403':
@@ -176,7 +251,9 @@ router.get(
   "/",
   authMiddleware.verificarToken,
   roleMiddleware.esAdministrador,
-  usuarioController.obtenerTodos,
+  establecerPaginacionPorDefecto,
+  validarPaginacion,
+  usuarioController.obtenerTodos
 );
 
 /**

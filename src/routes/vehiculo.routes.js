@@ -3,18 +3,38 @@ const router = express.Router();
 const vehiculoController = require("../controllers/vehiculo.controller");
 const authMiddleware = require("../middlewares/auth.middleware");
 const roleMiddleware = require("../middlewares/role.middleware");
+const {
+  validarPaginacion,
+  establecerPaginacionPorDefecto,
+} = require("../middlewares/paginacion.validator");
 
 /**
  * @swagger
  * /api/vehiculos:
  *   get:
- *     summary: Obtiene todos los vehículos (público)
+ *     summary: Obtiene todos los vehículos con paginación (público)
  *     tags: [Vehículos]
+ *     parameters:
+ *       - in: query
+ *         name: paginaActual
+ *         schema:
+ *           type: integer
+ *           default: 1
+ *       - in: query
+ *         name: registrosPorPagina
+ *         schema:
+ *           type: integer
+ *           default: 10
  *     responses:
  *       '200':
- *         description: Lista de vehículos con su entidad
+ *         description: Lista de vehículos con paginación
  */
-router.get("/", vehiculoController.obtenerTodos);
+router.get(
+  "/",
+  establecerPaginacionPorDefecto,
+  validarPaginacion,
+  vehiculoController.obtenerTodos
+);
 
 /**
  * @swagger
@@ -91,6 +111,7 @@ router.get("/:id/ubicacion", vehiculoController.obtenerUbicacion);
 router.put(
   "/:id/ubicacion",
   authMiddleware.verificarToken,
+  roleMiddleware.esConductor,
   vehiculoController.actualizarUbicacion
 );
 

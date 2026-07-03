@@ -1,11 +1,22 @@
 const comunaService = require("../services/comuna.service");
 
+const manejarError = (res, error) => {
+  if (error.message?.includes("_NO_ENCONTRADA")) {
+    return res.status(404).json({ success: false, message: error.message });
+  }
+  res.status(400).json({ success: false, message: error.message });
+};
+
 exports.obtenerTodas = async (req, res) => {
   try {
-    const comunas = await comunaService.obtenerTodas();
-    res.json({ success: true, data: comunas });
+    const { paginaActual, registrosPorPagina } = req.query;
+    const resultado = await comunaService.obtenerTodas(
+      paginaActual,
+      registrosPorPagina
+    );
+    res.json({ success: true, ...resultado });
   } catch (error) {
-    res.status(400).json({ success: false, message: error.message });
+    manejarError(res, error);
   }
 };
 
@@ -14,7 +25,7 @@ exports.obtenerPorId = async (req, res) => {
     const comuna = await comunaService.obtenerPorId(req.params.id);
     res.json({ success: true, data: comuna });
   } catch (error) {
-    res.status(400).json({ success: false, message: error.message });
+    manejarError(res, error);
   }
 };
 
@@ -25,7 +36,7 @@ exports.crearComuna = async (req, res) => {
       .status(201)
       .json({ success: true, message: "Comuna creada", data: comuna });
   } catch (error) {
-    res.status(400).json({ success: false, message: error.message });
+    manejarError(res, error);
   }
 };
 
@@ -37,7 +48,7 @@ exports.actualizarComuna = async (req, res) => {
     );
     res.json({ success: true, message: "Comuna actualizada", data: comuna });
   } catch (error) {
-    res.status(400).json({ success: false, message: error.message });
+    manejarError(res, error);
   }
 };
 
@@ -46,6 +57,6 @@ exports.eliminarComuna = async (req, res) => {
     await comunaService.eliminarComuna(req.params.id);
     res.json({ success: true, message: "Comuna eliminada" });
   } catch (error) {
-    res.status(400).json({ success: false, message: error.message });
+    manejarError(res, error);
   }
 };

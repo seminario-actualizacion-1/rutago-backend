@@ -88,3 +88,16 @@ exports.eliminarPerfil = async (id) => {
   await perfil.destroy();
   return true;
 };
+
+exports.obtenerTodosConPaginacion = async (limit, offset) => {
+  return await PerfilConductor.findAndCountAll({
+    include: [
+      { model: Usuario, as: "usuario" },
+      { model: Vehiculo, as: "vehiculo" },
+    ],
+    limit,
+    offset,
+    order: [["createdAt", "DESC"]],
+    distinct: true,
+  });
+};

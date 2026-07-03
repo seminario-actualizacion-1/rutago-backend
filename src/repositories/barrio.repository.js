@@ -44,3 +44,18 @@ exports.eliminarBarrio = async (id) => {
   await barrio.destroy();
   return true;
 };
+
+exports.obtenerTodosConPaginacion = async (limit, offset, filtros = {}) => {
+  const where = {};
+  if (filtros.comunaId) {
+    where.comunaId = Number(filtros.comunaId);
+  }
+  return await Barrio.findAndCountAll({
+    where,
+    include: [{ model: Comuna, as: "comuna" }],
+    limit,
+    offset,
+    order: [["nombre", "ASC"]],
+    distinct: true,
+  });
+};

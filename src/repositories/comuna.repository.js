@@ -26,3 +26,12 @@ exports.eliminarComuna = async (id) => {
   await comuna.destroy();
   return true;
 };
+
+exports.obtenerTodasConPaginacion = async (limit, offset) => {
+  return await Comuna.findAndCountAll({
+    limit,
+    offset,
+    order: [["nombre", "ASC"]],
+    distinct: true,
+  });
+};

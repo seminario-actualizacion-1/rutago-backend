@@ -11,12 +11,14 @@ module.exports = {
       },
       nombre: {
         type: Sequelize.STRING,
+        allowNull: false,
       },
       comunaId: {
         type: Sequelize.INTEGER,
+        allowNull: false,
         references: { model: "Comunas", key: "id" },
         onUpdate: "CASCADE",
-        onDelete: "SET NULL",
+        onDelete: "RESTRICT",
       },
       createdAt: {
         allowNull: false,

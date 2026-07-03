@@ -1,4 +1,5 @@
-const { Usuario, Rol, PerfilConductor, PerfilEntidad } = require("../models");
+const { Usuario, Rol, PerfilConductor, PerfilEntidad, PerfilPasajero } = require("../models");
+const { Op } = require("sequelize");
 
 exports.buscarPorCorreo = async (correo) => {
   return await Usuario.findOne({ where: { correo } });
@@ -10,6 +11,7 @@ exports.buscarPorId = async (id) => {
       { model: Rol, as: "rol" },
       { model: PerfilConductor, as: "perfilConductor" },
       { model: PerfilEntidad, as: "perfilEntidad" },
+      { model: PerfilPasajero, as: "perfilPasajero" },
     ],
   });
 };
@@ -20,8 +22,35 @@ exports.buscarTodos = async () => {
       { model: Rol, as: "rol" },
       { model: PerfilConductor, as: "perfilConductor" },
       { model: PerfilEntidad, as: "perfilEntidad" },
+      { model: PerfilPasajero, as: "perfilPasajero" },
     ],
     order: [["id", "ASC"]],
+  });
+};
+
+exports.buscarTodosConPaginacion = async (limit, offset, filtros = {}) => {
+  const where = {};
+
+  if (filtros.rolId) {
+    where.rolId = Number(filtros.rolId);
+  }
+
+  if (filtros.correo) {
+    where.correo = { [Op.like]: `%${filtros.correo}%` };
+  }
+
+  return await Usuario.findAndCountAll({
+    where,
+    include: [
+      { model: Rol, as: "rol" },
+      { model: PerfilConductor, as: "perfilConductor" },
+      { model: PerfilEntidad, as: "perfilEntidad" },
+      { model: PerfilPasajero, as: "perfilPasajero" },
+    ],
+    limit,
+    offset,
+    order: [["id", "ASC"]],
+    distinct: true, // Para que count sea correcto con includes
   });
 };
 

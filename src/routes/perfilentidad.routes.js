@@ -3,6 +3,10 @@ const router = express.Router();
 const perfilEntidadController = require("../controllers/perfilentidad.controller");
 const authMiddleware = require("../middlewares/auth.middleware");
 const roleMiddleware = require("../middlewares/role.middleware");
+const {
+  validarPaginacion,
+  establecerPaginacionPorDefecto,
+} = require("../middlewares/paginacion.validator");
 
 /**
  * @swagger
@@ -22,7 +26,9 @@ router.get(
   "/",
   authMiddleware.verificarToken,
   roleMiddleware.esAdministrador,
-  perfilEntidadController.obtenerTodos,
+  establecerPaginacionPorDefecto,
+  validarPaginacion,
+  perfilEntidadController.obtenerTodos
 );
 
 /**

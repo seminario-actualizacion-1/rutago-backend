@@ -3,6 +3,10 @@ const router = express.Router();
 const horarioController = require("../controllers/horario.controller");
 const authMiddleware = require("../middlewares/auth.middleware");
 const roleMiddleware = require("../middlewares/role.middleware");
+const {
+  validarPaginacion,
+  establecerPaginacionPorDefecto,
+} = require("../middlewares/paginacion.validator");
 
 /**
  * @swagger
@@ -14,7 +18,13 @@ const roleMiddleware = require("../middlewares/role.middleware");
  *       '200':
  *         description: Lista de horarios
  */
-router.get("/", horarioController.obtenerTodos);
+router.get(
+  "/",
+  authMiddleware.verificarToken,
+  establecerPaginacionPorDefecto,
+  validarPaginacion,
+  horarioController.obtenerTodos
+);
 
 /**
  * @swagger
@@ -32,7 +42,7 @@ router.get("/", horarioController.obtenerTodos);
  *       '200':
  *         description: Lista de horarios de la ruta
  */
-router.get("/ruta/:rutaId", horarioController.obtenerPorRuta);
+router.get("/ruta/:rutaId", authMiddleware.verificarToken, horarioController.obtenerPorRuta);
 
 /**
  * @swagger
@@ -50,7 +60,7 @@ router.get("/ruta/:rutaId", horarioController.obtenerPorRuta);
  *       '200':
  *         description: Lista de horarios del vehículo
  */
-router.get("/vehiculo/:vehiculoId", horarioController.obtenerPorVehiculo);
+router.get("/vehiculo/:vehiculoId", authMiddleware.verificarToken, horarioController.obtenerPorVehiculo);
 
 /**
  * @swagger
@@ -70,7 +80,7 @@ router.get("/vehiculo/:vehiculoId", horarioController.obtenerPorVehiculo);
  *       '404':
  *         description: Horario no encontrado
  */
-router.get("/:id", horarioController.obtenerPorId);
+router.get("/:id", authMiddleware.verificarToken, horarioController.obtenerPorId);
 
 /**
  * @swagger

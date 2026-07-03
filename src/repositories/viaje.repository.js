@@ -27,6 +27,21 @@ exports.obtenerTodos = async () => {
   });
 };
 
+exports.obtenerTodosConPaginacion = async (limit, offset) => {
+  return await Viaje.findAndCountAll({
+    include: [
+      { model: Usuario, as: "pasajero" },
+      { model: Usuario, as: "conductor" },
+      { model: Barrio, as: "barrioOrigen" },
+      { model: Barrio, as: "barrioDestino" },
+    ],
+    limit,
+    offset,
+    order: [["createdAt", "DESC"]],
+    distinct: true,
+  });
+};
+
 exports.obtenerPorId = async (id) => {
   const viaje = await Viaje.findByPk(id, {
     include: [

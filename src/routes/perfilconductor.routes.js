@@ -3,6 +3,10 @@ const router = express.Router();
 const perfilConductorController = require("../controllers/perfilconductor.controller");
 const authMiddleware = require("../middlewares/auth.middleware");
 const roleMiddleware = require("../middlewares/role.middleware");
+const {
+  validarPaginacion,
+  establecerPaginacionPorDefecto,
+} = require("../middlewares/paginacion.validator");
 
 /**
  * @swagger
@@ -14,7 +18,12 @@ const roleMiddleware = require("../middlewares/role.middleware");
  *       '200':
  *         description: Lista de perfiles de conductor
  */
-router.get("/", perfilConductorController.obtenerTodos);
+router.get(
+  "/",
+  establecerPaginacionPorDefecto,
+  validarPaginacion,
+  perfilConductorController.obtenerTodos
+);
 
 /**
  * @swagger

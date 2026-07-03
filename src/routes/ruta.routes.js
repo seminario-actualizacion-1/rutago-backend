@@ -3,6 +3,10 @@ const router = express.Router();
 const rutaController = require("../controllers/ruta.controller");
 const authMiddleware = require("../middlewares/auth.middleware");
 const roleMiddleware = require("../middlewares/role.middleware");
+const {
+  validarPaginacion,
+  establecerPaginacionPorDefecto,
+} = require("../middlewares/paginacion.validator");
 
 /**
  * @swagger
@@ -14,7 +18,13 @@ const roleMiddleware = require("../middlewares/role.middleware");
  *       '200':
  *         description: Lista de rutas
  */
-router.get("/", rutaController.obtenerTodas);
+router.get(
+  "/",
+  authMiddleware.verificarToken,
+  establecerPaginacionPorDefecto,
+  validarPaginacion,
+  rutaController.obtenerTodas
+);
 
 /**
  * @swagger
@@ -32,7 +42,7 @@ router.get("/", rutaController.obtenerTodas);
  *       '200':
  *         description: Lista de rutas hacia el destino
  */
-router.get("/destino/:destino", rutaController.buscarPorDestino);
+router.get("/destino/:destino", authMiddleware.verificarToken, rutaController.buscarPorDestino);
 
 /**
  * @swagger
@@ -52,7 +62,7 @@ router.get("/destino/:destino", rutaController.buscarPorDestino);
  *       '404':
  *         description: Ruta no encontrada
  */
-router.get("/:id", rutaController.obtenerPorId);
+router.get("/:id", authMiddleware.verificarToken, rutaController.obtenerPorId);
 
 /**
  * @swagger

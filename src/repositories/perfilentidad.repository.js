@@ -28,9 +28,11 @@ exports.crearEntidad = async (datos) => {
     throw new Error("USUARIO_Y_RAZON_SOCIAL_SON_OBLIGATORIOS");
   }
 
-  const usuario = await Usuario.findByPk(usuarioId);
+  const usuario = await Usuario.findByPk(usuarioId, {
+    include: [{ association: "rol" }],
+  });
   if (!usuario) throw new Error("USUARIO_NO_ENCONTRADO");
-  if (usuario.rolId !== 4) throw new Error("EL_USUARIO_NO_ES_ENTIDAD");
+  if (!usuario.rol || usuario.rol.nombreRol !== "Entidad Externa") throw new Error("EL_USUARIO_NO_ES_ENTIDAD");
 
   const existente = await PerfilEntidad.findOne({ where: { usuarioId } });
   if (existente) throw new Error("LA_ENTIDAD_YA_TIENE_PERFIL");
@@ -54,4 +56,14 @@ exports.eliminarEntidad = async (id) => {
   if (!entidad) throw new Error("ENTIDAD_NO_ENCONTRADA");
   await entidad.destroy();
   return true;
+};
+
+exports.obtenerTodosConPaginacion = async (limit, offset) => {
+  return await PerfilEntidad.findAndCountAll({
+    include: [{ model: Usuario, as: "usuario" }],
+    limit,
+    offset,
+    order: [["createdAt", "DESC"]],
+    distinct: true,
+  });
 };

@@ -1,11 +1,22 @@
 const perfilEntidadService = require("../services/perfilentidad.service");
 
+const manejarError = (res, error) => {
+  if (error.message?.includes("_NO_ENCONTRADA")) {
+    return res.status(404).json({ success: false, message: error.message });
+  }
+  res.status(400).json({ success: false, message: error.message });
+};
+
 exports.obtenerTodos = async (req, res) => {
   try {
-    const entidades = await perfilEntidadService.obtenerTodos();
-    res.json({ success: true, data: entidades });
+    const { paginaActual, registrosPorPagina } = req.query;
+    const resultado = await perfilEntidadService.obtenerTodos(
+      paginaActual,
+      registrosPorPagina
+    );
+    res.json({ success: true, ...resultado });
   } catch (error) {
-    res.status(400).json({ success: false, message: error.message });
+    manejarError(res, error);
   }
 };
 
@@ -14,7 +25,7 @@ exports.obtenerPorId = async (req, res) => {
     const entidad = await perfilEntidadService.obtenerPorId(req.params.id);
     res.json({ success: true, data: entidad });
   } catch (error) {
-    res.status(400).json({ success: false, message: error.message });
+    manejarError(res, error);
   }
 };
 
@@ -23,13 +34,13 @@ exports.obtenerMiEntidad = async (req, res) => {
     const entidad = await perfilEntidadService.obtenerPorUsuario(
       req.usuario.id,
     );
-    if (!entidad) {
+    res.json({ success: true, data: entidad });
+  } catch (error) {
+    if (error.message === "ENTIDAD_NO_ENCONTRADA") {
       return res
         .status(404)
         .json({ success: false, message: "No tienes perfil de entidad" });
     }
-    res.json({ success: true, data: entidad });
-  } catch (error) {
     res.status(400).json({ success: false, message: error.message });
   }
 };
@@ -43,7 +54,7 @@ exports.crearEntidad = async (req, res) => {
       data: entidad,
     });
   } catch (error) {
-    res.status(400).json({ success: false, message: error.message });
+    manejarError(res, error);
   }
 };
 
@@ -55,7 +66,7 @@ exports.actualizarEntidad = async (req, res) => {
     );
     res.json({ success: true, message: "Perfil actualizado", data: entidad });
   } catch (error) {
-    res.status(400).json({ success: false, message: error.message });
+    manejarError(res, error);
   }
 };
 
@@ -71,7 +82,7 @@ exports.actualizarMiEntidad = async (req, res) => {
       data: entidad,
     });
   } catch (error) {
-    res.status(400).json({ success: false, message: error.message });
+    manejarError(res, error);
   }
 };
 
@@ -80,6 +91,6 @@ exports.eliminarEntidad = async (req, res) => {
     await perfilEntidadService.eliminarEntidad(req.params.id);
     res.json({ success: true, message: "Perfil eliminado" });
   } catch (error) {
-    res.status(400).json({ success: false, message: error.message });
+    manejarError(res, error);
   }
 };
