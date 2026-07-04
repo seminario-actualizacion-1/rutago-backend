@@ -1,17 +1,20 @@
 const barrioRepository = require("../repositories/barrio.repository");
+const comunaRepository = require("../repositories/comuna.repository");
 const {
   formatearRespuestaPaginada,
   calcularOffset,
 } = require("../helpers/paginacion.helper");
 
-exports.obtenerTodos = async (paginaActual = 1, registrosPorPagina = 10, filtros = {}) => {
+exports.obtenerTodos = async (paginaActual = 1, registrosPorPagina = 10, filtros = {}, sortBy = "id", sortOrder = "ASC") => {
   const offset = calcularOffset(paginaActual, registrosPorPagina);
   const limit = parseInt(registrosPorPagina);
 
   const { count, rows } = await barrioRepository.obtenerTodosConPaginacion(
     limit,
     offset,
-    filtros
+    filtros,
+    sortBy,
+    sortOrder
   );
 
   return formatearRespuestaPaginada(
@@ -31,10 +34,17 @@ exports.obtenerPorComuna = async (comunaId) => {
 };
 
 exports.crearBarrio = async (datos) => {
+  const { comunaId } = datos;
+  const comuna = await comunaRepository.obtenerPorId(comunaId);
+  if (!comuna) throw new Error("COMUNA_NO_ENCONTRADA");
   return await barrioRepository.crearBarrio(datos);
 };
 
 exports.actualizarBarrio = async (id, datos) => {
+  if (datos.comunaId) {
+    const comuna = await comunaRepository.obtenerPorId(datos.comunaId);
+    if (!comuna) throw new Error("COMUNA_NO_ENCONTRADA");
+  }
   return await barrioRepository.actualizarBarrio(id, datos);
 };
 

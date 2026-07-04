@@ -1,3 +1,4 @@
+const { Op } = require("sequelize");
 const { PerfilPasajero, Usuario } = require("../models");
 
 exports.obtenerTodos = async () => {
@@ -22,15 +23,6 @@ exports.obtenerPorUsuario = async (usuarioId) => {
 };
 
 exports.crearPerfil = async (datos) => {
-  const { usuarioId } = datos;
-
-  const usuario = await Usuario.findByPk(usuarioId);
-  if (!usuario) throw new Error("USUARIO_NO_ENCONTRADO");
-  if (usuario.rolId !== 3) throw new Error("EL_USUARIO_NO_ES_PASAJERO");
-
-  const existente = await PerfilPasajero.findOne({ where: { usuarioId } });
-  if (existente) throw new Error("EL_PASAJERO_YA_TIENE_PERFIL");
-
   return await PerfilPasajero.create(datos);
 };
 
@@ -47,12 +39,31 @@ exports.eliminarPerfil = async (id) => {
   return true;
 };
 
-exports.obtenerTodosConPaginacion = async (limit, offset) => {
+exports.obtenerTodosConPaginacion = async (limit, offset, q, sortBy = "createdAt", sortOrder = "DESC") => {
+  const where = {};
+  if (q) {
+    where[Op.or] = [
+      { numeroDocumento: { [Op.like]: `%${q}%` } },
+      { telefono: { [Op.like]: `%${q}%` } },
+      { '$usuario.nombres$': { [Op.like]: `%${q}%` } },
+      { '$usuario.apellidos$': { [Op.like]: `%${q}%` } },
+      { '$usuario.correo$': { [Op.like]: `%${q}%` } },
+    ];
+  }
   return await PerfilPasajero.findAndCountAll({
+    where,
     include: [{ model: Usuario, as: "usuario" }],
     limit,
     offset,
-    order: [["createdAt", "DESC"]],
+    order: [[sortBy, sortOrder]],
     distinct: true,
   });
+};
+
+exports.obtenerUsuarioPorId = async (id) => {
+  return await Usuario.findByPk(id);
+};
+
+exports.obtenerExistente = async (usuarioId) => {
+  return await PerfilPasajero.findOne({ where: { usuarioId } });
 };

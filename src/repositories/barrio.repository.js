@@ -1,3 +1,4 @@
+const { Op } = require("sequelize");
 const { Barrio, Comuna } = require("../models");
 
 exports.obtenerTodos = async () => {
@@ -45,17 +46,20 @@ exports.eliminarBarrio = async (id) => {
   return true;
 };
 
-exports.obtenerTodosConPaginacion = async (limit, offset, filtros = {}) => {
+exports.obtenerTodosConPaginacion = async (limit, offset, filtros = {}, sortBy = "id", sortOrder = "ASC") => {
   const where = {};
   if (filtros.comunaId) {
     where.comunaId = Number(filtros.comunaId);
+  }
+  if (filtros.q) {
+    where.nombre = { [Op.like]: `%${filtros.q}%` };
   }
   return await Barrio.findAndCountAll({
     where,
     include: [{ model: Comuna, as: "comuna" }],
     limit,
     offset,
-    order: [["nombre", "ASC"]],
+    order: [[sortBy, sortOrder]],
     distinct: true,
   });
 };

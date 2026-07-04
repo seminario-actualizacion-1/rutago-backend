@@ -2,17 +2,20 @@ const perfilEntidadService = require("../services/perfilentidad.service");
 
 const manejarError = (res, error) => {
   if (error.message?.includes("_NO_ENCONTRADA")) {
-    return res.status(404).json({ success: false, message: error.message });
+    return res.status(404).json({ success: false, message: "Recurso no encontrado" });
   }
   res.status(400).json({ success: false, message: error.message });
 };
 
 exports.obtenerTodos = async (req, res) => {
   try {
-    const { paginaActual, registrosPorPagina } = req.query;
+    const { paginaActual, registrosPorPagina, q, sortBy, sortOrder } = req.query;
     const resultado = await perfilEntidadService.obtenerTodos(
       paginaActual,
-      registrosPorPagina
+      registrosPorPagina,
+      q,
+      sortBy,
+      sortOrder
     );
     res.json({ success: true, ...resultado });
   } catch (error) {
@@ -47,7 +50,8 @@ exports.obtenerMiEntidad = async (req, res) => {
 
 exports.crearEntidad = async (req, res) => {
   try {
-    const entidad = await perfilEntidadService.crearEntidad(req.body);
+    const { usuarioId, razonSocial, nit, telefonoContacto } = req.body;
+    const entidad = await perfilEntidadService.crearEntidad({ usuarioId, razonSocial, nit, telefonoContacto });
     res.status(201).json({
       success: true,
       message: "Perfil de entidad creado",
@@ -60,9 +64,10 @@ exports.crearEntidad = async (req, res) => {
 
 exports.actualizarEntidad = async (req, res) => {
   try {
+    const { razonSocial, nit, telefonoContacto } = req.body;
     const entidad = await perfilEntidadService.actualizarEntidad(
       req.params.id,
-      req.body,
+      { razonSocial, nit, telefonoContacto },
     );
     res.json({ success: true, message: "Perfil actualizado", data: entidad });
   } catch (error) {

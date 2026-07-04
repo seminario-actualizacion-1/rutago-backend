@@ -1,17 +1,21 @@
 const horarioRepository = require("../repositories/horario.repository");
-const { Vehiculo, Ruta } = require("../models");
+const vehiculoRepository = require("../repositories/vehiculo.repository");
+const rutaRepository = require("../repositories/ruta.repository");
 const {
   formatearRespuestaPaginada,
   calcularOffset,
 } = require("../helpers/paginacion.helper");
 
-exports.obtenerTodos = async (paginaActual = 1, registrosPorPagina = 10) => {
+exports.obtenerTodos = async (paginaActual = 1, registrosPorPagina = 10, q, sortBy = "id", sortOrder = "ASC") => {
   const offset = calcularOffset(paginaActual, registrosPorPagina);
   const limit = parseInt(registrosPorPagina);
 
   const { count, rows } = await horarioRepository.obtenerTodosConPaginacion(
     limit,
-    offset
+    offset,
+    q,
+    sortBy,
+    sortOrder
   );
 
   return formatearRespuestaPaginada(
@@ -41,12 +45,12 @@ exports.crearHorario = async (datos) => {
     throw new Error("VEHICULO_RUTA_Y_HORA_SON_OBLIGATORIOS");
   }
 
-  const vehiculo = await Vehiculo.findByPk(vehiculoId);
+  const vehiculo = await vehiculoRepository.obtenerPorId(vehiculoId);
   if (!vehiculo) {
     throw new Error("VEHICULO_NO_ENCONTRADO");
   }
 
-  const ruta = await Ruta.findByPk(rutaId);
+  const ruta = await rutaRepository.obtenerPorId(rutaId);
   if (!ruta) {
     throw new Error("RUTA_NO_ENCONTRADA");
   }
@@ -61,12 +65,12 @@ exports.actualizarHorario = async (id, datos) => {
     throw new Error("VEHICULO_RUTA_Y_HORA_SON_OBLIGATORIOS");
   }
 
-  const vehiculo = await Vehiculo.findByPk(vehiculoId);
+  const vehiculo = await vehiculoRepository.obtenerPorId(vehiculoId);
   if (!vehiculo) {
     throw new Error("VEHICULO_NO_ENCONTRADO");
   }
 
-  const ruta = await Ruta.findByPk(rutaId);
+  const ruta = await rutaRepository.obtenerPorId(rutaId);
   if (!ruta) {
     throw new Error("RUTA_NO_ENCONTRADA");
   }

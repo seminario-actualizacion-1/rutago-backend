@@ -2,17 +2,20 @@ const viajeService = require("../services/viaje.service");
 
 const manejarError = (res, error) => {
   if (error.message?.includes("_NO_ENCONTRADO")) {
-    return res.status(404).json({ success: false, message: error.message });
+    return res.status(404).json({ success: false, message: "Recurso no encontrado" });
   }
   res.status(400).json({ success: false, message: error.message });
 };
 
 exports.obtenerTodos = async (req, res) => {
   try {
-    const { paginaActual, registrosPorPagina } = req.query;
+    const { paginaActual, registrosPorPagina, q, sortBy, sortOrder } = req.query;
     const resultado = await viajeService.obtenerTodos(
       paginaActual,
-      registrosPorPagina
+      registrosPorPagina,
+      q,
+      sortBy,
+      sortOrder
     );
     res.json({ success: true, ...resultado });
   } catch (error) {
@@ -43,13 +46,15 @@ exports.obtenerMisViajes = async (req, res) => {
 
 exports.crearViaje = async (req, res) => {
   try {
-    const datos = { ...req.body, pasajeroId: req.usuario.id };
+    const { barrioOrigenId, barrioDestinoId, precioEstimado, conductorId } = req.body;
+    const datos = { barrioOrigenId, barrioDestinoId, precioEstimado, conductorId, pasajeroId: req.usuario.id };
+    // Filtrar undefined
+    Object.keys(datos).forEach(key => datos[key] === undefined && delete datos[key]);
     const viaje = await viajeService.crearViaje(datos);
     res
       .status(201)
       .json({ success: true, message: "Viaje solicitado", data: viaje });
   } catch (error) {
-    // Manejo específico de errores de validación de negocio
     if (error.message === "NO_PUEDE_SOLICITAR_VIAJE_A_SI_MISMO") {
       return res.status(400).json({
         success: false,

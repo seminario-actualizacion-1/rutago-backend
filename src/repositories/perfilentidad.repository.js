@@ -1,3 +1,4 @@
+const { Op } = require("sequelize");
 const { PerfilEntidad, Usuario } = require("../models");
 
 exports.obtenerTodos = async () => {
@@ -22,32 +23,12 @@ exports.obtenerPorUsuario = async (usuarioId) => {
 };
 
 exports.crearEntidad = async (datos) => {
-  const { usuarioId, razonSocial } = datos;
-
-  if (!usuarioId || !razonSocial) {
-    throw new Error("USUARIO_Y_RAZON_SOCIAL_SON_OBLIGATORIOS");
-  }
-
-  const usuario = await Usuario.findByPk(usuarioId, {
-    include: [{ association: "rol" }],
-  });
-  if (!usuario) throw new Error("USUARIO_NO_ENCONTRADO");
-  if (!usuario.rol || usuario.rol.nombreRol !== "Entidad Externa") throw new Error("EL_USUARIO_NO_ES_ENTIDAD");
-
-  const existente = await PerfilEntidad.findOne({ where: { usuarioId } });
-  if (existente) throw new Error("LA_ENTIDAD_YA_TIENE_PERFIL");
-
   return await PerfilEntidad.create(datos);
 };
 
 exports.actualizarEntidad = async (id, datos) => {
   const entidad = await PerfilEntidad.findByPk(id);
   if (!entidad) throw new Error("ENTIDAD_NO_ENCONTRADA");
-
-  if (!datos.razonSocial) {
-    throw new Error("RAZON_SOCIAL_OBLIGATORIA");
-  }
-
   return await entidad.update(datos);
 };
 
@@ -58,12 +39,29 @@ exports.eliminarEntidad = async (id) => {
   return true;
 };
 
-exports.obtenerTodosConPaginacion = async (limit, offset) => {
+exports.obtenerTodosConPaginacion = async (limit, offset, q, sortBy = "createdAt", sortOrder = "DESC") => {
+  const where = {};
+  if (q) {
+    where[Op.or] = [
+      { razonSocial: { [Op.like]: `%${q}%` } },
+      { nit: { [Op.like]: `%${q}%` } },
+      { telefonoContacto: { [Op.like]: `%${q}%` } },
+      { '$usuario.nombres$': { [Op.like]: `%${q}%` } },
+      { '$usuario.correo$': { [Op.like]: `%${q}%` } },
+    ];
+  }
   return await PerfilEntidad.findAndCountAll({
+    where,
     include: [{ model: Usuario, as: "usuario" }],
     limit,
     offset,
-    order: [["createdAt", "DESC"]],
+    order: [[sortBy, sortOrder]],
     distinct: true,
+  });
+};
+
+exports.obtenerUsuarioPorId = async (id) => {
+  return await Usuario.findByPk(id, {
+    include: [{ association: "rol" }],
   });
 };

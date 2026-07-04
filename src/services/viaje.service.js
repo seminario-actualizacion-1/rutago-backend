@@ -1,16 +1,38 @@
 const viajeRepository = require("../repositories/viaje.repository");
+const usuarioRepository = require("../repositories/usuario.repository");
+const barrioRepository = require("../repositories/barrio.repository");
+const perfilConductorRepository = require("../repositories/perfilconductor.repository");
+const { ROLES } = require("../config/roles");
 const {
   formatearRespuestaPaginada,
   calcularOffset,
 } = require("../helpers/paginacion.helper");
 
-exports.obtenerTodos = async (paginaActual = 1, registrosPorPagina = 10) => {
+const ESTADOS_VALIDOS = [
+  "BUSCANDO",
+  "ACEPTADO",
+  "EN_CURSO",
+  "FINALIZADO",
+  "CANCELADO",
+];
+const TRANSICIONES_VALIDAS = {
+  BUSCANDO: ["ACEPTADO", "CANCELADO"],
+  ACEPTADO: ["EN_CURSO", "CANCELADO"],
+  EN_CURSO: ["FINALIZADO", "CANCELADO"],
+  FINALIZADO: [],
+  CANCELADO: [],
+};
+
+exports.obtenerTodos = async (paginaActual = 1, registrosPorPagina = 10, q, sortBy = "createdAt", sortOrder = "DESC") => {
   const offset = calcularOffset(paginaActual, registrosPorPagina);
   const limit = parseInt(registrosPorPagina);
 
   const { count, rows } = await viajeRepository.obtenerTodosConPaginacion(
     limit,
-    offset
+    offset,
+    q,
+    sortBy,
+    sortOrder
   );
 
   return formatearRespuestaPaginada(
@@ -26,16 +48,15 @@ exports.obtenerPorId = async (id) => {
 };
 
 exports.obtenerMisViajes = async (usuarioId, rolId) => {
-  return await viajeRepository.obtenerMisViajes(usuarioId, rolId);
+  const esConductor = rolId === ROLES.CONDUCTOR;
+  return await viajeRepository.obtenerMisViajes(usuarioId, esConductor);
 };
 
 exports.crearViaje = async (datos) => {
-  // Validación B04.1: No se puede solicitar un viaje a sí mismo
   if (datos.conductorId && datos.pasajeroId === datos.conductorId) {
     throw new Error("NO_PUEDE_SOLICITAR_VIAJE_A_SI_MISMO");
   }
 
-  // Validación B04.2: El precio estimado debe ser mayor a 0
   if (datos.precioEstimado !== undefined && datos.precioEstimado !== null) {
     const precio = parseFloat(datos.precioEstimado);
     if (isNaN(precio) || precio <= 0) {
@@ -44,12 +65,41 @@ exports.crearViaje = async (datos) => {
     datos.precioEstimado = precio;
   }
 
-  // Validación B04.3: Los barrios deben existir (se valida en el repositorio)
-  // Esta validación ya está implementada en viaje.repository.js
+  const pasajero = await usuarioRepository.buscarPorId(datos.pasajeroId);
+  if (!pasajero) throw new Error("PASAJERO_NO_ENCONTRADO");
+  if (pasajero.rolId !== ROLES.PASAJERO) throw new Error("EL_USUARIO_NO_ES_PASAJERO");
+
+  const origen = await barrioRepository.obtenerPorId(datos.barrioOrigenId);
+  if (!origen) throw new Error("BARRIO_ORIGEN_NO_ENCONTRADO");
+
+  const destino = await barrioRepository.obtenerPorId(datos.barrioDestinoId);
+  if (!destino) throw new Error("BARRIO_DESTINO_NO_ENCONTRADO");
 
   return await viajeRepository.crearViaje(datos);
 };
 
-exports.actualizarEstado = async (id, nuevoEstado, conductorId) => {
-  return await viajeRepository.actualizarEstado(id, nuevoEstado, conductorId);
+exports.actualizarEstado = async (id, nuevoEstado, conductorId = null) => {
+  const viaje = await viajeRepository.obtenerPorIdSimple(id);
+  if (!viaje) throw new Error("VIAJE_NO_ENCONTRADO");
+
+  if (!ESTADOS_VALIDOS.includes(nuevoEstado)) {
+    throw new Error("ESTADO_NO_VALIDO");
+  }
+
+  const transicionesPermitidas = TRANSICIONES_VALIDAS[viaje.estado] || [];
+  if (!transicionesPermitidas.includes(nuevoEstado)) {
+    throw new Error("TRANSICION_ESTADO_NO_VALIDA");
+  }
+
+  if (nuevoEstado === "ACEPTADO") {
+    if (!conductorId) throw new Error("SE_REQUIERE_CONDUCTOR");
+    const perfil = await perfilConductorRepository.obtenerPorUsuario(conductorId);
+    if (!perfil) throw new Error("CONDUCTOR_SIN_PERFIL");
+    if (perfil.estado !== "DISPONIBLE") {
+      throw new Error("CONDUCTOR_NO_DISPONIBLE");
+    }
+    return await viajeRepository.actualizarViaje(id, { estado: nuevoEstado, conductorId });
+  }
+
+  return await viajeRepository.actualizarViaje(id, { estado: nuevoEstado });
 };

@@ -1,7 +1,6 @@
 const usuarioRepository = require("../repositories/usuario.repository");
-const { Rol } = require("../models");
+const rolRepository = require("../repositories/rol.repository");
 const bcrypt = require("bcryptjs");
-const jwt = require("jsonwebtoken");
 const crypto = require("crypto");
 const { encriptar } = require("../helpers/encriptarPassword");
 const { generarToken } = require("../helpers/generarToken");
@@ -18,7 +17,7 @@ exports.crearUsuario = async (datosUsuario) => {
     throw new Error("EL_CORREO_YA_EXISTE");
   }
 
-  const rolExiste = await Rol.findByPk(rolId);
+  const rolExiste = await rolRepository.obtenerPorId(rolId);
   if (!rolExiste) {
     throw new Error("ROL_NO_EXISTE");
   }
@@ -47,8 +46,7 @@ exports.autenticarUsuario = async (correo, contrasena) => {
 
   const token = generarToken(usuario);
 
-  // Incluir el objeto rol completo
-  const rol = await Rol.findByPk(usuario.rolId);
+  const rol = await rolRepository.obtenerPorId(usuario.rolId);
 
   return {
     token,
@@ -70,6 +68,8 @@ exports.obtenerTodos = async (
   paginaActual = 1,
   registrosPorPagina = 10,
   filtros = {},
+  sortBy = "id",
+  sortOrder = "ASC",
 ) => {
   const offset = calcularOffset(paginaActual, registrosPorPagina);
   const limit = parseInt(registrosPorPagina);
@@ -78,6 +78,8 @@ exports.obtenerTodos = async (
     limit,
     offset,
     filtros,
+    sortBy,
+    sortOrder,
   );
 
   return formatearRespuestaPaginada(
@@ -104,6 +106,8 @@ exports.actualizarDatos = async (id, datos) => {
 };
 
 exports.actualizarRol = async (id, rolId) => {
+  const rolExiste = await rolRepository.obtenerPorId(rolId);
+  if (!rolExiste) throw new Error("ROL_NO_EXISTE");
   return await usuarioRepository.actualizarRol(id, rolId);
 };
 
@@ -113,7 +117,7 @@ exports.eliminarUsuario = async (id) => {
 
 exports.solicitarRecuperacion = async (correo) => {
   const usuario = await usuarioRepository.buscarPorCorreo(correo);
-  if (!usuario) throw new Error("USUARIO_NO_ENCONTRADO");
+  if (!usuario) return;
 
   const token = crypto.randomBytes(20).toString("hex");
   const expira = new Date(Date.now() + 3600000);
@@ -123,8 +127,6 @@ exports.solicitarRecuperacion = async (correo) => {
     token,
     expira,
   );
-
-  return token;
 };
 
 exports.cambiarContrasena = async (token, nuevaContrasena) => {
