@@ -1,7 +1,7 @@
-const authMiddleware = require("./auth.middleware");
+const { ROLES } = require("../config/roles");
 
 exports.esAdministrador = (req, res, next) => {
-  if (req.usuario && req.usuario.rolId === 1) {
+  if (req.usuario && req.usuario.rolId === ROLES.ADMIN) {
     next();
   } else {
     return res
@@ -11,7 +11,7 @@ exports.esAdministrador = (req, res, next) => {
 };
 
 exports.esConductor = (req, res, next) => {
-  if (req.usuario && req.usuario.rolId === 2) {
+  if (req.usuario && req.usuario.rolId === ROLES.CONDUCTOR) {
     next();
   } else {
     return res
@@ -21,7 +21,7 @@ exports.esConductor = (req, res, next) => {
 };
 
 exports.esPasajero = (req, res, next) => {
-  if (req.usuario && req.usuario.rolId === 3) {
+  if (req.usuario && req.usuario.rolId === ROLES.PASAJERO) {
     next();
   } else {
     return res
@@ -31,7 +31,7 @@ exports.esPasajero = (req, res, next) => {
 };
 
 exports.esEntidad = (req, res, next) => {
-  if (req.usuario && req.usuario.rolId === 4) {
+  if (req.usuario && req.usuario.rolId === ROLES.ENTIDAD) {
     next();
   } else {
     return res
@@ -44,7 +44,7 @@ exports.esEntidad = (req, res, next) => {
 };
 
 exports.esConductorOAdmin = (req, res, next) => {
-  if (req.usuario && (req.usuario.rolId === 1 || req.usuario.rolId === 2)) {
+  if (req.usuario && (req.usuario.rolId === ROLES.ADMIN || req.usuario.rolId === ROLES.CONDUCTOR)) {
     next();
   } else {
     return res
@@ -59,9 +59,9 @@ exports.esConductorOAdmin = (req, res, next) => {
 exports.esPasajeroOConductorOAdmin = (req, res, next) => {
   if (
     req.usuario &&
-    (req.usuario.rolId === 1 ||
-      req.usuario.rolId === 2 ||
-      req.usuario.rolId === 3)
+    (req.usuario.rolId === ROLES.ADMIN ||
+      req.usuario.rolId === ROLES.CONDUCTOR ||
+      req.usuario.rolId === ROLES.PASAJERO)
   ) {
     next();
   } else {

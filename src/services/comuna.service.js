@@ -4,13 +4,16 @@ const {
   calcularOffset,
 } = require("../helpers/paginacion.helper");
 
-exports.obtenerTodas = async (paginaActual = 1, registrosPorPagina = 10) => {
+exports.obtenerTodas = async (paginaActual = 1, registrosPorPagina = 10, q, sortBy = "nombre", sortOrder = "ASC") => {
   const offset = calcularOffset(paginaActual, registrosPorPagina);
   const limit = parseInt(registrosPorPagina);
 
   const { count, rows } = await comunaRepository.obtenerTodasConPaginacion(
     limit,
-    offset
+    offset,
+    q,
+    sortBy,
+    sortOrder
   );
 
   return formatearRespuestaPaginada(

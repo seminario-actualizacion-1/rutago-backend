@@ -28,7 +28,7 @@ exports.buscarTodos = async () => {
   });
 };
 
-exports.buscarTodosConPaginacion = async (limit, offset, filtros = {}) => {
+exports.buscarTodosConPaginacion = async (limit, offset, filtros = {}, sortBy = "id", sortOrder = "ASC") => {
   const where = {};
 
   if (filtros.rolId) {
@@ -37,6 +37,14 @@ exports.buscarTodosConPaginacion = async (limit, offset, filtros = {}) => {
 
   if (filtros.correo) {
     where.correo = { [Op.like]: `%${filtros.correo}%` };
+  }
+
+  if (filtros.q) {
+    where[Op.or] = [
+      { nombres: { [Op.like]: `%${filtros.q}%` } },
+      { apellidos: { [Op.like]: `%${filtros.q}%` } },
+      { correo: { [Op.like]: `%${filtros.q}%` } },
+    ];
   }
 
   return await Usuario.findAndCountAll({
@@ -49,8 +57,8 @@ exports.buscarTodosConPaginacion = async (limit, offset, filtros = {}) => {
     ],
     limit,
     offset,
-    order: [["id", "ASC"]],
-    distinct: true, // Para que count sea correcto con includes
+    order: [[sortBy, sortOrder]],
+    distinct: true,
   });
 };
 
@@ -67,10 +75,6 @@ exports.actualizarDatos = async (id, datos) => {
 exports.actualizarRol = async (id, rolId) => {
   const usuario = await Usuario.findByPk(id);
   if (!usuario) throw new Error("USUARIO_NO_ENCONTRADO");
-
-  const rolExiste = await Rol.findByPk(rolId);
-  if (!rolExiste) throw new Error("ROL_NO_EXISTE");
-
   return await usuario.update({ rolId });
 };
 

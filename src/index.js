@@ -2,8 +2,10 @@ require("dotenv").config();
 
 const express = require("express");
 const cors = require("cors");
+const rateLimit = require("express-rate-limit");
 const swaggerUi = require("swagger-ui-express");
 const swaggerJsdoc = require("swagger-jsdoc");
+const errorHandler = require("./middlewares/error.middleware");
 
 const { sequelize } = require("./models");
 const usuarioRoutes = require("./routes/usuario.routes");
@@ -20,7 +22,13 @@ const perfilPasajeroRoutes = require("./routes/perfilpasajero.routes");
 
 const app = express();
 
-app.use(express.json());
+const authLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  max: 20,
+  message: { success: false, message: "Demasiadas solicitudes, intente de nuevo más tarde" },
+});
+
+app.use(express.json({ limit: "10kb" }));
 app.use(
   cors({
     origin: process.env.FRONTEND_URL || "http://localhost:5173",
@@ -55,6 +63,10 @@ app.use(
   swaggerUi.serve,
   swaggerUi.setup(swaggerDocs),
 );
+app.use("/api/usuarios/login", authLimiter);
+app.use("/api/usuarios/registro", authLimiter);
+app.use("/api/usuarios/recuperar-contrasena", authLimiter);
+app.use("/api/usuarios/cambiar-contrasena", authLimiter);
 app.use("/api/usuarios", usuarioRoutes);
 app.use("/api/roles", rolRoutes);
 app.use("/api/comunas", comunaRoutes);
@@ -73,6 +85,8 @@ app.get("/api/ping", (req, res) => {
     message: "El servidor de RutaGo está respondiendo",
   });
 });
+
+app.use(errorHandler);
 
 const iniciarServidor = async () => {
   if (process.env.NODE_ENV !== "production") {

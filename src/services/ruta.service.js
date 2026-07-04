@@ -1,17 +1,20 @@
 const rutaRepository = require("../repositories/ruta.repository");
-const { Comuna } = require("../models");
+const comunaRepository = require("../repositories/comuna.repository");
 const {
   formatearRespuestaPaginada,
   calcularOffset,
 } = require("../helpers/paginacion.helper");
 
-exports.obtenerTodas = async (paginaActual = 1, registrosPorPagina = 10) => {
+exports.obtenerTodas = async (paginaActual = 1, registrosPorPagina = 10, q, sortBy = "id", sortOrder = "ASC") => {
   const offset = calcularOffset(paginaActual, registrosPorPagina);
   const limit = parseInt(registrosPorPagina);
 
   const { count, rows } = await rutaRepository.obtenerTodasConPaginacion(
     limit,
-    offset
+    offset,
+    q,
+    sortBy,
+    sortOrder
   );
 
   return formatearRespuestaPaginada(
@@ -41,12 +44,12 @@ exports.crearRuta = async (datos) => {
     throw new Error("ORIGEN_Y_DESTINO_NO_PUEDEN_SER_IGUALES");
   }
 
-  const origen = await Comuna.findByPk(origenId);
+  const origen = await comunaRepository.obtenerPorId(origenId);
   if (!origen) {
     throw new Error("COMUNA_ORIGEN_NO_ENCONTRADA");
   }
 
-  const destino = await Comuna.findByPk(destinoId);
+  const destino = await comunaRepository.obtenerPorId(destinoId);
   if (!destino) {
     throw new Error("COMUNA_DESTINO_NO_ENCONTRADA");
   }
@@ -65,12 +68,12 @@ exports.actualizarRuta = async (id, datos) => {
     throw new Error("ORIGEN_Y_DESTINO_NO_PUEDEN_SER_IGUALES");
   }
 
-  const origen = await Comuna.findByPk(origenId);
+  const origen = await comunaRepository.obtenerPorId(origenId);
   if (!origen) {
     throw new Error("COMUNA_ORIGEN_NO_ENCONTRADA");
   }
 
-  const destino = await Comuna.findByPk(destinoId);
+  const destino = await comunaRepository.obtenerPorId(destinoId);
   if (!destino) {
     throw new Error("COMUNA_DESTINO_NO_ENCONTRADA");
   }

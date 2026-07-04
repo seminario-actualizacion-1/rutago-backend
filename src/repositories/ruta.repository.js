@@ -1,3 +1,4 @@
+const { Op } = require("sequelize");
 const { Ruta, Comuna, Barrio, Horario, Vehiculo } = require("../models");
 
 exports.obtenerTodas = async () => {
@@ -9,15 +10,24 @@ exports.obtenerTodas = async () => {
   });
 };
 
-exports.obtenerTodasConPaginacion = async (limit, offset) => {
+exports.obtenerTodasConPaginacion = async (limit, offset, q, sortBy = "id", sortOrder = "ASC") => {
+  const where = {};
+  if (q) {
+    where[Op.or] = [
+      { nombre: { [Op.like]: `%${q}%` } },
+      { '$origen.nombre$': { [Op.like]: `%${q}%` } },
+      { '$destino.nombre$': { [Op.like]: `%${q}%` } },
+    ];
+  }
   return await Ruta.findAndCountAll({
+    where,
     include: [
       { model: Comuna, as: "origen" },
       { model: Comuna, as: "destino" },
     ],
     limit,
     offset,
-    order: [["id", "ASC"]],
+    order: [[sortBy, sortOrder]],
     distinct: true,
   });
 };

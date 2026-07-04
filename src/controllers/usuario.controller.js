@@ -94,8 +94,8 @@ exports.login = async (req, res) => {
 exports.recuperarContrasena = async (req, res) => {
   try {
     const { correo } = req.body;
-    const token = await usuarioService.solicitarRecuperacion(correo);
-    res.json({ success: true, message: "Token generado", token });
+    await usuarioService.solicitarRecuperacion(correo);
+    res.json({ success: true, message: "Si el correo está registrado, recibirás un enlace de recuperación" });
   } catch (error) {
     res.status(400).json({ success: false, message: "Si el correo está registrado, recibirás un enlace de recuperación" });
   }
@@ -116,12 +116,14 @@ exports.cambiarContrasena = async (req, res) => {
 
 exports.obtenerTodos = async (req, res) => {
   try {
-    const { paginaActual, registrosPorPagina, rolId, correo } = req.query;
-    const filtrosAplicados = { rolId, correo };
+    const { paginaActual, registrosPorPagina, q, rolId, correo, sortBy, sortOrder } = req.query;
+    const filtrosAplicados = { rolId, correo, q };
     const resultado = await usuarioService.obtenerTodos(
       paginaActual,
       registrosPorPagina,
       filtrosAplicados,
+      sortBy,
+      sortOrder
     );
     res.json({ success: true, ...resultado });
   } catch (error) {

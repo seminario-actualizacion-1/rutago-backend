@@ -1,3 +1,4 @@
+const { Op } = require("sequelize");
 const { Comuna } = require("../models");
 
 exports.obtenerTodas = async () => {
@@ -27,11 +28,16 @@ exports.eliminarComuna = async (id) => {
   return true;
 };
 
-exports.obtenerTodasConPaginacion = async (limit, offset) => {
+exports.obtenerTodasConPaginacion = async (limit, offset, q, sortBy = "nombre", sortOrder = "ASC") => {
+  const where = {};
+  if (q) {
+    where.nombre = { [Op.like]: `%${q}%` };
+  }
   return await Comuna.findAndCountAll({
+    where,
     limit,
     offset,
-    order: [["nombre", "ASC"]],
+    order: [[sortBy, sortOrder]],
     distinct: true,
   });
 };

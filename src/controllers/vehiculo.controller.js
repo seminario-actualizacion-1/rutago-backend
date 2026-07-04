@@ -2,17 +2,21 @@ const vehiculoService = require("../services/vehiculo.service");
 
 const manejarError = (res, error) => {
   if (error.message?.includes("_NO_ENCONTRADO")) {
-    return res.status(404).json({ success: false, message: error.message });
+    return res.status(404).json({ success: false, message: "Recurso no encontrado" });
   }
   res.status(400).json({ success: false, message: error.message });
 };
 
 exports.obtenerTodos = async (req, res) => {
   try {
-    const { paginaActual, registrosPorPagina } = req.query;
+    const { paginaActual, registrosPorPagina, q, estado, sortBy, sortOrder } = req.query;
     const resultado = await vehiculoService.obtenerTodos(
       paginaActual,
-      registrosPorPagina
+      registrosPorPagina,
+      q,
+      estado,
+      sortBy,
+      sortOrder
     );
     res.json({ success: true, ...resultado });
   } catch (error) {
@@ -29,24 +33,6 @@ exports.obtenerPorId = async (req, res) => {
   }
 };
 
-/**
- * @swagger
- * /api/vehiculos/{id}/ubicacion:
- *   get:
- *     summary: Obtiene la ubicación actual de un vehículo
- *     tags: [Vehículos]
- *     parameters:
- *       - in: path
- *         name: id
- *         required: true
- *         schema:
- *           type: integer
- *     responses:
- *       '200':
- *         description: Ubicación del vehículo
- *       '404':
- *         description: Vehículo no encontrado
- */
 exports.obtenerUbicacion = async (req, res) => {
   try {
     const ubicacion = await vehiculoService.obtenerUbicacion(req.params.id);
@@ -59,41 +45,10 @@ exports.obtenerUbicacion = async (req, res) => {
   }
 };
 
-/**
- * @swagger
- * /api/vehiculos/{id}/ubicacion:
- *   put:
- *     summary: Actualiza la ubicación de un vehículo (para conductores)
- *     tags: [Vehículos]
- *     parameters:
- *       - in: path
- *         name: id
- *         required: true
- *         schema:
- *           type: integer
- *     requestBody:
- *       required: true
- *       content:
- *         application/json:
- *           schema:
- *             type: object
- *             properties:
- *               latitud:
- *                 type: number
- *               longitud:
- *                 type: number
- *               estado:
- *                 type: string
- *                 enum: [EN_TERMINAL, EN_RUTA, PROXIMO]
- *     responses:
- *       '200':
- *         description: Ubicación actualizada
- *       '404':
- *         description: Vehículo no encontrado
- */
 exports.actualizarUbicacion = async (req, res) => {
   try {
-    const vehiculo = await vehiculoService.actualizarUbicacion(req.params.id, req.body);
+    const { latitud, longitud, estado } = req.body;
+    const vehiculo = await vehiculoService.actualizarUbicacion(req.params.id, { latitud, longitud, estado });
     res.json({
       success: true,
       message: "Ubicación actualizada",

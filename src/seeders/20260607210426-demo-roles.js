@@ -1,13 +1,11 @@
 "use strict";
 
-/** @type {import('sequelize-cli').Migration} */
+const { Rol } = require("../models");
+
 module.exports = {
   async up(queryInterface, Sequelize) {
-    const existing = await queryInterface.sequelize.query(
-      "SELECT COUNT(*) as cnt FROM Roles",
-      { type: Sequelize.QueryTypes.SELECT }
-    );
-    if (existing[0].cnt > 0) return;
+    const cnt = await Rol.count();
+    if (cnt > 0) return;
     await queryInterface.bulkInsert(
       "Roles",
       [

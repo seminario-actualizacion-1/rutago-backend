@@ -2,18 +2,20 @@ const barrioService = require("../services/barrio.service");
 
 const manejarError = (res, error) => {
   if (error.message?.includes("_NO_ENCONTRADO")) {
-    return res.status(404).json({ success: false, message: error.message });
+    return res.status(404).json({ success: false, message: "Recurso no encontrado" });
   }
   res.status(400).json({ success: false, message: error.message });
 };
 
 exports.obtenerTodos = async (req, res) => {
   try {
-    const { paginaActual, registrosPorPagina, comunaId } = req.query;
+    const { paginaActual, registrosPorPagina, q, comunaId, sortBy, sortOrder } = req.query;
     const resultado = await barrioService.obtenerTodos(
       paginaActual,
       registrosPorPagina,
-      { comunaId }
+      { comunaId, q },
+      sortBy,
+      sortOrder
     );
     res.json({ success: true, ...resultado });
   } catch (error) {
@@ -41,7 +43,8 @@ exports.obtenerPorComuna = async (req, res) => {
 
 exports.crearBarrio = async (req, res) => {
   try {
-    const barrio = await barrioService.crearBarrio(req.body);
+    const { nombre, comunaId } = req.body;
+    const barrio = await barrioService.crearBarrio({ nombre, comunaId });
     res
       .status(201)
       .json({ success: true, message: "Barrio creado", data: barrio });
@@ -52,9 +55,10 @@ exports.crearBarrio = async (req, res) => {
 
 exports.actualizarBarrio = async (req, res) => {
   try {
+    const { nombre, comunaId } = req.body;
     const barrio = await barrioService.actualizarBarrio(
       req.params.id,
-      req.body,
+      { nombre, comunaId },
     );
     res.json({ success: true, message: "Barrio actualizado", data: barrio });
   } catch (error) {

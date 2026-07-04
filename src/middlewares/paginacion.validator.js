@@ -1,8 +1,5 @@
 const { query, validationResult } = require("express-validator");
 
-/**
- * Middleware para manejar los errores de validación de paginación
- */
 const manejarErroresPaginacion = (req, res, next) => {
   const errors = validationResult(req);
   if (!errors.isEmpty()) {
@@ -18,10 +15,6 @@ const manejarErroresPaginacion = (req, res, next) => {
   next();
 };
 
-/**
- * Validación de parámetros de paginación
- * Valida que paginaActual y registrosPorPagina sean números válidos
- */
 const validarPaginacion = [
   query("paginaActual")
     .optional()
@@ -42,21 +35,6 @@ const validarPaginacion = [
   manejarErroresPaginacion,
 ];
 
-/**
- * Middleware para establecer valores por defecto de paginación
- * Si no se envían parámetros, establece paginaActual=1 y registrosPorPagina=10
- */
-const establecerPaginacionPorDefecto = (req, res, next) => {
-  req.query.paginaActual = req.query.paginaActual
-    ? parseInt(req.query.paginaActual)
-    : 1;
-  req.query.registrosPorPagina = req.query.registrosPorPagina
-    ? parseInt(req.query.registrosPorPagina)
-    : 10;
-  next();
-};
-
 module.exports = {
   validarPaginacion,
-  establecerPaginacionPorDefecto,
 };
