@@ -11,27 +11,25 @@ module.exports = {
 
     const table = await queryInterface.describeTable("Vehiculos");
     if (!table.estadoId) {
-      await queryInterface.addColumn("Vehiculos", "estadoId", {
-        type: Sequelize.INTEGER,
-        allowNull: true,
-        references: { model: "EstadosVehiculo", key: "id" },
-        onUpdate: "CASCADE",
-        onDelete: "SET NULL",
-      });
-
-      await queryInterface.sequelize.query(`
-        UPDATE Vehiculos SET estadoId = 1 WHERE estado = 'EN_TERMINAL'
-      `);
-      await queryInterface.sequelize.query(`
-        UPDATE Vehiculos SET estadoId = 2 WHERE estado = 'EN_RUTA'
-      `);
-      await queryInterface.sequelize.query(`
-        UPDATE Vehiculos SET estadoId = 3 WHERE estado = 'PROXIMO'
-      `);
+      await queryInterface.addColumn("Vehiculos", "estadoId", { type: Sequelize.INTEGER, allowNull: true });
     }
-
     if (table.estado) {
+      await queryInterface.sequelize.query(`UPDATE Vehiculos SET estadoId = 1 WHERE estado = 'EN_TERMINAL'`);
+      await queryInterface.sequelize.query(`UPDATE Vehiculos SET estadoId = 2 WHERE estado = 'EN_RUTA'`);
+      await queryInterface.sequelize.query(`UPDATE Vehiculos SET estadoId = 3 WHERE estado = 'PROXIMO'`);
       await queryInterface.removeColumn("Vehiculos", "estado");
+    }
+    try {
+      await queryInterface.addConstraint("Vehiculos", {
+        fields: ["estadoId"],
+        type: "foreign key",
+        name: "Vehiculos_estadoId_fk",
+        references: { table: "EstadosVehiculo", field: "id" },
+        onDelete: "SET NULL",
+        onUpdate: "CASCADE",
+      });
+    } catch (e) {
+      if (e.parent?.code !== "ER_DUP_KEYNAME") throw e;
     }
   },
 
@@ -43,19 +41,11 @@ module.exports = {
         defaultValue: "EN_TERMINAL",
         allowNull: true,
       });
-
-      await queryInterface.sequelize.query(`
-        UPDATE Vehiculos SET estado = 'EN_TERMINAL' WHERE estadoId = 1
-      `);
-      await queryInterface.sequelize.query(`
-        UPDATE Vehiculos SET estado = 'EN_RUTA' WHERE estadoId = 2
-      `);
-      await queryInterface.sequelize.query(`
-        UPDATE Vehiculos SET estado = 'PROXIMO' WHERE estadoId = 3
-      `);
     }
-
     if (table.estadoId) {
+      await queryInterface.sequelize.query(`UPDATE Vehiculos SET estado = 'EN_TERMINAL' WHERE estadoId = 1`);
+      await queryInterface.sequelize.query(`UPDATE Vehiculos SET estado = 'EN_RUTA' WHERE estadoId = 2`);
+      await queryInterface.sequelize.query(`UPDATE Vehiculos SET estado = 'PROXIMO' WHERE estadoId = 3`);
       await queryInterface.removeColumn("Vehiculos", "estadoId");
     }
     await queryInterface.dropTable("EstadosVehiculo");
