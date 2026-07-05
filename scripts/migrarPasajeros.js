@@ -12,7 +12,9 @@ async function migrar() {
     const [usuarios] = await sequelize.query(
       "SELECT id, nombres, apellidos FROM Usuarios WHERE rolId = 3 ORDER BY id",
     );
-    const [perfiles] = await sequelize.query("SELECT usuarioId FROM PerfilPasajeros");
+    const [perfiles] = await sequelize.query(
+      "SELECT usuarioId FROM PerfilPasajeros",
+    );
     const existentes = new Set(perfiles.map((p) => p.usuarioId));
     const pendientes = usuarios.filter((u) => !existentes.has(u.id));
 
@@ -29,7 +31,9 @@ async function migrar() {
         "INSERT INTO PerfilPasajeros (usuarioId, telefono, direccion, tipoDocumentoId, numeroDocumento, fechaNacimiento, createdAt, updatedAt) VALUES (?, '', '', 1, '', NULL, NOW(), NOW())",
         { replacements: [u.id] },
       );
-      console.log(`  Creado perfil para usuario ID ${u.id} - ${u.nombres} ${u.apellidos}`);
+      console.log(
+        `  Creado perfil para usuario ID ${u.id} - ${u.nombres} ${u.apellidos}`,
+      );
     }
 
     console.log("Migración completada");
