@@ -9,44 +9,54 @@ module.exports = {
       updatedAt: { allowNull: false, type: Sequelize.DATE },
     });
 
-    await queryInterface.addColumn("PerfilConductors", "estadoId", {
-      type: Sequelize.INTEGER,
-      allowNull: true,
-      references: { model: "EstadosConductor", key: "id" },
-      onUpdate: "CASCADE",
-      onDelete: "SET NULL",
-    });
+    const table = await queryInterface.describeTable("PerfilConductors");
+    if (!table.estadoId) {
+      await queryInterface.addColumn("PerfilConductors", "estadoId", {
+        type: Sequelize.INTEGER,
+        allowNull: true,
+        references: { model: "EstadosConductor", key: "id" },
+        onUpdate: "CASCADE",
+        onDelete: "SET NULL",
+      });
 
-    await queryInterface.sequelize.query(`
-      UPDATE PerfilConductors SET estadoId = 1 WHERE estado = 'DISPONIBLE'
-    `);
-    await queryInterface.sequelize.query(`
-      UPDATE PerfilConductors SET estadoId = 2 WHERE estado = 'EN_VIAJE'
-    `);
-    await queryInterface.sequelize.query(`
-      UPDATE PerfilConductors SET estadoId = 3 WHERE estado = 'INACTIVO'
-    `);
+      await queryInterface.sequelize.query(`
+        UPDATE PerfilConductors SET estadoId = 1 WHERE estado = 'DISPONIBLE'
+      `);
+      await queryInterface.sequelize.query(`
+        UPDATE PerfilConductors SET estadoId = 2 WHERE estado = 'EN_VIAJE'
+      `);
+      await queryInterface.sequelize.query(`
+        UPDATE PerfilConductors SET estadoId = 3 WHERE estado = 'INACTIVO'
+      `);
+    }
 
-    await queryInterface.removeColumn("PerfilConductors", "estado");
+    if (table.estado) {
+      await queryInterface.removeColumn("PerfilConductors", "estado");
+    }
   },
 
   async down(queryInterface, Sequelize) {
-    await queryInterface.addColumn("PerfilConductors", "estado", {
-      type: Sequelize.STRING,
-      allowNull: true,
-    });
+    const table = await queryInterface.describeTable("PerfilConductors");
+    if (!table.estado) {
+      await queryInterface.addColumn("PerfilConductors", "estado", {
+        type: Sequelize.STRING,
+        allowNull: true,
+      });
 
-    await queryInterface.sequelize.query(`
-      UPDATE PerfilConductors SET estado = 'DISPONIBLE' WHERE estadoId = 1
-    `);
-    await queryInterface.sequelize.query(`
-      UPDATE PerfilConductors SET estado = 'EN_VIAJE' WHERE estadoId = 2
-    `);
-    await queryInterface.sequelize.query(`
-      UPDATE PerfilConductors SET estado = 'INACTIVO' WHERE estadoId = 3
-    `);
+      await queryInterface.sequelize.query(`
+        UPDATE PerfilConductors SET estado = 'DISPONIBLE' WHERE estadoId = 1
+      `);
+      await queryInterface.sequelize.query(`
+        UPDATE PerfilConductors SET estado = 'EN_VIAJE' WHERE estadoId = 2
+      `);
+      await queryInterface.sequelize.query(`
+        UPDATE PerfilConductors SET estado = 'INACTIVO' WHERE estadoId = 3
+      `);
+    }
 
-    await queryInterface.removeColumn("PerfilConductors", "estadoId");
+    if (table.estadoId) {
+      await queryInterface.removeColumn("PerfilConductors", "estadoId");
+    }
     await queryInterface.dropTable("EstadosConductor");
   },
 };
