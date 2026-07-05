@@ -44,7 +44,7 @@ exports.crearPerfil = async (datos) => {
     usuarioId,
     telefono: datos.telefono,
     direccion: datos.direccion,
-    tipoDocumento: datos.tipoDocumento,
+    tipoDocumentoId: datos.tipoDocumentoId,
     numeroDocumento: datos.numeroDocumento,
     fechaNacimiento: datos.fechaNacimiento,
   };
@@ -63,7 +63,7 @@ exports.actualizarMiPerfil = async (usuarioId, datos) => {
   const datosPermitidos = {
     telefono: datos.telefono,
     direccion: datos.direccion,
-    tipoDocumento: datos.tipoDocumento,
+    tipoDocumentoId: datos.tipoDocumentoId,
     numeroDocumento: datos.numeroDocumento,
     fechaNacimiento: datos.fechaNacimiento,
   };

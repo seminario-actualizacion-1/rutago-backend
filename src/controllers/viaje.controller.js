@@ -87,7 +87,7 @@ exports.aceptarViaje = async (req, res) => {
   try {
     const viaje = await viajeService.actualizarEstado(
       req.params.id,
-      "ACEPTADO",
+      2,
       req.usuario.id,
     );
     res.json({ success: true, message: "Viaje aceptado", data: viaje });
@@ -100,7 +100,7 @@ exports.iniciarViaje = async (req, res) => {
   try {
     const viaje = await viajeService.actualizarEstado(
       req.params.id,
-      "EN_CURSO",
+      3,
     );
     res.json({ success: true, message: "Viaje iniciado", data: viaje });
   } catch (error) {
@@ -112,7 +112,7 @@ exports.finalizarViaje = async (req, res) => {
   try {
     const viaje = await viajeService.actualizarEstado(
       req.params.id,
-      "FINALIZADO",
+      4,
     );
     res.json({ success: true, message: "Viaje finalizado", data: viaje });
   } catch (error) {
@@ -124,7 +124,7 @@ exports.cancelarViaje = async (req, res) => {
   try {
     const viaje = await viajeService.actualizarEstado(
       req.params.id,
-      "CANCELADO",
+      5,
     );
     res.json({ success: true, message: "Viaje cancelado", data: viaje });
   } catch (error) {

@@ -41,10 +41,10 @@ exports.actualizarPerfil = async (id, datos) => {
   return await perfil.update(datos);
 };
 
-exports.actualizarEstado = async (id, estado) => {
+exports.actualizarEstado = async (id, estadoId) => {
   const perfil = await PerfilConductor.findByPk(id);
   if (!perfil) throw new Error("PERFIL_CONDUCTOR_NO_ENCONTRADO");
-  return await perfil.update({ estado });
+  return await perfil.update({ estadoId });
 };
 
 exports.eliminarPerfil = async (id) => {

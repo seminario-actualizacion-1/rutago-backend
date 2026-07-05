@@ -10,6 +10,7 @@ module.exports = (sequelize, DataTypes) => {
     static associate(models) {
       PerfilConductor.belongsTo(models.Usuario, { foreignKey: "usuarioId", as: "usuario" });
       PerfilConductor.belongsTo(models.Vehiculo, { foreignKey: "vehiculoId", as: "vehiculo" });
+      PerfilConductor.belongsTo(models.EstadoConductor, { foreignKey: "estadoId", as: "estadoConductor" });
     }
   }
   PerfilConductor.init(
@@ -17,7 +18,10 @@ module.exports = (sequelize, DataTypes) => {
       usuarioId: DataTypes.INTEGER,
       vehiculoId: DataTypes.INTEGER,
       licenciaConducir: DataTypes.STRING,
-      estado: DataTypes.STRING,
+      estadoId: {
+        type: DataTypes.INTEGER,
+        defaultValue: 1,
+      },
     },
     {
       sequelize,
