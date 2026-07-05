@@ -1,7 +1,8 @@
 require("dotenv").config();
 const { Sequelize } = require("sequelize");
 const config = require("../src/config/config");
-const sequelize = new Sequelize(config.development);
+const env = process.env.NODE_ENV || "development";
+const sequelize = new Sequelize(config[env]);
 
 async function migrar() {
   try {
@@ -25,7 +26,7 @@ async function migrar() {
 
     for (const u of pendientes) {
       await sequelize.query(
-        "INSERT INTO PerfilPasajeros (usuarioId, telefono, direccion, tipoDocumento, numeroDocumento, fechaNacimiento, createdAt, updatedAt) VALUES (?, '', '', 'CC', '', NULL, NOW(), NOW())",
+        "INSERT INTO PerfilPasajeros (usuarioId, telefono, direccion, tipoDocumentoId, numeroDocumento, fechaNacimiento, createdAt, updatedAt) VALUES (?, '', '', 1, '', NULL, NOW(), NOW())",
         { replacements: [u.id] },
       );
       console.log(`  Creado perfil para usuario ID ${u.id} - ${u.nombres} ${u.apellidos}`);
