@@ -7,21 +7,9 @@ const {
   formatearRespuestaPaginada,
   calcularOffset,
 } = require("../helpers/paginacion.helper");
+const { ESTADOS_VIAJE, ESTADOS_CONDUCTOR, TRANSICIONES_VIAJE } = require("../config/estados");
 
-const ESTADOS_VALIDOS = [
-  "BUSCANDO",
-  "ACEPTADO",
-  "EN_CURSO",
-  "FINALIZADO",
-  "CANCELADO",
-];
-const TRANSICIONES_VALIDAS = {
-  BUSCANDO: ["ACEPTADO", "CANCELADO"],
-  ACEPTADO: ["EN_CURSO", "CANCELADO"],
-  EN_CURSO: ["FINALIZADO", "CANCELADO"],
-  FINALIZADO: [],
-  CANCELADO: [],
-};
+const ESTADOS_VALIDOS = Object.values(ESTADOS_VIAJE);
 
 exports.obtenerTodos = async (paginaActual = 1, registrosPorPagina = 10, q, sortBy = "createdAt", sortOrder = "DESC") => {
   const offset = calcularOffset(paginaActual, registrosPorPagina);
@@ -78,28 +66,29 @@ exports.crearViaje = async (datos) => {
   return await viajeRepository.crearViaje(datos);
 };
 
-exports.actualizarEstado = async (id, nuevoEstado, conductorId = null) => {
+exports.actualizarEstado = async (id, nuevoEstadoId, conductorId = null) => {
   const viaje = await viajeRepository.obtenerPorIdSimple(id);
   if (!viaje) throw new Error("VIAJE_NO_ENCONTRADO");
 
-  if (!ESTADOS_VALIDOS.includes(nuevoEstado)) {
+  nuevoEstadoId = Number(nuevoEstadoId);
+  if (!ESTADOS_VALIDOS.includes(nuevoEstadoId)) {
     throw new Error("ESTADO_NO_VALIDO");
   }
 
-  const transicionesPermitidas = TRANSICIONES_VALIDAS[viaje.estado] || [];
-  if (!transicionesPermitidas.includes(nuevoEstado)) {
+  const transicionesPermitidas = TRANSICIONES_VIAJE[viaje.estadoId] || [];
+  if (!transicionesPermitidas.includes(nuevoEstadoId)) {
     throw new Error("TRANSICION_ESTADO_NO_VALIDA");
   }
 
-  if (nuevoEstado === "ACEPTADO") {
+  if (nuevoEstadoId === ESTADOS_VIAJE.ACEPTADO) {
     if (!conductorId) throw new Error("SE_REQUIERE_CONDUCTOR");
     const perfil = await perfilConductorRepository.obtenerPorUsuario(conductorId);
     if (!perfil) throw new Error("CONDUCTOR_SIN_PERFIL");
-    if (perfil.estado !== "DISPONIBLE") {
+    if (perfil.estadoId !== ESTADOS_CONDUCTOR.DISPONIBLE) {
       throw new Error("CONDUCTOR_NO_DISPONIBLE");
     }
-    return await viajeRepository.actualizarViaje(id, { estado: nuevoEstado, conductorId });
+    return await viajeRepository.actualizarViaje(id, { estadoId: nuevoEstadoId, conductorId });
   }
 
-  return await viajeRepository.actualizarViaje(id, { estado: nuevoEstado });
+  return await viajeRepository.actualizarViaje(id, { estadoId: nuevoEstadoId });
 };

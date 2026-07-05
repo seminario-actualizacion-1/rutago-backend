@@ -7,7 +7,7 @@ exports.obtenerTodos = async () => {
   });
 };
 
-exports.obtenerTodosConPaginacion = async (limit, offset, q, estado, sortBy = "id", sortOrder = "ASC") => {
+exports.obtenerTodosConPaginacion = async (limit, offset, q, estadoId, sortBy = "id", sortOrder = "ASC") => {
   const where = {};
   if (q) {
     where[Op.or] = [
@@ -17,8 +17,8 @@ exports.obtenerTodosConPaginacion = async (limit, offset, q, estado, sortBy = "i
       { color: { [Op.like]: `%${q}%` } },
     ];
   }
-  if (estado) {
-    where.estado = estado;
+  if (estadoId) {
+    where.estadoId = estadoId;
   }
   return await Vehiculo.findAndCountAll({
     include: [{ model: PerfilEntidad, as: "perfilEntidad" }],

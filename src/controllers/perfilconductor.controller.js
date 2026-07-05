@@ -50,8 +50,8 @@ exports.obtenerMiPerfil = async (req, res) => {
 
 exports.crearPerfil = async (req, res) => {
   try {
-    const { usuarioId, vehiculoId, licenciaConducir, estado } = req.body;
-    const perfil = await perfilConductorService.crearPerfil({ usuarioId, vehiculoId, licenciaConducir, estado });
+    const { usuarioId, vehiculoId, licenciaConducir, estadoId } = req.body;
+    const perfil = await perfilConductorService.crearPerfil({ usuarioId, vehiculoId, licenciaConducir, estadoId });
     res.status(201).json({
       success: true,
       message: "Perfil de conductor creado",
@@ -64,10 +64,10 @@ exports.crearPerfil = async (req, res) => {
 
 exports.actualizarPerfil = async (req, res) => {
   try {
-    const { vehiculoId, licenciaConducir, estado } = req.body;
+    const { vehiculoId, licenciaConducir, estadoId } = req.body;
     const perfil = await perfilConductorService.actualizarPerfil(
       req.params.id,
-      { vehiculoId, licenciaConducir, estado },
+      { vehiculoId, licenciaConducir, estadoId },
     );
     res.json({ success: true, message: "Perfil actualizado", data: perfil });
   } catch (error) {
@@ -93,10 +93,10 @@ exports.actualizarMiPerfil = async (req, res) => {
 
 exports.cambiarEstado = async (req, res) => {
   try {
-    const { estado } = req.body;
+    const { estadoId } = req.body;
     const perfil = await perfilConductorService.actualizarEstado(
       req.params.id,
-      estado,
+      estadoId,
     );
     res.json({ success: true, message: "Estado actualizado", data: perfil });
   } catch (error) {

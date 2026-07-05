@@ -4,8 +4,9 @@ const {
   formatearRespuestaPaginada,
   calcularOffset,
 } = require("../helpers/paginacion.helper");
+const { ESTADOS_CONDUCTOR } = require("../config/estados");
 
-const ESTADOS_VALIDOS = ["DISPONIBLE", "EN_VIAJE", "INACTIVO"];
+const ESTADOS_VALIDOS = Object.values(ESTADOS_CONDUCTOR);
 
 exports.obtenerTodos = async (paginaActual = 1, registrosPorPagina = 10, q, sortBy = "createdAt", sortOrder = "DESC") => {
   const offset = calcularOffset(paginaActual, registrosPorPagina);
@@ -35,7 +36,7 @@ exports.obtenerPorUsuario = async (usuarioId) => {
 };
 
 exports.crearPerfil = async (datos) => {
-  const { usuarioId, vehiculoId, estado } = datos;
+  const { usuarioId, vehiculoId, estadoId } = datos;
 
   const usuario = await perfilConductorRepository.obtenerUsuarioPorId(usuarioId);
   if (!usuario) throw new Error("USUARIO_NO_ENCONTRADO");
@@ -46,7 +47,7 @@ exports.crearPerfil = async (datos) => {
     if (!vehiculo) throw new Error("VEHICULO_NO_ENCONTRADO");
   }
 
-  if (estado && !ESTADOS_VALIDOS.includes(estado)) {
+  if (estadoId && !ESTADOS_VALIDOS.includes(Number(estadoId))) {
     throw new Error("ESTADO_CONDUCTOR_INVALIDO");
   }
 
@@ -57,7 +58,7 @@ exports.crearPerfil = async (datos) => {
     usuarioId,
     vehiculoId,
     licenciaConducir: datos.licenciaConducir,
-    estado: estado || "DISPONIBLE",
+    estadoId: estadoId || ESTADOS_CONDUCTOR.DISPONIBLE,
   };
 
   return await perfilConductorRepository.crearPerfil(datosPermitidos);
@@ -69,7 +70,7 @@ exports.actualizarPerfil = async (id, datos) => {
     if (!vehiculo) throw new Error("VEHICULO_NO_ENCONTRADO");
   }
 
-  if (datos.estado && !ESTADOS_VALIDOS.includes(datos.estado)) {
+  if (datos.estadoId && !ESTADOS_VALIDOS.includes(Number(datos.estadoId))) {
     throw new Error("ESTADO_CONDUCTOR_INVALIDO");
   }
 
@@ -84,7 +85,7 @@ exports.actualizarMiPerfil = async (usuarioId, datos) => {
 
   const datosPermitidos = {
     licenciaConducir: datos.licenciaConducir,
-    estado: datos.estado,
+    estadoId: datos.estadoId,
   };
 
   return await perfilConductorRepository.actualizarPerfil(
@@ -93,11 +94,11 @@ exports.actualizarMiPerfil = async (usuarioId, datos) => {
   );
 };
 
-exports.actualizarEstado = async (id, estado) => {
-  if (!ESTADOS_VALIDOS.includes(estado)) {
+exports.actualizarEstado = async (id, estadoId) => {
+  if (!ESTADOS_VALIDOS.includes(Number(estadoId))) {
     throw new Error("ESTADO_CONDUCTOR_INVALIDO");
   }
-  return await perfilConductorRepository.actualizarEstado(id, estado);
+  return await perfilConductorRepository.actualizarEstado(id, estadoId);
 };
 
 exports.eliminarPerfil = async (id) => {

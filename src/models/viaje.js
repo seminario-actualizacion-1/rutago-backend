@@ -24,6 +24,10 @@ module.exports = (sequelize, DataTypes) => {
         foreignKey: "barrioDestinoId",
         as: "barrioDestino",
       });
+      Viaje.belongsTo(models.EstadoViaje, {
+        foreignKey: "estadoId",
+        as: "estadoViaje",
+      });
     }
   }
   Viaje.init(
@@ -32,7 +36,10 @@ module.exports = (sequelize, DataTypes) => {
       conductorId: DataTypes.INTEGER,
       barrioOrigenId: DataTypes.INTEGER,
       barrioDestinoId: DataTypes.INTEGER,
-      estado: DataTypes.STRING,
+      estadoId: {
+        type: DataTypes.INTEGER,
+        defaultValue: 1,
+      },
       precioEstimado: DataTypes.DECIMAL,
     },
     {

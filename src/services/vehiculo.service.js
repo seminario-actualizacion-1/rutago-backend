@@ -3,11 +3,12 @@ const {
   formatearRespuestaPaginada,
   calcularOffset,
 } = require("../helpers/paginacion.helper");
+const { ESTADOS_VEHICULO } = require("../config/estados");
 
-const ESTADOS_VALIDOS_VEHICULO = ["EN_TERMINAL", "EN_RUTA", "PROXIMO"];
+const ESTADOS_VALIDOS_VEHICULO = Object.values(ESTADOS_VEHICULO);
 
 const validarVehiculoPayload = async (datos) => {
-  const { placa, marca, modelo, color, capacidadPasajeros, entidadId, estado } = datos;
+  const { placa, marca, modelo, color, capacidadPasajeros, entidadId, estadoId } = datos;
 
   if (!placa || !marca || !modelo || !color) {
     throw new Error("PLACA_MARCA_MODELO_Y_COLOR_SON_OBLIGATORIOS");
@@ -17,7 +18,7 @@ const validarVehiculoPayload = async (datos) => {
     throw new Error("CAPACIDAD_INVALIDA");
   }
 
-  if (estado && !ESTADOS_VALIDOS_VEHICULO.includes(estado)) {
+  if (estadoId && !ESTADOS_VALIDOS_VEHICULO.includes(Number(estadoId))) {
     throw new Error("ESTADO_VEHICULO_INVALIDO");
   }
 
@@ -27,7 +28,7 @@ const validarVehiculoPayload = async (datos) => {
   }
 };
 
-exports.obtenerTodos = async (paginaActual = 1, registrosPorPagina = 10, q, estado, sortBy = "id", sortOrder = "ASC") => {
+exports.obtenerTodos = async (paginaActual = 1, registrosPorPagina = 10, q, estadoId, sortBy = "id", sortOrder = "ASC") => {
   const offset = calcularOffset(paginaActual, registrosPorPagina);
   const limit = parseInt(registrosPorPagina);
 
@@ -35,7 +36,7 @@ exports.obtenerTodos = async (paginaActual = 1, registrosPorPagina = 10, q, esta
     limit,
     offset,
     q,
-    estado,
+    estadoId,
     sortBy,
     sortOrder
   );
@@ -61,7 +62,7 @@ exports.obtenerUbicacion = async (id) => {
   return {
     id: vehiculo.id,
     placa: vehiculo.placa,
-    estado: vehiculo.estado,
+    estadoId: vehiculo.estadoId,
     latitud: vehiculo.latitud,
     longitud: vehiculo.longitud,
     ultimaActualizacion: vehiculo.ultimaActualizacion,
@@ -69,11 +70,11 @@ exports.obtenerUbicacion = async (id) => {
 };
 
 exports.actualizarUbicacion = async (id, datos) => {
-  const { latitud, longitud, estado } = datos;
+  const { latitud, longitud, estadoId } = datos;
   return await vehiculoRepository.actualizarVehiculo(id, {
     latitud,
     longitud,
-    estado,
+    estadoId,
     ultimaActualizacion: new Date(),
   });
 };
@@ -86,7 +87,7 @@ exports.crearVehiculo = async (datos) => {
     color: datos.color,
     capacidadPasajeros: datos.capacidadPasajeros,
     entidadId: datos.entidadId,
-    estado: datos.estado,
+    estadoId: datos.estadoId,
     latitud: datos.latitud,
     longitud: datos.longitud,
   };
@@ -102,7 +103,7 @@ exports.actualizarVehiculo = async (id, datos) => {
     color: datos.color,
     capacidadPasajeros: datos.capacidadPasajeros,
     entidadId: datos.entidadId,
-    estado: datos.estado,
+    estadoId: datos.estadoId,
     latitud: datos.latitud,
     longitud: datos.longitud,
   };

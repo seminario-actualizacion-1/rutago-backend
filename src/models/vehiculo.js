@@ -10,6 +10,7 @@ module.exports = (sequelize, DataTypes) => {
     static associate(models) {
       Vehiculo.belongsTo(models.PerfilEntidad, { foreignKey: "entidadId", as: "perfilEntidad" });
       Vehiculo.hasMany(models.PerfilConductor, { foreignKey: "vehiculoId", as: "perfilesConductor" });
+      Vehiculo.belongsTo(models.EstadoVehiculo, { foreignKey: "estadoId", as: "estadoVehiculo" });
     }
   }
   Vehiculo.init(
@@ -20,9 +21,9 @@ module.exports = (sequelize, DataTypes) => {
       color: DataTypes.STRING,
       capacidadPasajeros: DataTypes.INTEGER,
       entidadId: DataTypes.INTEGER,
-      estado: {
-        type: DataTypes.ENUM("EN_TERMINAL", "EN_RUTA", "PROXIMO"),
-        defaultValue: "EN_TERMINAL",
+      estadoId: {
+        type: DataTypes.INTEGER,
+        defaultValue: 1,
       },
       latitud: DataTypes.DECIMAL(10, 8),
       longitud: DataTypes.DECIMAL(11, 8),

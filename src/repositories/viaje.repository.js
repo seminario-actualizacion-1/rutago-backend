@@ -69,7 +69,7 @@ exports.obtenerMisViajes = async (usuarioId, esConductor) => {
 };
 
 exports.crearViaje = async (datos) => {
-  return await Viaje.create({ ...datos, estado: "BUSCANDO" });
+  return await Viaje.create({ ...datos, estadoId: 1 });
 };
 
 exports.obtenerPorIdSimple = async (id) => {

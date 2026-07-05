@@ -12,6 +12,8 @@ npm ci --include=dev
 echo "→ Ejecutando migraciones de producción..."
 export NODE_ENV=production
 npx sequelize-cli db:migrate --env production
+echo "→ Insertando/actualizando datos de catálogos..."
+npx sequelize-cli db:seed:all --env production
 echo "→ Migrando pasajeros existentes a PerfilPasajero..."
 node scripts/migrarPasajeros.js
 echo "→ Eliminando dependencias de desarrollo..."

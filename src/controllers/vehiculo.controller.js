@@ -9,12 +9,12 @@ const manejarError = (res, error) => {
 
 exports.obtenerTodos = async (req, res) => {
   try {
-    const { paginaActual, registrosPorPagina, q, estado, sortBy, sortOrder } = req.query;
+    const { paginaActual, registrosPorPagina, q, estadoId, sortBy, sortOrder } = req.query;
     const resultado = await vehiculoService.obtenerTodos(
       paginaActual,
       registrosPorPagina,
       q,
-      estado,
+      estadoId,
       sortBy,
       sortOrder
     );
@@ -47,8 +47,8 @@ exports.obtenerUbicacion = async (req, res) => {
 
 exports.actualizarUbicacion = async (req, res) => {
   try {
-    const { latitud, longitud, estado } = req.body;
-    const vehiculo = await vehiculoService.actualizarUbicacion(req.params.id, { latitud, longitud, estado });
+    const { latitud, longitud, estadoId } = req.body;
+    const vehiculo = await vehiculoService.actualizarUbicacion(req.params.id, { latitud, longitud, estadoId });
     res.json({
       success: true,
       message: "Ubicación actualizada",
