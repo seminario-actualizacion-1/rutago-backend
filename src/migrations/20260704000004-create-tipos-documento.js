@@ -9,6 +9,15 @@ module.exports = {
       updatedAt: { allowNull: false, type: Sequelize.DATE },
     });
 
+    await queryInterface.sequelize.query(`
+      INSERT IGNORE INTO TiposDocumento (id, nombre, createdAt, updatedAt) VALUES
+      (1, 'CC', NOW(), NOW()),
+      (2, 'TI', NOW(), NOW()),
+      (3, 'CE', NOW(), NOW()),
+      (4, 'NIT', NOW(), NOW()),
+      (5, 'PASAPORTE', NOW(), NOW())
+    `);
+
     const table = await queryInterface.describeTable("PerfilPasajeros");
     if (!table.tipoDocumentoId) {
       await queryInterface.addColumn("PerfilPasajeros", "tipoDocumentoId", { type: Sequelize.INTEGER, allowNull: true });

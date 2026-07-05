@@ -9,6 +9,15 @@ module.exports = {
       updatedAt: { allowNull: false, type: Sequelize.DATE },
     });
 
+    await queryInterface.sequelize.query(`
+      INSERT IGNORE INTO EstadosViaje (id, nombre, createdAt, updatedAt) VALUES
+      (1, 'BUSCANDO', NOW(), NOW()),
+      (2, 'ACEPTADO', NOW(), NOW()),
+      (3, 'EN_CURSO', NOW(), NOW()),
+      (4, 'FINALIZADO', NOW(), NOW()),
+      (5, 'CANCELADO', NOW(), NOW())
+    `);
+
     const table = await queryInterface.describeTable("Viajes");
     if (!table.estadoId) {
       await queryInterface.addColumn("Viajes", "estadoId", { type: Sequelize.INTEGER, allowNull: true });

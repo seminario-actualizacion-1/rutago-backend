@@ -2,6 +2,7 @@
 
 module.exports = {
   async up(queryInterface, Sequelize) {
+    // Crear catálogo si no existe
     await queryInterface.createTable("EstadosVehiculo", {
       id: { allowNull: false, autoIncrement: true, primaryKey: true, type: Sequelize.INTEGER },
       nombre: { type: Sequelize.STRING(30), allowNull: false, unique: true },
@@ -9,6 +10,15 @@ module.exports = {
       updatedAt: { allowNull: false, type: Sequelize.DATE },
     });
 
+    // Insertar datos del catálogo (idempotente)
+    await queryInterface.sequelize.query(`
+      INSERT IGNORE INTO EstadosVehiculo (id, nombre, createdAt, updatedAt) VALUES
+      (1, 'EN_TERMINAL', NOW(), NOW()),
+      (2, 'EN_RUTA', NOW(), NOW()),
+      (3, 'PROXIMO', NOW(), NOW())
+    `);
+
+    // Migrar columna estado → estadoId
     const table = await queryInterface.describeTable("Vehiculos");
     if (!table.estadoId) {
       await queryInterface.addColumn("Vehiculos", "estadoId", { type: Sequelize.INTEGER, allowNull: true });
@@ -19,6 +29,7 @@ module.exports = {
       await queryInterface.sequelize.query(`UPDATE Vehiculos SET estadoId = 3 WHERE estado = 'PROXIMO'`);
       await queryInterface.removeColumn("Vehiculos", "estado");
     }
+    // Agregar FK si no existe
     try {
       await queryInterface.addConstraint("Vehiculos", {
         fields: ["estadoId"],

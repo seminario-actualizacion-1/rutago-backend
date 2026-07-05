@@ -9,6 +9,13 @@ module.exports = {
       updatedAt: { allowNull: false, type: Sequelize.DATE },
     });
 
+    await queryInterface.sequelize.query(`
+      INSERT IGNORE INTO EstadosConductor (id, nombre, createdAt, updatedAt) VALUES
+      (1, 'DISPONIBLE', NOW(), NOW()),
+      (2, 'EN_VIAJE', NOW(), NOW()),
+      (3, 'INACTIVO', NOW(), NOW())
+    `);
+
     const table = await queryInterface.describeTable("PerfilConductors");
     if (!table.estadoId) {
       await queryInterface.addColumn("PerfilConductors", "estadoId", { type: Sequelize.INTEGER, allowNull: true });
