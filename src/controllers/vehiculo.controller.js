@@ -1,4 +1,7 @@
 const vehiculoService = require("../services/vehiculo.service");
+const perfilEntidadRepository = require("../repositories/perfilentidad.repository");
+const vehiculoRepository = require("../repositories/vehiculo.repository");
+const { ROLES } = require("../config/roles");
 
 const manejarError = (res, error) => {
   if (error.message?.includes("_NO_ENCONTRADO")) {
@@ -61,7 +64,15 @@ exports.actualizarUbicacion = async (req, res) => {
 
 exports.crearVehiculo = async (req, res) => {
   try {
-    const vehiculo = await vehiculoService.crearVehiculo(req.body);
+    const datos = { ...req.body };
+    if (req.usuario.rolId === ROLES.ENTIDAD) {
+      const entidad = await perfilEntidadRepository.obtenerPorUsuario(req.usuario.id);
+      if (!entidad) {
+        return res.status(400).json({ success: false, message: "No tienes un perfil de entidad." });
+      }
+      datos.entidadId = entidad.id;
+    }
+    const vehiculo = await vehiculoService.crearVehiculo(datos);
     res
       .status(201)
       .json({ success: true, message: "Vehículo creado", data: vehiculo });
@@ -72,6 +83,16 @@ exports.crearVehiculo = async (req, res) => {
 
 exports.actualizarVehiculo = async (req, res) => {
   try {
+    if (req.usuario.rolId === ROLES.ENTIDAD) {
+      const entidad = await perfilEntidadRepository.obtenerPorUsuario(req.usuario.id);
+      if (!entidad) {
+        return res.status(400).json({ success: false, message: "No tienes un perfil de entidad." });
+      }
+      const vehiculo = await vehiculoRepository.obtenerPorId(req.params.id);
+      if (vehiculo.entidadId !== entidad.id) {
+        return res.status(403).json({ success: false, message: "No puedes modificar vehículos de otra entidad." });
+      }
+    }
     const vehiculo = await vehiculoService.actualizarVehiculo(
       req.params.id,
       req.body,
@@ -88,6 +109,16 @@ exports.actualizarVehiculo = async (req, res) => {
 
 exports.eliminarVehiculo = async (req, res) => {
   try {
+    if (req.usuario.rolId === ROLES.ENTIDAD) {
+      const entidad = await perfilEntidadRepository.obtenerPorUsuario(req.usuario.id);
+      if (!entidad) {
+        return res.status(400).json({ success: false, message: "No tienes un perfil de entidad." });
+      }
+      const vehiculo = await vehiculoRepository.obtenerPorId(req.params.id);
+      if (vehiculo.entidadId !== entidad.id) {
+        return res.status(403).json({ success: false, message: "No puedes eliminar vehículos de otra entidad." });
+      }
+    }
     await vehiculoService.eliminarVehiculo(req.params.id);
     res.json({ success: true, message: "Vehículo eliminado" });
   } catch (error) {

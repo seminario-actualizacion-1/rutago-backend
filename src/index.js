@@ -48,10 +48,23 @@ const swaggerOptions = {
     },
     servers: [
       {
-        url: process.env.API_URL || `http://localhost:${PORT}`,
-        description: "Servidor de RutaGo",
+        url: `http://localhost:${PORT}`,
+        description: "Local (desarrollo)",
+      },
+      {
+        url: "https://rutago.seminario1.eleueleo.com/api",
+        description: "Producción (VPS)",
       },
     ],
+    components: {
+      securitySchemes: {
+        bearerAuth: {
+          type: "http",
+          scheme: "bearer",
+          bearerFormat: "JWT",
+        },
+      },
+    },
   },
   apis: ["./src/routes/*.js", "./src/controllers/*.js"],
 };

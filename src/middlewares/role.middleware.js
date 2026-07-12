@@ -56,6 +56,19 @@ exports.esConductorOAdmin = (req, res, next) => {
   }
 };
 
+exports.esAdminOEntidad = (req, res, next) => {
+  if (req.usuario && (req.usuario.rolId === ROLES.ADMIN || req.usuario.rolId === ROLES.ENTIDAD)) {
+    next();
+  } else {
+    return res
+      .status(403)
+      .json({
+        success: false,
+        message: "Requiere permisos de administrador o entidad externa.",
+      });
+  }
+};
+
 exports.esPasajeroOConductorOAdmin = (req, res, next) => {
   if (
     req.usuario &&
