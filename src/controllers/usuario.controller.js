@@ -1,4 +1,5 @@
 const usuarioService = require("../services/usuario.service");
+const usuarioDto = require("../dtos/usuario.dto");
 
 const manejarError = (res, error) => {
   if (error.message?.includes("_NO_ENCONTRADO")) {
@@ -9,24 +10,18 @@ const manejarError = (res, error) => {
 
 exports.registrarUsuario = async (req, res) => {
   try {
-    const { nombres, apellidos, correo, contrasena, rolId } = req.body;
+    const datos = usuarioDto.paraCrear(req.body);
 
-    if (!nombres || !apellidos || !correo || !contrasena) {
+    if (!datos.nombres || !datos.apellidos || !datos.correo || !datos.contrasena) {
       return res.status(400).json({
         success: false,
         message: "Todos los campos son obligatorios.",
       });
     }
 
-    const datosParaCrear = {
-      nombres,
-      apellidos,
-      correo,
-      contrasena,
-      rolId: rolId || 3,
-    };
+    if (!datos.rolId) datos.rolId = 3;
 
-    const nuevoUsuario = await usuarioService.crearUsuario(datosParaCrear);
+    const nuevoUsuario = await usuarioService.crearUsuario(datos);
 
     return res.status(201).json({
       success: true,
@@ -134,7 +129,7 @@ exports.obtenerTodos = async (req, res) => {
 exports.obtenerPorId = async (req, res) => {
   try {
     const usuario = await usuarioService.obtenerPorId(req.params.id);
-    res.json({ success: true, data: usuario });
+    res.json({ success: true, data: usuarioDto.paraRespuesta(usuario) });
   } catch (error) {
     manejarError(res, error);
   }
@@ -148,7 +143,7 @@ exports.obtenerMiPerfil = async (req, res) => {
         .json({ success: false, message: "Usuario no autenticado" });
     }
     const usuario = await usuarioService.obtenerMiPerfil(req.usuario.id);
-    res.json({ success: true, data: usuario });
+    res.json({ success: true, data: usuarioDto.paraRespuesta(usuario) });
   } catch (error) {
     manejarError(res, error);
   }
@@ -156,13 +151,9 @@ exports.obtenerMiPerfil = async (req, res) => {
 
 exports.actualizarMiPerfil = async (req, res) => {
   try {
-    const { nombres, apellidos, correo } = req.body;
-    const usuario = await usuarioService.actualizarDatos(req.usuario.id, {
-      nombres,
-      apellidos,
-      correo,
-    });
-    res.json({ success: true, message: "Perfil actualizado", data: usuario });
+    const datos = usuarioDto.paraActualizar(req.body);
+    const usuario = await usuarioService.actualizarDatos(req.usuario.id, datos);
+    res.json({ success: true, message: "Perfil actualizado", data: usuarioDto.paraRespuesta(usuario) });
   } catch (error) {
     manejarError(res, error);
   }
@@ -170,13 +161,9 @@ exports.actualizarMiPerfil = async (req, res) => {
 
 exports.actualizarUsuario = async (req, res) => {
   try {
-    const { nombres, apellidos, correo } = req.body;
-    const usuario = await usuarioService.actualizarDatos(req.params.id, {
-      nombres,
-      apellidos,
-      correo,
-    });
-    res.json({ success: true, message: "Usuario actualizado", data: usuario });
+    const datos = usuarioDto.paraActualizar(req.body);
+    const usuario = await usuarioService.actualizarDatos(req.params.id, datos);
+    res.json({ success: true, message: "Usuario actualizado", data: usuarioDto.paraRespuesta(usuario) });
   } catch (error) {
     manejarError(res, error);
   }
@@ -203,14 +190,12 @@ exports.eliminarUsuario = async (req, res) => {
 
 exports.verificarToken = async (req, res) => {
   try {
-    // El middleware verificarToken ya validó el token y puso req.usuario
     if (!req.usuario || !req.usuario.id) {
       return res
         .status(401)
         .json({ success: false, message: "Token inválido" });
     }
 
-    // Obtener datos actualizados del usuario desde la BD
     const usuario = await usuarioService.obtenerPorId(req.usuario.id);
 
     return res.status(200).json({

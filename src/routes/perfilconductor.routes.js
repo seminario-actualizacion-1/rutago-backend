@@ -6,6 +6,10 @@ const roleMiddleware = require("../middlewares/role.middleware");
 const {
   validarPaginacion,
 } = require("../middlewares/paginacion.validator");
+const {
+  validarCrearPerfilConductor,
+  validarActualizarPerfilConductor,
+} = require("../middlewares/perfilconductor.validator");
 
 /**
  * @swagger
@@ -115,6 +119,7 @@ router.put(
   "/me/perfil",
   authMiddleware.verificarToken,
   roleMiddleware.esConductor,
+  validarActualizarPerfilConductor,
   perfilConductorController.actualizarMiPerfil,
 );
 
@@ -180,6 +185,7 @@ router.post(
   "/",
   authMiddleware.verificarToken,
   roleMiddleware.esAdministrador,
+  validarCrearPerfilConductor,
   perfilConductorController.crearPerfil,
 );
 
@@ -227,6 +233,7 @@ router.put(
   "/:id",
   authMiddleware.verificarToken,
   roleMiddleware.esAdministrador,
+  validarActualizarPerfilConductor,
   perfilConductorController.actualizarPerfil,
 );
 

@@ -2,6 +2,7 @@ const vehiculoService = require("../services/vehiculo.service");
 const perfilEntidadRepository = require("../repositories/perfilentidad.repository");
 const vehiculoRepository = require("../repositories/vehiculo.repository");
 const { ROLES } = require("../config/roles");
+const vehiculoDto = require("../dtos/vehiculo.dto");
 
 const manejarError = (res, error) => {
   if (error.message?.includes("_NO_ENCONTRADO")) {
@@ -30,7 +31,7 @@ exports.obtenerTodos = async (req, res) => {
 exports.obtenerPorId = async (req, res) => {
   try {
     const vehiculo = await vehiculoService.obtenerPorId(req.params.id);
-    res.json({ success: true, data: vehiculo });
+    res.json({ success: true, data: vehiculoDto.paraRespuesta(vehiculo) });
   } catch (error) {
     manejarError(res, error);
   }
@@ -50,8 +51,8 @@ exports.obtenerUbicacion = async (req, res) => {
 
 exports.actualizarUbicacion = async (req, res) => {
   try {
-    const { latitud, longitud, estadoId } = req.body;
-    const vehiculo = await vehiculoService.actualizarUbicacion(req.params.id, { latitud, longitud, estadoId });
+    const datos = vehiculoDto.paraActualizarUbicacion(req.body);
+    const vehiculo = await vehiculoService.actualizarUbicacion(req.params.id, datos);
     res.json({
       success: true,
       message: "Ubicación actualizada",
@@ -64,7 +65,7 @@ exports.actualizarUbicacion = async (req, res) => {
 
 exports.crearVehiculo = async (req, res) => {
   try {
-    const datos = { ...req.body };
+    const datos = vehiculoDto.paraCrear(req.body);
     if (req.usuario.rolId === ROLES.ENTIDAD) {
       const entidad = await perfilEntidadRepository.obtenerPorUsuario(req.usuario.id);
       if (!entidad) {
@@ -75,7 +76,7 @@ exports.crearVehiculo = async (req, res) => {
     const vehiculo = await vehiculoService.crearVehiculo(datos);
     res
       .status(201)
-      .json({ success: true, message: "Vehículo creado", data: vehiculo });
+      .json({ success: true, message: "Vehículo creado", data: vehiculoDto.paraRespuesta(vehiculo) });
   } catch (error) {
     manejarError(res, error);
   }
@@ -93,14 +94,12 @@ exports.actualizarVehiculo = async (req, res) => {
         return res.status(403).json({ success: false, message: "No puedes modificar vehículos de otra entidad." });
       }
     }
-    const vehiculo = await vehiculoService.actualizarVehiculo(
-      req.params.id,
-      req.body,
-    );
+    const datos = vehiculoDto.paraActualizar(req.body);
+    const vehiculo = await vehiculoService.actualizarVehiculo(req.params.id, datos);
     res.json({
       success: true,
       message: "Vehículo actualizado",
-      data: vehiculo,
+      data: vehiculoDto.paraRespuesta(vehiculo),
     });
   } catch (error) {
     manejarError(res, error);

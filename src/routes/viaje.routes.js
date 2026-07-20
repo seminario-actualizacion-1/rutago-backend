@@ -6,6 +6,9 @@ const roleMiddleware = require("../middlewares/role.middleware");
 const {
   validarPaginacion,
 } = require("../middlewares/paginacion.validator");
+const {
+  validarCrearViaje,
+} = require("../middlewares/viaje.validator");
 
 /**
  * @swagger
@@ -94,6 +97,7 @@ router.post(
   "/",
   authMiddleware.verificarToken,
   roleMiddleware.esPasajero,
+  validarCrearViaje,
   viajeController.crearViaje
 );
 

@@ -1,4 +1,5 @@
 const barrioService = require("../services/barrio.service");
+const barrioDto = require("../dtos/barrio.dto");
 
 const manejarError = (res, error) => {
   if (error.message?.includes("_NO_ENCONTRADO")) {
@@ -26,7 +27,7 @@ exports.obtenerTodos = async (req, res) => {
 exports.obtenerPorId = async (req, res) => {
   try {
     const barrio = await barrioService.obtenerPorId(req.params.id);
-    res.json({ success: true, data: barrio });
+    res.json({ success: true, data: barrioDto.paraRespuesta(barrio) });
   } catch (error) {
     manejarError(res, error);
   }
@@ -35,7 +36,7 @@ exports.obtenerPorId = async (req, res) => {
 exports.obtenerPorComuna = async (req, res) => {
   try {
     const barrios = await barrioService.obtenerPorComuna(req.params.comunaId);
-    res.json({ success: true, data: barrios });
+    res.json({ success: true, data: barrios.map(barrioDto.paraRespuesta) });
   } catch (error) {
     manejarError(res, error);
   }
@@ -43,11 +44,11 @@ exports.obtenerPorComuna = async (req, res) => {
 
 exports.crearBarrio = async (req, res) => {
   try {
-    const { nombre, comunaId } = req.body;
-    const barrio = await barrioService.crearBarrio({ nombre, comunaId });
+    const datos = barrioDto.paraCrear(req.body);
+    const barrio = await barrioService.crearBarrio(datos);
     res
       .status(201)
-      .json({ success: true, message: "Barrio creado", data: barrio });
+      .json({ success: true, message: "Barrio creado", data: barrioDto.paraRespuesta(barrio) });
   } catch (error) {
     manejarError(res, error);
   }
@@ -55,12 +56,9 @@ exports.crearBarrio = async (req, res) => {
 
 exports.actualizarBarrio = async (req, res) => {
   try {
-    const { nombre, comunaId } = req.body;
-    const barrio = await barrioService.actualizarBarrio(
-      req.params.id,
-      { nombre, comunaId },
-    );
-    res.json({ success: true, message: "Barrio actualizado", data: barrio });
+    const datos = barrioDto.paraActualizar(req.body);
+    const barrio = await barrioService.actualizarBarrio(req.params.id, datos);
+    res.json({ success: true, message: "Barrio actualizado", data: barrioDto.paraRespuesta(barrio) });
   } catch (error) {
     manejarError(res, error);
   }

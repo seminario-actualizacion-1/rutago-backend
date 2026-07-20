@@ -68,10 +68,7 @@ exports.actualizarMiPerfil = async (usuarioId, datos) => {
     fechaNacimiento: datos.fechaNacimiento,
   };
 
-  return await perfilPasajeroRepository.actualizarPerfil(
-    perfil.id,
-    datosPermitidos,
-  );
+  return await perfilPasajeroRepository.actualizarPerfil(perfil.id, datosPermitidos);
 };
 
 exports.eliminarPerfil = async (id) => {

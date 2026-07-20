@@ -16,6 +16,8 @@ echo "→ Insertando/actualizando datos de catálogos..."
 npx sequelize-cli db:seed:all --env production
 echo "→ Migrando pasajeros existentes a PerfilPasajero..."
 node scripts/migrarPasajeros.js
+echo "→ Normalizando datos para validaciones..."
+node scripts/migrar-validaciones.js
 echo "→ Eliminando dependencias de desarrollo..."
 npm prune --omit=dev
 echo "→ Reiniciando únicamente RutaGo Backend..."

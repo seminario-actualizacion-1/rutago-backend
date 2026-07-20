@@ -1,4 +1,5 @@
 const perfilConductorService = require("../services/perfilconductor.service");
+const perfilConductorDto = require("../dtos/perfilconductor.dto");
 
 const manejarError = (res, error) => {
   if (error.message?.includes("_NO_ENCONTRADO")) {
@@ -26,7 +27,7 @@ exports.obtenerTodos = async (req, res) => {
 exports.obtenerPorId = async (req, res) => {
   try {
     const perfil = await perfilConductorService.obtenerPorId(req.params.id);
-    res.json({ success: true, data: perfil });
+    res.json({ success: true, data: perfilConductorDto.paraRespuesta(perfil) });
   } catch (error) {
     manejarError(res, error);
   }
@@ -34,10 +35,8 @@ exports.obtenerPorId = async (req, res) => {
 
 exports.obtenerMiPerfil = async (req, res) => {
   try {
-    const perfil = await perfilConductorService.obtenerPorUsuario(
-      req.usuario.id,
-    );
-    res.json({ success: true, data: perfil });
+    const perfil = await perfilConductorService.obtenerPorUsuario(req.usuario.id);
+    res.json({ success: true, data: perfilConductorDto.paraRespuesta(perfil) });
   } catch (error) {
     if (error.message === "PERFIL_CONDUCTOR_NO_ENCONTRADO") {
       return res
@@ -50,12 +49,12 @@ exports.obtenerMiPerfil = async (req, res) => {
 
 exports.crearPerfil = async (req, res) => {
   try {
-    const { usuarioId, vehiculoId, licenciaConducir, estadoId } = req.body;
-    const perfil = await perfilConductorService.crearPerfil({ usuarioId, vehiculoId, licenciaConducir, estadoId });
+    const datos = perfilConductorDto.paraCrear(req.body);
+    const perfil = await perfilConductorService.crearPerfil(datos);
     res.status(201).json({
       success: true,
       message: "Perfil de conductor creado",
-      data: perfil,
+      data: perfilConductorDto.paraRespuesta(perfil),
     });
   } catch (error) {
     manejarError(res, error);
@@ -64,12 +63,9 @@ exports.crearPerfil = async (req, res) => {
 
 exports.actualizarPerfil = async (req, res) => {
   try {
-    const { vehiculoId, licenciaConducir, estadoId } = req.body;
-    const perfil = await perfilConductorService.actualizarPerfil(
-      req.params.id,
-      { vehiculoId, licenciaConducir, estadoId },
-    );
-    res.json({ success: true, message: "Perfil actualizado", data: perfil });
+    const datos = perfilConductorDto.paraActualizar(req.body);
+    const perfil = await perfilConductorService.actualizarPerfil(req.params.id, datos);
+    res.json({ success: true, message: "Perfil actualizado", data: perfilConductorDto.paraRespuesta(perfil) });
   } catch (error) {
     manejarError(res, error);
   }
@@ -77,14 +73,12 @@ exports.actualizarPerfil = async (req, res) => {
 
 exports.actualizarMiPerfil = async (req, res) => {
   try {
-    const perfil = await perfilConductorService.actualizarMiPerfil(
-      req.usuario.id,
-      req.body,
-    );
+    const datos = perfilConductorDto.paraActualizar(req.body);
+    const perfil = await perfilConductorService.actualizarMiPerfil(req.usuario.id, datos);
     res.json({
       success: true,
       message: "Perfil de conductor actualizado",
-      data: perfil,
+      data: perfilConductorDto.paraRespuesta(perfil),
     });
   } catch (error) {
     manejarError(res, error);
@@ -94,10 +88,7 @@ exports.actualizarMiPerfil = async (req, res) => {
 exports.cambiarEstado = async (req, res) => {
   try {
     const { estadoId } = req.body;
-    const perfil = await perfilConductorService.actualizarEstado(
-      req.params.id,
-      estadoId,
-    );
+    const perfil = await perfilConductorService.actualizarEstado(req.params.id, estadoId);
     res.json({ success: true, message: "Estado actualizado", data: perfil });
   } catch (error) {
     manejarError(res, error);
