@@ -29,9 +29,22 @@ const authLimiter = rateLimit({
 });
 
 app.use(express.json({ limit: "10kb" }));
+const origenesPermitidos = [
+  "http://localhost:5173",
+  "http://localhost:8082",
+  "https://rutago.seminario1.eleueleo.com",
+];
+if (process.env.FRONTEND_URL) origenesPermitidos.push(process.env.FRONTEND_URL);
+
 app.use(
   cors({
-    origin: process.env.FRONTEND_URL || "http://localhost:5173",
+    origin: (origin, callback) => {
+      if (!origin || origenesPermitidos.includes(origin)) {
+        callback(null, true);
+      } else {
+        callback(new Error("No autorizado por CORS"));
+      }
+    },
     credentials: true,
   })
 );
