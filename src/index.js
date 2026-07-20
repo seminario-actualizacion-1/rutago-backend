@@ -59,6 +59,20 @@ const swaggerOptions = {
       version: "1.0.0",
       description: "Documentación de la API para RutaGo",
     },
+    tags: [
+      { name: "Autenticación", description: "Login, registro, recuperación de contraseña" },
+      { name: "Usuarios", description: "Gestión de usuarios" },
+      { name: "Roles", description: "Roles del sistema" },
+      { name: "Perfiles Conductor", description: "Perfiles de conductores" },
+      { name: "Perfiles Pasajero", description: "Perfiles de pasajeros" },
+      { name: "Perfiles Entidad", description: "Perfiles de entidades" },
+      { name: "Vehículos", description: "Gestión de vehículos" },
+      { name: "Rutas", description: "Gestión de rutas" },
+      { name: "Horarios", description: "Horarios de rutas" },
+      { name: "Barrios", description: "Barrios del sistema" },
+      { name: "Comunas", description: "Comunas del sistema" },
+      { name: "Viajes", description: "Gestión de viajes" },
+    ],
     servers: [
       {
         url: `http://localhost:${PORT}`,
