@@ -1,4 +1,5 @@
 const horarioService = require("../services/horario.service");
+const horarioDto = require("../dtos/horario.dto");
 
 exports.obtenerTodos = async (req, res) => {
   try {
@@ -19,7 +20,7 @@ exports.obtenerTodos = async (req, res) => {
 exports.obtenerPorId = async (req, res) => {
   try {
     const horario = await horarioService.obtenerPorId(req.params.id);
-    res.json({ success: true, data: horario });
+    res.json({ success: true, data: horarioDto.paraRespuesta(horario) });
   } catch (error) {
     if (error.message === "HORARIO_NO_ENCONTRADO") {
       return res
@@ -33,7 +34,7 @@ exports.obtenerPorId = async (req, res) => {
 exports.obtenerPorRuta = async (req, res) => {
   try {
     const horarios = await horarioService.obtenerPorRuta(req.params.rutaId);
-    res.json({ success: true, data: horarios });
+    res.json({ success: true, data: horarios.map(horarioDto.paraRespuesta) });
   } catch (error) {
     res.status(400).json({ success: false, message: error.message });
   }
@@ -41,10 +42,8 @@ exports.obtenerPorRuta = async (req, res) => {
 
 exports.obtenerPorVehiculo = async (req, res) => {
   try {
-    const horarios = await horarioService.obtenerPorVehiculo(
-      req.params.vehiculoId
-    );
-    res.json({ success: true, data: horarios });
+    const horarios = await horarioService.obtenerPorVehiculo(req.params.vehiculoId);
+    res.json({ success: true, data: horarios.map(horarioDto.paraRespuesta) });
   } catch (error) {
     res.status(400).json({ success: false, message: error.message });
   }
@@ -52,12 +51,11 @@ exports.obtenerPorVehiculo = async (req, res) => {
 
 exports.crearHorario = async (req, res) => {
   try {
-    const { vehiculoId, rutaId, horaSalida, frecuenciaMinutos, diasSemana } = req.body;
-    const datos = { vehiculoId, rutaId, horaSalida, frecuenciaMinutos, diasSemana };
+    const datos = horarioDto.paraCrear(req.body);
     const horario = await horarioService.crearHorario(datos);
     res
       .status(201)
-      .json({ success: true, message: "Horario creado", data: horario });
+      .json({ success: true, message: "Horario creado", data: horarioDto.paraRespuesta(horario) });
   } catch (error) {
     res.status(400).json({ success: false, message: error.message });
   }
@@ -65,13 +63,9 @@ exports.crearHorario = async (req, res) => {
 
 exports.actualizarHorario = async (req, res) => {
   try {
-    const { vehiculoId, rutaId, horaSalida, frecuenciaMinutos, diasSemana } = req.body;
-    const datos = { vehiculoId, rutaId, horaSalida, frecuenciaMinutos, diasSemana };
-    const horario = await horarioService.actualizarHorario(
-      req.params.id,
-      datos
-    );
-    res.json({ success: true, message: "Horario actualizado", data: horario });
+    const datos = horarioDto.paraActualizar(req.body);
+    const horario = await horarioService.actualizarHorario(req.params.id, datos);
+    res.json({ success: true, message: "Horario actualizado", data: horarioDto.paraRespuesta(horario) });
   } catch (error) {
     if (error.message === "HORARIO_NO_ENCONTRADO") {
       return res

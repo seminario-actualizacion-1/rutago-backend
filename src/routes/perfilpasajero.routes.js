@@ -6,6 +6,10 @@ const roleMiddleware = require("../middlewares/role.middleware");
 const {
   validarPaginacion,
 } = require("../middlewares/paginacion.validator");
+const {
+  validarCrearPerfilPasajero,
+  validarActualizarPerfilPasajero,
+} = require("../middlewares/perfilpasajero.validator");
 
 /**
  * @swagger
@@ -101,7 +105,7 @@ router.get("/me/perfil", authMiddleware.verificarToken, roleMiddleware.esPasajer
  *       403:
  *         description: No autorizado
  */
-router.put("/me/perfil", authMiddleware.verificarToken, roleMiddleware.esPasajero, perfilPasajeroController.actualizarMiPerfil);
+router.put("/me/perfil", authMiddleware.verificarToken, roleMiddleware.esPasajero, validarActualizarPerfilPasajero, perfilPasajeroController.actualizarMiPerfil);
 
 /**
  * @swagger
@@ -186,7 +190,7 @@ router.get("/:id", authMiddleware.verificarToken, roleMiddleware.esAdministrador
  *       403:
  *         description: No autorizado
  */
-router.post("/", authMiddleware.verificarToken, roleMiddleware.esAdministrador, perfilPasajeroController.crearPerfil);
+router.post("/", authMiddleware.verificarToken, roleMiddleware.esAdministrador, validarCrearPerfilPasajero, perfilPasajeroController.crearPerfil);
 
 /**
  * @swagger
@@ -228,7 +232,7 @@ router.post("/", authMiddleware.verificarToken, roleMiddleware.esAdministrador, 
  *       404:
  *         description: Perfil no encontrado
  */
-router.put("/:id", authMiddleware.verificarToken, roleMiddleware.esAdministrador, perfilPasajeroController.actualizarPerfil);
+router.put("/:id", authMiddleware.verificarToken, roleMiddleware.esAdministrador, validarActualizarPerfilPasajero, perfilPasajeroController.actualizarPerfil);
 
 /**
  * @swagger

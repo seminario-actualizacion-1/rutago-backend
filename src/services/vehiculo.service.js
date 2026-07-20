@@ -63,8 +63,8 @@ exports.obtenerUbicacion = async (id) => {
     id: vehiculo.id,
     placa: vehiculo.placa,
     estadoId: vehiculo.estadoId,
-    latitud: vehiculo.latitud,
-    longitud: vehiculo.longitud,
+    latitud: vehiculo.latitud ? parseFloat(vehiculo.latitud) : null,
+    longitud: vehiculo.longitud ? parseFloat(vehiculo.longitud) : null,
     ultimaActualizacion: vehiculo.ultimaActualizacion,
   };
 };

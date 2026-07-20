@@ -1,4 +1,5 @@
 const comunaService = require("../services/comuna.service");
+const comunaDto = require("../dtos/comuna.dto");
 
 const manejarError = (res, error) => {
   if (error.message?.includes("_NO_ENCONTRADA")) {
@@ -26,7 +27,7 @@ exports.obtenerTodas = async (req, res) => {
 exports.obtenerPorId = async (req, res) => {
   try {
     const comuna = await comunaService.obtenerPorId(req.params.id);
-    res.json({ success: true, data: comuna });
+    res.json({ success: true, data: comunaDto.paraRespuesta(comuna) });
   } catch (error) {
     manejarError(res, error);
   }
@@ -34,11 +35,11 @@ exports.obtenerPorId = async (req, res) => {
 
 exports.crearComuna = async (req, res) => {
   try {
-    const { nombre } = req.body;
-    const comuna = await comunaService.crearComuna({ nombre });
+    const datos = comunaDto.paraCrear(req.body);
+    const comuna = await comunaService.crearComuna(datos);
     res
       .status(201)
-      .json({ success: true, message: "Comuna creada", data: comuna });
+      .json({ success: true, message: "Comuna creada", data: comunaDto.paraRespuesta(comuna) });
   } catch (error) {
     manejarError(res, error);
   }
@@ -46,12 +47,9 @@ exports.crearComuna = async (req, res) => {
 
 exports.actualizarComuna = async (req, res) => {
   try {
-    const { nombre } = req.body;
-    const comuna = await comunaService.actualizarComuna(
-      req.params.id,
-      { nombre },
-    );
-    res.json({ success: true, message: "Comuna actualizada", data: comuna });
+    const datos = comunaDto.paraActualizar(req.body);
+    const comuna = await comunaService.actualizarComuna(req.params.id, datos);
+    res.json({ success: true, message: "Comuna actualizada", data: comunaDto.paraRespuesta(comuna) });
   } catch (error) {
     manejarError(res, error);
   }

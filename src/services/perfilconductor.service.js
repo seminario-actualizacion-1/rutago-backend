@@ -88,10 +88,7 @@ exports.actualizarMiPerfil = async (usuarioId, datos) => {
     estadoId: datos.estadoId,
   };
 
-  return await perfilConductorRepository.actualizarPerfil(
-    perfil.id,
-    datosPermitidos,
-  );
+  return await perfilConductorRepository.actualizarPerfil(perfil.id, datosPermitidos);
 };
 
 exports.actualizarEstado = async (id, estadoId) => {

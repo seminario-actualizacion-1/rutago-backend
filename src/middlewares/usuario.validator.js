@@ -117,19 +117,19 @@ const validarCambiarContrasena = [
  */
 const validarActualizarPerfil = [
   body("nombres")
-    .optional()
+    .optional({ values: "falsy" })
     .trim()
     .isLength({ min: 2, max: 50 })
     .withMessage("El nombre debe tener entre 2 y 50 caracteres"),
 
   body("apellidos")
-    .optional()
+    .optional({ values: "falsy" })
     .trim()
     .isLength({ min: 2, max: 50 })
     .withMessage("Los apellidos deben tener entre 2 y 50 caracteres"),
 
   body("correo")
-    .optional()
+    .optional({ values: "falsy" })
     .trim()
     .isEmail()
     .withMessage("Debe proporcionar un correo electrónico válido")

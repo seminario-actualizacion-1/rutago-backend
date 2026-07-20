@@ -6,6 +6,10 @@ const roleMiddleware = require("../middlewares/role.middleware");
 const {
   validarPaginacion,
 } = require("../middlewares/paginacion.validator");
+const {
+  validarCrearBarrio,
+  validarActualizarBarrio,
+} = require("../middlewares/barrio.validator");
 
 /**
  * @swagger
@@ -141,6 +145,7 @@ router.post(
   "/",
   authMiddleware.verificarToken,
   roleMiddleware.esAdministrador,
+  validarCrearBarrio,
   barrioController.crearBarrio
 );
 
@@ -186,6 +191,7 @@ router.put(
   "/:id",
   authMiddleware.verificarToken,
   roleMiddleware.esAdministrador,
+  validarActualizarBarrio,
   barrioController.actualizarBarrio
 );
 

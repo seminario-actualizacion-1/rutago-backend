@@ -1,4 +1,5 @@
 const viajeService = require("../services/viaje.service");
+const viajeDto = require("../dtos/viaje.dto");
 
 const manejarError = (res, error) => {
   if (error.message?.includes("_NO_ENCONTRADO")) {
@@ -26,7 +27,7 @@ exports.obtenerTodos = async (req, res) => {
 exports.obtenerPorId = async (req, res) => {
   try {
     const viaje = await viajeService.obtenerPorId(req.params.id);
-    res.json({ success: true, data: viaje });
+    res.json({ success: true, data: viajeDto.paraRespuesta(viaje) });
   } catch (error) {
     manejarError(res, error);
   }
@@ -34,11 +35,8 @@ exports.obtenerPorId = async (req, res) => {
 
 exports.obtenerMisViajes = async (req, res) => {
   try {
-    const viajes = await viajeService.obtenerMisViajes(
-      req.usuario.id,
-      req.usuario.rolId,
-    );
-    res.json({ success: true, data: viajes });
+    const viajes = await viajeService.obtenerMisViajes(req.usuario.id, req.usuario.rolId);
+    res.json({ success: true, data: viajes.map(viajeDto.paraRespuesta) });
   } catch (error) {
     manejarError(res, error);
   }
@@ -46,14 +44,14 @@ exports.obtenerMisViajes = async (req, res) => {
 
 exports.crearViaje = async (req, res) => {
   try {
-    const { barrioOrigenId, barrioDestinoId, precioEstimado, conductorId } = req.body;
-    const datos = { barrioOrigenId, barrioDestinoId, precioEstimado, conductorId, pasajeroId: req.usuario.id };
-    // Filtrar undefined
-    Object.keys(datos).forEach(key => datos[key] === undefined && delete datos[key]);
+    const datos = viajeDto.paraCrear(req.body);
+    datos.pasajeroId = req.usuario.id;
+    if (req.body.precioEstimado !== undefined) datos.precioEstimado = req.body.precioEstimado;
+    if (req.body.conductorId !== undefined) datos.conductorId = req.body.conductorId;
     const viaje = await viajeService.crearViaje(datos);
     res
       .status(201)
-      .json({ success: true, message: "Viaje solicitado", data: viaje });
+      .json({ success: true, message: "Viaje solicitado", data: viajeDto.paraRespuesta(viaje) });
   } catch (error) {
     if (error.message === "NO_PUEDE_SOLICITAR_VIAJE_A_SI_MISMO") {
       return res.status(400).json({
@@ -85,12 +83,8 @@ exports.crearViaje = async (req, res) => {
 
 exports.aceptarViaje = async (req, res) => {
   try {
-    const viaje = await viajeService.actualizarEstado(
-      req.params.id,
-      2,
-      req.usuario.id,
-    );
-    res.json({ success: true, message: "Viaje aceptado", data: viaje });
+    const viaje = await viajeService.actualizarEstado(req.params.id, 2, req.usuario.id);
+    res.json({ success: true, message: "Viaje aceptado", data: viajeDto.paraRespuesta(viaje) });
   } catch (error) {
     manejarError(res, error);
   }
@@ -98,11 +92,8 @@ exports.aceptarViaje = async (req, res) => {
 
 exports.iniciarViaje = async (req, res) => {
   try {
-    const viaje = await viajeService.actualizarEstado(
-      req.params.id,
-      3,
-    );
-    res.json({ success: true, message: "Viaje iniciado", data: viaje });
+    const viaje = await viajeService.actualizarEstado(req.params.id, 3);
+    res.json({ success: true, message: "Viaje iniciado", data: viajeDto.paraRespuesta(viaje) });
   } catch (error) {
     manejarError(res, error);
   }
@@ -110,11 +101,8 @@ exports.iniciarViaje = async (req, res) => {
 
 exports.finalizarViaje = async (req, res) => {
   try {
-    const viaje = await viajeService.actualizarEstado(
-      req.params.id,
-      4,
-    );
-    res.json({ success: true, message: "Viaje finalizado", data: viaje });
+    const viaje = await viajeService.actualizarEstado(req.params.id, 4);
+    res.json({ success: true, message: "Viaje finalizado", data: viajeDto.paraRespuesta(viaje) });
   } catch (error) {
     manejarError(res, error);
   }
@@ -122,11 +110,8 @@ exports.finalizarViaje = async (req, res) => {
 
 exports.cancelarViaje = async (req, res) => {
   try {
-    const viaje = await viajeService.actualizarEstado(
-      req.params.id,
-      5,
-    );
-    res.json({ success: true, message: "Viaje cancelado", data: viaje });
+    const viaje = await viajeService.actualizarEstado(req.params.id, 5);
+    res.json({ success: true, message: "Viaje cancelado", data: viajeDto.paraRespuesta(viaje) });
   } catch (error) {
     manejarError(res, error);
   }

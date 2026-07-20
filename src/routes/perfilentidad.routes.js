@@ -6,6 +6,10 @@ const roleMiddleware = require("../middlewares/role.middleware");
 const {
   validarPaginacion,
 } = require("../middlewares/paginacion.validator");
+const {
+  validarCrearEntidad,
+  validarActualizarEntidad,
+} = require("../middlewares/perfilentidad.validator");
 
 /**
  * @swagger
@@ -118,6 +122,7 @@ router.put(
   "/me/perfil",
   authMiddleware.verificarToken,
   roleMiddleware.esEntidad,
+  validarActualizarEntidad,
   perfilEntidadController.actualizarMiEntidad,
 );
 
@@ -190,6 +195,7 @@ router.post(
   "/",
   authMiddleware.verificarToken,
   roleMiddleware.esAdministrador,
+  validarCrearEntidad,
   perfilEntidadController.crearEntidad,
 );
 
@@ -239,6 +245,7 @@ router.put(
   "/:id",
   authMiddleware.verificarToken,
   roleMiddleware.esAdministrador,
+  validarActualizarEntidad,
   perfilEntidadController.actualizarEntidad,
 );
 
