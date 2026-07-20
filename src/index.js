@@ -49,10 +49,10 @@ const swaggerOptions = {
     servers: [
       {
         url: `http://localhost:${PORT}`,
-        description: "Local (desarrollo)",
+        description: "Local (desarrollo) — ej: http://localhost:8082",
       },
       {
-        url: "https://rutago.seminario1.eleueleo.com/api",
+        url: "https://rutago.seminario1.eleueleo.com",
         description: "Producción (VPS)",
       },
     ],
