@@ -18,6 +18,8 @@ echo "→ Migrando pasajeros existentes a PerfilPasajero..."
 node scripts/migrarPasajeros.js
 echo "→ Normalizando datos para validaciones..."
 node scripts/migrar-validaciones.js
+echo "→ Agregando columna descripcion a catálogos..."
+node scripts/migrar-descripcion.js
 echo "→ Eliminando dependencias de desarrollo..."
 npm prune --omit=dev
 echo "→ Reiniciando únicamente RutaGo Backend..."

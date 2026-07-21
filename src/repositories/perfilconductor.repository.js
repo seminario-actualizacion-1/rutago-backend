@@ -1,10 +1,11 @@
 const { Op } = require("sequelize");
-const { PerfilConductor, Vehiculo } = require("../models");
+const { PerfilConductor, Vehiculo, Usuario, Rol } = require("../models");
+const usuarioAttr = { model: Usuario, as: "usuario", attributes: ["id", "nombres", "apellidos", "correo", "rolId", "createdAt", "updatedAt"], include: [{ model: Rol, as: "rol", attributes: ["id", "nombreRol"] }] };
 
 exports.obtenerTodos = async () => {
   return await PerfilConductor.findAll({
     include: [
-      { model: require("../models").Usuario, as: "usuario" },
+      usuarioAttr,
       { model: Vehiculo, as: "vehiculo" },
     ],
   });
@@ -13,7 +14,7 @@ exports.obtenerTodos = async () => {
 exports.obtenerPorId = async (id) => {
   const perfil = await PerfilConductor.findByPk(id, {
     include: [
-      { model: require("../models").Usuario, as: "usuario" },
+      usuarioAttr,
       { model: Vehiculo, as: "vehiculo" },
     ],
   });
@@ -25,7 +26,7 @@ exports.obtenerPorUsuario = async (usuarioId) => {
   return await PerfilConductor.findOne({
     where: { usuarioId },
     include: [
-      { model: require("../models").Usuario, as: "usuario" },
+      usuarioAttr,
       { model: Vehiculo, as: "vehiculo" },
     ],
   });
@@ -67,7 +68,7 @@ exports.obtenerTodosConPaginacion = async (limit, offset, q, sortBy = "createdAt
   return await PerfilConductor.findAndCountAll({
     where,
     include: [
-      { model: require("../models").Usuario, as: "usuario" },
+      usuarioAttr,
       { model: Vehiculo, as: "vehiculo" },
     ],
     limit,

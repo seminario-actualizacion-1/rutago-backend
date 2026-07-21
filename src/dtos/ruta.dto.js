@@ -23,8 +23,8 @@ exports.paraRespuesta = (model) => {
   return {
     id: model.id,
     nombre: model.nombre,
-    origenId: model.origenId,
-    destinoId: model.destinoId,
+    origen: model.origen ? { id: model.origen.id, nombre: model.origen.nombre } : { id: model.origenId },
+    destino: model.destino ? { id: model.destino.id, nombre: model.destino.nombre } : { id: model.destinoId },
     descripcion: model.descripcion,
     distanciaKm: model.distanciaKm ? parseFloat(model.distanciaKm) : null,
     tiempoEstimadoMinutos: model.tiempoEstimadoMinutos,

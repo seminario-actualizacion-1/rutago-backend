@@ -1,9 +1,14 @@
 const { Op } = require("sequelize");
-const { Vehiculo, PerfilEntidad } = require("../models");
+const { Vehiculo, PerfilEntidad, EstadoVehiculo, Usuario, Rol } = require("../models");
+const includeEntidad = {
+  model: PerfilEntidad, as: "perfilEntidad",
+  include: [{ model: Usuario, as: "usuario", attributes: ["id", "nombres", "apellidos", "correo", "rolId"], include: [{ model: Rol, as: "rol", attributes: ["id", "nombreRol"] }] }],
+};
+const includeVehiculo = [includeEntidad, { model: EstadoVehiculo, as: "estadoVehiculo" }];
 
 exports.obtenerTodos = async () => {
   return await Vehiculo.findAll({
-    include: [{ model: PerfilEntidad, as: "perfilEntidad" }],
+    include: includeVehiculo,
   });
 };
 
@@ -21,7 +26,7 @@ exports.obtenerTodosConPaginacion = async (limit, offset, q, estadoId, sortBy = 
     where.estadoId = estadoId;
   }
   return await Vehiculo.findAndCountAll({
-    include: [{ model: PerfilEntidad, as: "perfilEntidad" }],
+    include: includeVehiculo,
     where,
     limit,
     offset,
@@ -32,7 +37,7 @@ exports.obtenerTodosConPaginacion = async (limit, offset, q, estadoId, sortBy = 
 
 exports.obtenerPorId = async (id) => {
   const vehiculo = await Vehiculo.findByPk(id, {
-    include: [{ model: PerfilEntidad, as: "perfilEntidad" }],
+    include: includeVehiculo,
   });
   if (!vehiculo) throw new Error("VEHICULO_NO_ENCONTRADO");
   return vehiculo;

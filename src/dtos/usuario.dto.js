@@ -23,7 +23,7 @@ exports.paraRespuesta = (model) => {
     nombres: model.nombres,
     apellidos: model.apellidos,
     correo: model.correo,
-    rolId: model.rolId,
+    rol: model.rol ? { id: model.rol.id, nombreRol: model.rol.nombreRol, descripcion: model.rol.descripcion } : { id: model.rolId },
     createdAt: model.createdAt,
     updatedAt: model.updatedAt,
   };

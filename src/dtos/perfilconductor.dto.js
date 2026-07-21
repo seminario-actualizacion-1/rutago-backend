@@ -18,7 +18,17 @@ exports.paraRespuesta = (model) => {
   if (!model) return null;
   return {
     id: model.id,
-    usuarioId: model.usuarioId,
+    usuario: model.usuario
+      ? {
+          id: model.usuario.id,
+          nombres: model.usuario.nombres,
+          apellidos: model.usuario.apellidos,
+          correo: model.usuario.correo,
+          rol: model.usuario.rol
+            ? { id: model.usuario.rol.id, nombreRol: model.usuario.rol.nombreRol, descripcion: model.usuario.rol.descripcion }
+            : { id: model.usuario.rolId },
+        }
+      : undefined,
     vehiculoId: model.vehiculoId,
     licenciaConducir: model.licenciaConducir,
     estadoId: model.estadoId,

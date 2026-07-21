@@ -53,7 +53,6 @@ exports.autenticarUsuario = async (correo, contrasena) => {
     usuario: {
       id: usuario.id,
       nombres: usuario.nombres,
-      rolId: usuario.rolId,
       rol: rol
         ? {
             id: rol.id,

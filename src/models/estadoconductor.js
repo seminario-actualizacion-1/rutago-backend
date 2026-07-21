@@ -9,6 +9,7 @@ module.exports = (sequelize, DataTypes) => {
   EstadoConductor.init(
     {
       nombre: { type: DataTypes.STRING(30), allowNull: false, unique: true },
+      descripcion: DataTypes.STRING(100),
     },
     { sequelize, modelName: "EstadoConductor", tableName: "EstadosConductor", timestamps: true },
   );

@@ -18,7 +18,7 @@ exports.obtenerTodos = async (req, res) => {
       sortBy,
       sortOrder
     );
-    res.json({ success: true, ...resultado });
+    res.json({ success: true, data: resultado.data.map(perfilPasajeroDto.paraRespuesta), paginacion: resultado.paginacion });
   } catch (error) {
     manejarError(res, error);
   }

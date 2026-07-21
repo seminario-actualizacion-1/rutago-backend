@@ -14,6 +14,7 @@ module.exports = (sequelize, DataTypes) => {
         allowNull: false,
         unique: true,
       },
+      descripcion: DataTypes.STRING(100),
     },
     {
       sequelize,

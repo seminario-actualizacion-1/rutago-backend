@@ -1,15 +1,16 @@
 const { Op } = require("sequelize");
-const { PerfilEntidad, Usuario } = require("../models");
+const { PerfilEntidad, Usuario, Rol } = require("../models");
+const usuarioAttr = { model: Usuario, as: "usuario", attributes: ["id", "nombres", "apellidos", "correo", "rolId", "createdAt", "updatedAt"], include: [{ model: Rol, as: "rol", attributes: ["id", "nombreRol"] }] };
 
 exports.obtenerTodos = async () => {
   return await PerfilEntidad.findAll({
-    include: [{ model: Usuario, as: "usuario" }],
+    include: [usuarioAttr],
   });
 };
 
 exports.obtenerPorId = async (id) => {
   const entidad = await PerfilEntidad.findByPk(id, {
-    include: [{ model: Usuario, as: "usuario" }],
+    include: [usuarioAttr],
   });
   if (!entidad) throw new Error("ENTIDAD_NO_ENCONTRADA");
   return entidad;
@@ -18,7 +19,7 @@ exports.obtenerPorId = async (id) => {
 exports.obtenerPorUsuario = async (usuarioId) => {
   return await PerfilEntidad.findOne({
     where: { usuarioId },
-    include: [{ model: Usuario, as: "usuario" }],
+    include: [usuarioAttr],
   });
 };
 
@@ -52,7 +53,7 @@ exports.obtenerTodosConPaginacion = async (limit, offset, q, sortBy = "createdAt
   }
   return await PerfilEntidad.findAndCountAll({
     where,
-    include: [{ model: Usuario, as: "usuario" }],
+    include: [usuarioAttr],
     limit,
     offset,
     order: [[sortBy, sortOrder]],

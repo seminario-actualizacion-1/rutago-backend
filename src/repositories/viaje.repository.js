@@ -1,11 +1,12 @@
 const { Op } = require("sequelize");
-const { Viaje, Barrio } = require("../models");
+const { Viaje, Barrio, Usuario, Rol } = require("../models");
+const usuarioAttr = (as) => ({ model: Usuario, as, attributes: ["id", "nombres", "apellidos", "correo", "rolId", "createdAt", "updatedAt"], include: [{ model: Rol, as: "rol", attributes: ["id", "nombreRol"] }] });
 
 exports.obtenerTodos = async () => {
   return await Viaje.findAll({
     include: [
-      { model: require("../models").Usuario, as: "pasajero" },
-      { model: require("../models").Usuario, as: "conductor" },
+      usuarioAttr("pasajero"),
+      usuarioAttr("conductor"),
       { model: Barrio, as: "barrioOrigen" },
       { model: Barrio, as: "barrioDestino" },
     ],
@@ -28,8 +29,8 @@ exports.obtenerTodosConPaginacion = async (limit, offset, q, sortBy = "createdAt
   return await Viaje.findAndCountAll({
     where,
     include: [
-      { model: require("../models").Usuario, as: "pasajero" },
-      { model: require("../models").Usuario, as: "conductor" },
+      usuarioAttr("pasajero"),
+      usuarioAttr("conductor"),
       { model: Barrio, as: "barrioOrigen" },
       { model: Barrio, as: "barrioDestino" },
     ],
@@ -43,8 +44,8 @@ exports.obtenerTodosConPaginacion = async (limit, offset, q, sortBy = "createdAt
 exports.obtenerPorId = async (id) => {
   const viaje = await Viaje.findByPk(id, {
     include: [
-      { model: require("../models").Usuario, as: "pasajero" },
-      { model: require("../models").Usuario, as: "conductor" },
+      usuarioAttr("pasajero"),
+      usuarioAttr("conductor"),
       { model: Barrio, as: "barrioOrigen" },
       { model: Barrio, as: "barrioDestino" },
     ],
@@ -59,8 +60,8 @@ exports.obtenerMisViajes = async (usuarioId, esConductor) => {
   return await Viaje.findAll({
     where,
     include: [
-      { model: require("../models").Usuario, as: "pasajero" },
-      { model: require("../models").Usuario, as: "conductor" },
+      usuarioAttr("pasajero"),
+      usuarioAttr("conductor"),
       { model: Barrio, as: "barrioOrigen" },
       { model: Barrio, as: "barrioDestino" },
     ],

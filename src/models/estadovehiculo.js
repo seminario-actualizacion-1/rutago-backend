@@ -9,6 +9,7 @@ module.exports = (sequelize, DataTypes) => {
   EstadoVehiculo.init(
     {
       nombre: { type: DataTypes.STRING(30), allowNull: false, unique: true },
+      descripcion: DataTypes.STRING(100),
     },
     { sequelize, modelName: "EstadoVehiculo", tableName: "EstadosVehiculo", timestamps: true },
   );

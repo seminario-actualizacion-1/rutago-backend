@@ -20,8 +20,8 @@ exports.paraRespuesta = (model) => {
   if (!model) return null;
   return {
     id: model.id,
-    rutaId: model.rutaId,
-    vehiculoId: model.vehiculoId,
+    ruta: model.ruta ? { id: model.ruta.id, nombre: model.ruta.nombre } : { id: model.rutaId },
+    vehiculo: model.vehiculo ? { id: model.vehiculo.id, placa: model.vehiculo.placa } : { id: model.vehiculoId },
     horaSalida: model.horaSalida,
     frecuenciaMinutos: model.frecuenciaMinutos,
     diasSemana: model.diasSemana,

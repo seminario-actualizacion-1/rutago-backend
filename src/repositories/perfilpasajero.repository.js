@@ -1,15 +1,17 @@
 const { Op } = require("sequelize");
-const { PerfilPasajero, Usuario } = require("../models");
+const { PerfilPasajero, Usuario, Rol, TipoDocumento } = require("../models");
+const usuarioAttr = { model: Usuario, as: "usuario", attributes: ["id", "nombres", "apellidos", "correo", "rolId", "createdAt", "updatedAt"], include: [{ model: Rol, as: "rol", attributes: ["id", "nombreRol"] }] };
+const includePerfilPasajero = [usuarioAttr, { model: TipoDocumento, as: "tipoDocumento" }];
 
 exports.obtenerTodos = async () => {
   return await PerfilPasajero.findAll({
-    include: [{ model: Usuario, as: "usuario" }],
+    include: includePerfilPasajero,
   });
 };
 
 exports.obtenerPorId = async (id) => {
   const perfil = await PerfilPasajero.findByPk(id, {
-    include: [{ model: Usuario, as: "usuario" }],
+    include: includePerfilPasajero,
   });
   if (!perfil) throw new Error("PERFIL_PASAJERO_NO_ENCONTRADO");
   return perfil;
@@ -18,7 +20,7 @@ exports.obtenerPorId = async (id) => {
 exports.obtenerPorUsuario = async (usuarioId) => {
   return await PerfilPasajero.findOne({
     where: { usuarioId },
-    include: [{ model: Usuario, as: "usuario" }],
+    include: includePerfilPasajero,
   });
 };
 
@@ -52,7 +54,7 @@ exports.obtenerTodosConPaginacion = async (limit, offset, q, sortBy = "createdAt
   }
   return await PerfilPasajero.findAndCountAll({
     where,
-    include: [{ model: Usuario, as: "usuario" }],
+    include: includePerfilPasajero,
     limit,
     offset,
     order: [[sortBy, sortOrder]],
