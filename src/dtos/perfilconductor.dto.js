@@ -29,7 +29,9 @@ exports.paraRespuesta = (model) => {
             : { id: model.usuario.rolId },
         }
       : undefined,
-    vehiculoId: model.vehiculoId,
+    vehiculo: model.vehiculo
+      ? { id: model.vehiculo.id, placa: model.vehiculo.placa, marca: model.vehiculo.marca, modelo: model.vehiculo.modelo, color: model.vehiculo.color, capacidadPasajeros: model.vehiculo.capacidadPasajeros }
+      : null,
     licenciaConducir: model.licenciaConducir,
     estadoId: model.estadoId,
     createdAt: model.createdAt,
