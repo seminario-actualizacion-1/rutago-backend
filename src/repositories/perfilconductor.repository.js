@@ -1,5 +1,4 @@
-const { Op } = require("sequelize");
-const { PerfilConductor, Vehiculo, Usuario, Rol } = require("../models");
+const { PerfilConductor, Vehiculo, Usuario, Rol, EstadoConductor } = require("../models");
 const usuarioAttr = { model: Usuario, as: "usuario", attributes: ["id", "nombres", "apellidos", "correo", "rolId", "createdAt", "updatedAt"], include: [{ model: Rol, as: "rol", attributes: ["id", "nombreRol"] }] };
 
 exports.obtenerTodos = async () => {
@@ -7,6 +6,7 @@ exports.obtenerTodos = async () => {
     include: [
       usuarioAttr,
       { model: Vehiculo, as: "vehiculo" },
+      { model: EstadoConductor, as: "estadoConductor", attributes: ["id", "nombre"] },
     ],
   });
 };
@@ -16,6 +16,7 @@ exports.obtenerPorId = async (id) => {
     include: [
       usuarioAttr,
       { model: Vehiculo, as: "vehiculo" },
+      { model: EstadoConductor, as: "estadoConductor", attributes: ["id", "nombre"] },
     ],
   });
   if (!perfil) throw new Error("PERFIL_CONDUCTOR_NO_ENCONTRADO");
@@ -28,6 +29,7 @@ exports.obtenerPorUsuario = async (usuarioId) => {
     include: [
       usuarioAttr,
       { model: Vehiculo, as: "vehiculo" },
+      { model: EstadoConductor, as: "estadoConductor", attributes: ["id", "nombre"] },
     ],
   });
 };
@@ -70,6 +72,7 @@ exports.obtenerTodosConPaginacion = async (limit, offset, q, sortBy = "createdAt
     include: [
       usuarioAttr,
       { model: Vehiculo, as: "vehiculo" },
+      { model: EstadoConductor, as: "estadoConductor", attributes: ["id", "nombre"] },
     ],
     limit,
     offset,
@@ -84,6 +87,13 @@ exports.obtenerUsuarioPorId = async (id) => {
 
 exports.obtenerVehiculoPorId = async (id) => {
   return await Vehiculo.findByPk(id);
+};
+
+exports.obtenerPorVehiculo = async (vehiculoId) => {
+  return await PerfilConductor.findOne({
+    where: { vehiculoId },
+    include: [usuarioAttr, { model: Vehiculo, as: "vehiculo" }, { model: EstadoConductor, as: "estadoConductor", attributes: ["id", "nombre"] }],
+  });
 };
 
 exports.obtenerExistente = async (usuarioId) => {

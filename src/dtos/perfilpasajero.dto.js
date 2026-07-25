@@ -18,6 +18,22 @@ exports.paraActualizar = (data) => {
   return dto;
 };
 
+exports.paraCrearConUsuario = (data) => ({
+  datosUsuario: {
+    nombres: data.nombres?.trim(),
+    apellidos: data.apellidos?.trim(),
+    correo: data.correo?.trim().toLowerCase(),
+    contrasena: data.contrasena,
+  },
+  datosPerfil: {
+    telefono: data.telefono?.trim(),
+    direccion: data.direccion?.trim(),
+    tipoDocumentoId: data.tipoDocumentoId ? parseInt(data.tipoDocumentoId, 10) : undefined,
+    numeroDocumento: data.numeroDocumento?.trim(),
+    fechaNacimiento: data.fechaNacimiento || undefined,
+  },
+});
+
 exports.paraRespuesta = (model) => {
   if (!model) return null;
   return {

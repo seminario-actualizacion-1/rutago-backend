@@ -5,7 +5,6 @@ const authMiddleware = require("../middlewares/auth.middleware");
 const roleMiddleware = require("../middlewares/role.middleware");
 const {
   validarRegistro,
-  validarLogin,
   validarRecuperarContrasena,
   validarCambiarContrasena,
   validarActualizarPerfil,
@@ -13,38 +12,6 @@ const {
 const {
   validarPaginacion,
 } = require("../middlewares/paginacion.validator");
-
-/**
- * @swagger
- * /api/usuarios/login:
- *   post:
- *     summary: Iniciar sesión
- *     tags: [Autenticación]
- *     requestBody:
- *       required: true
- *       content:
- *         application/json:
- *           schema:
- *             type: object
- *             required:
- *               - correo
- *               - contrasena
- *             properties:
- *               correo:
- *                 type: string
- *                 format: email
- *               contrasena:
- *                 type: string
- *                 format: password
- *     responses:
- *       200:
- *         description: Inicio de sesión exitoso
- *       400:
- *         description: Datos inválidos
- *       401:
- *         description: Credenciales incorrectas
- */
-router.post("/login", validarLogin, usuarioController.login);
 
 /**
  * @swagger
@@ -147,26 +114,6 @@ router.post(
   "/cambiar-contrasena",
   validarCambiarContrasena,
   usuarioController.cambiarContrasena
-);
-
-/**
- * @swagger
- * /api/usuarios/verificar-token:
- *   get:
- *     summary: Verificar validez del token JWT
- *     tags: [Usuarios]
- *     security:
- *       - bearerAuth: []
- *     responses:
- *       200:
- *         description: Token válido
- *       401:
- *         description: Token no proporcionado o inválido
- */
-router.get(
-  "/verificar-token",
-  authMiddleware.verificarToken,
-  usuarioController.verificarToken
 );
 
 /**

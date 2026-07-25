@@ -5,6 +5,9 @@ const manejarError = (res, error) => {
   if (error.message?.includes("_NO_ENCONTRADO")) {
     return res.status(404).json({ success: false, message: "Recurso no encontrado" });
   }
+  if (error.message === "CONDUCTOR_TIENE_VIAJE_ACTIVO") {
+    return res.status(400).json({ success: false, message: "El conductor tiene un viaje activo. Finaliza o cancela el viaje antes de cambiar su estado." });
+  }
   res.status(400).json({ success: false, message: error.message });
 };
 
@@ -91,6 +94,26 @@ exports.cambiarEstado = async (req, res) => {
     const perfil = await perfilConductorService.actualizarEstado(req.params.id, estadoId);
     res.json({ success: true, message: "Estado actualizado", data: perfil });
   } catch (error) {
+    manejarError(res, error);
+  }
+};
+
+exports.crearConUsuario = async (req, res) => {
+  try {
+    const datos = perfilConductorDto.paraCrearConUsuario(req.body);
+    if (!datos.datosUsuario.nombres || !datos.datosUsuario.apellidos || !datos.datosUsuario.correo || !datos.datosUsuario.contrasena) {
+      return res.status(400).json({ success: false, message: "Todos los campos del usuario son obligatorios." });
+    }
+    const resultado = await perfilConductorService.crearConUsuario(datos);
+    res.status(201).json({
+      success: true,
+      message: "Conductor creado exitosamente",
+      data: perfilConductorDto.paraRespuesta(resultado.perfil),
+    });
+  } catch (error) {
+    if (error.message === "EL_CORREO_YA_EXISTE") {
+      return res.status(400).json({ success: false, message: "El correo electrónico ya está registrado." });
+    }
     manejarError(res, error);
   }
 };

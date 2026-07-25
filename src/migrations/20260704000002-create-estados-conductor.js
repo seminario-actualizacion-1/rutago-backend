@@ -5,15 +5,16 @@ module.exports = {
     await queryInterface.createTable("EstadosConductor", {
       id: { allowNull: false, autoIncrement: true, primaryKey: true, type: Sequelize.INTEGER },
       nombre: { type: Sequelize.STRING(30), allowNull: false, unique: true },
+      descripcion: { type: Sequelize.STRING(100), allowNull: true },
       createdAt: { allowNull: false, type: Sequelize.DATE },
       updatedAt: { allowNull: false, type: Sequelize.DATE },
     });
 
     await queryInterface.sequelize.query(`
-      INSERT IGNORE INTO EstadosConductor (id, nombre, createdAt, updatedAt) VALUES
-      (1, 'DISPONIBLE', NOW(), NOW()),
-      (2, 'EN_VIAJE', NOW(), NOW()),
-      (3, 'INACTIVO', NOW(), NOW())
+      INSERT IGNORE INTO EstadosConductor (id, nombre, descripcion, createdAt, updatedAt) VALUES
+      (1, 'DISPONIBLE', 'Conductor disponible para asignar viajes', NOW(), NOW()),
+      (2, 'EN_VIAJE', 'Conductor realizando un viaje', NOW(), NOW()),
+      (3, 'INACTIVO', 'Conductor inactivo', NOW(), NOW())
     `);
 
     const table = await queryInterface.describeTable("PerfilConductors");

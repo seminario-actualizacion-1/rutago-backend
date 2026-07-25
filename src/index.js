@@ -8,6 +8,7 @@ const swaggerJsdoc = require("swagger-jsdoc");
 const errorHandler = require("./middlewares/error.middleware");
 
 const { sequelize } = require("./models");
+const authRoutes = require("./routes/auth.routes");
 const usuarioRoutes = require("./routes/usuario.routes");
 const rolRoutes = require("./routes/rol.routes");
 const comunaRoutes = require("./routes/comuna.routes");
@@ -32,9 +33,8 @@ app.use(express.json({ limit: "10kb" }));
 const origenesPermitidos = [
   "http://localhost:5173",
   "http://localhost:8082",
-  "https://rutago.seminario1.eleueleo.com",
+  ...(process.env.CORS_ORIGIN ? process.env.CORS_ORIGIN.split(",") : []),
 ];
-if (process.env.FRONTEND_URL) origenesPermitidos.push(process.env.FRONTEND_URL);
 
 app.use(
   cors({
@@ -103,10 +103,11 @@ app.use(
   swaggerUi.serve,
   swaggerUi.setup(swaggerDocs),
 );
-app.use("/api/usuarios/login", authLimiter);
+app.use("/api/auth/login", authLimiter);
 app.use("/api/usuarios/registro", authLimiter);
 app.use("/api/usuarios/recuperar-contrasena", authLimiter);
 app.use("/api/usuarios/cambiar-contrasena", authLimiter);
+app.use("/api/auth", authRoutes);
 app.use("/api/usuarios", usuarioRoutes);
 app.use("/api/roles", rolRoutes);
 app.use("/api/comunas", comunaRoutes);

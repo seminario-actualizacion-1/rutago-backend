@@ -5,17 +5,18 @@ module.exports = {
     await queryInterface.createTable("EstadosViaje", {
       id: { allowNull: false, autoIncrement: true, primaryKey: true, type: Sequelize.INTEGER },
       nombre: { type: Sequelize.STRING(30), allowNull: false, unique: true },
+      descripcion: { type: Sequelize.STRING(100), allowNull: true },
       createdAt: { allowNull: false, type: Sequelize.DATE },
       updatedAt: { allowNull: false, type: Sequelize.DATE },
     });
 
     await queryInterface.sequelize.query(`
-      INSERT IGNORE INTO EstadosViaje (id, nombre, createdAt, updatedAt) VALUES
-      (1, 'BUSCANDO', NOW(), NOW()),
-      (2, 'ACEPTADO', NOW(), NOW()),
-      (3, 'EN_CURSO', NOW(), NOW()),
-      (4, 'FINALIZADO', NOW(), NOW()),
-      (5, 'CANCELADO', NOW(), NOW())
+      INSERT IGNORE INTO EstadosViaje (id, nombre, descripcion, createdAt, updatedAt) VALUES
+      (1, 'BUSCANDO', 'Buscando conductor disponible', NOW(), NOW()),
+      (2, 'ACEPTADO', 'Viaje aceptado por el conductor', NOW(), NOW()),
+      (3, 'EN_CURSO', 'Viaje en curso', NOW(), NOW()),
+      (4, 'FINALIZADO', 'Viaje finalizado exitosamente', NOW(), NOW()),
+      (5, 'CANCELADO', 'Viaje cancelado', NOW(), NOW())
     `);
 
     const table = await queryInterface.describeTable("Viajes");

@@ -1,28 +1,23 @@
-"use strict";
+  "use strict";
 const { Model } = require("sequelize");
 module.exports = (sequelize, DataTypes) => {
   class Viaje extends Model {
-    /**
-     * Helper method for defining associations.
-     * This method is not a part of Sequelize lifecycle.
-     * The `models/index` file will call this method automatically.
-     */
     static associate(models) {
-      Viaje.belongsTo(models.Usuario, {
-        foreignKey: "pasajeroId",
-        as: "pasajero",
+      Viaje.hasMany(models.ViajePasajero, {
+        foreignKey: "viajeId",
+        as: "pasajeros",
       });
       Viaje.belongsTo(models.Usuario, {
         foreignKey: "conductorId",
         as: "conductor",
       });
-      Viaje.belongsTo(models.Barrio, {
-        foreignKey: "barrioOrigenId",
-        as: "barrioOrigen",
+      Viaje.belongsTo(models.Ruta, {
+        foreignKey: "rutaId",
+        as: "ruta",
       });
-      Viaje.belongsTo(models.Barrio, {
-        foreignKey: "barrioDestinoId",
-        as: "barrioDestino",
+      Viaje.belongsTo(models.Horario, {
+        foreignKey: "horarioId",
+        as: "horario",
       });
       Viaje.belongsTo(models.EstadoViaje, {
         foreignKey: "estadoId",
@@ -32,10 +27,9 @@ module.exports = (sequelize, DataTypes) => {
   }
   Viaje.init(
     {
-      pasajeroId: DataTypes.INTEGER,
       conductorId: DataTypes.INTEGER,
-      barrioOrigenId: DataTypes.INTEGER,
-      barrioDestinoId: DataTypes.INTEGER,
+      rutaId: DataTypes.INTEGER,
+      horarioId: DataTypes.INTEGER,
       estadoId: {
         type: DataTypes.INTEGER,
         defaultValue: 1,

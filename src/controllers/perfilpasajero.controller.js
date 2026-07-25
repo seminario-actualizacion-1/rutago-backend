@@ -5,6 +5,9 @@ const manejarError = (res, error) => {
   if (error.message?.includes("_NO_ENCONTRADO")) {
     return res.status(404).json({ success: false, message: "Recurso no encontrado" });
   }
+  if (error.message === "EL_CORREO_YA_EXISTE") {
+    return res.status(400).json({ success: false, message: "El correo electrónico ya está registrado." });
+  }
   res.status(400).json({ success: false, message: error.message });
 };
 
@@ -93,6 +96,23 @@ exports.actualizarMiPerfil = async (req, res) => {
       success: true,
       message: "Perfil de pasajero actualizado",
       data: perfilPasajeroDto.paraRespuesta(perfil),
+    });
+  } catch (error) {
+    manejarError(res, error);
+  }
+};
+
+exports.crearConUsuario = async (req, res) => {
+  try {
+    const datos = perfilPasajeroDto.paraCrearConUsuario(req.body);
+    if (!datos.datosUsuario.nombres || !datos.datosUsuario.apellidos || !datos.datosUsuario.correo || !datos.datosUsuario.contrasena) {
+      return res.status(400).json({ success: false, message: "Todos los campos del usuario son obligatorios." });
+    }
+    const resultado = await perfilPasajeroService.crearConUsuario(datos);
+    res.status(201).json({
+      success: true,
+      message: "Pasajero creado exitosamente",
+      data: perfilPasajeroDto.paraRespuesta(resultado.perfil),
     });
   } catch (error) {
     manejarError(res, error);

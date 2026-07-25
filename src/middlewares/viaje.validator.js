@@ -5,25 +5,23 @@ const manejarErroresValidacion = (req, res, next) => {
   if (!errors.isEmpty()) {
     return res.status(400).json({
       success: false,
-      message: "Errores de validación",
-      errors: errors.array().map((err) => ({
-        campo: err.path,
-        mensaje: err.msg,
-      })),
+      message: "Error de validación",
+      errors: errors.array(),
     });
   }
   next();
 };
 
 const validarCrearViaje = [
-  body("barrioOrigenId")
-    .notEmpty().withMessage("El barrio de origen es obligatorio")
-    .isInt({ min: 1 }).withMessage("El barrio de origen debe ser un número entero positivo"),
-
-  body("barrioDestinoId")
-    .notEmpty().withMessage("El barrio de destino es obligatorio")
-    .isInt({ min: 1 }).withMessage("El barrio de destino debe ser un número entero positivo"),
-
+  body("rutaId")
+    .notEmpty().withMessage("La ruta es obligatoria")
+    .isInt({ min: 1 }).withMessage("La ruta debe ser un número entero positivo"),
+  body("horarioId")
+    .optional({ nullable: true })
+    .isInt({ min: 1 }).withMessage("El horario debe ser un número entero positivo"),
+  body("precioEstimado")
+    .optional({ nullable: true })
+    .isFloat({ min: 0 }).withMessage("El precio estimado debe ser un número positivo"),
   manejarErroresValidacion,
 ];
 
