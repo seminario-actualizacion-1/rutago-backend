@@ -143,6 +143,22 @@ router.get(
  *       404:
  *         description: Viaje no encontrado
  */
+/**
+ * @swagger
+ * /api/viajes/disponibles:
+ *   get:
+ *     summary: Obtener viajes disponibles para conductores
+ *     tags: [Viajes]
+ *     security:
+ *       - bearerAuth: []
+ *     responses:
+ *       200:
+ *         description: Lista de viajes disponibles
+ *       401:
+ *         description: No autenticado
+ *       403:
+ *         description: No autorizado
+ */
 router.get(
   "/disponibles",
   authMiddleware.verificarToken,
@@ -150,6 +166,22 @@ router.get(
   viajeController.obtenerDisponibles
 );
 
+/**
+ * @swagger
+ * /api/viajes/disponibles-pasajero:
+ *   get:
+ *     summary: Obtener viajes disponibles para pasajeros
+ *     tags: [Viajes]
+ *     security:
+ *       - bearerAuth: []
+ *     responses:
+ *       200:
+ *         description: Lista de viajes disponibles para pasajeros
+ *       401:
+ *         description: No autenticado
+ *       403:
+ *         description: No autorizado
+ */
 router.get(
   "/disponibles-pasajero",
   authMiddleware.verificarToken,
@@ -159,8 +191,77 @@ router.get(
 
 router.get("/:id", authMiddleware.verificarToken, viajeController.obtenerPorId);
 
+/**
+ * @swagger
+ * /api/viajes/{id}:
+ *   put:
+ *     summary: Actualizar un viaje (admin)
+ *     tags: [Viajes]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: integer
+ *         description: ID del viaje
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               rutaId:
+ *                 type: integer
+ *               horarioId:
+ *                 type: integer
+ *               conductorId:
+ *                 type: integer
+ *               precioEstimado:
+ *                 type: number
+ *               estadoId:
+ *                 type: integer
+ *     responses:
+ *       200:
+ *         description: Viaje actualizado exitosamente
+ *       400:
+ *         description: Datos inválidos
+ *       401:
+ *         description: No autenticado
+ *       403:
+ *         description: No autorizado
+ *       404:
+ *         description: Viaje no encontrado
+ */
 router.put("/:id", authMiddleware.verificarToken, roleMiddleware.esAdministrador, viajeController.actualizarViaje);
 
+/**
+ * @swagger
+ * /api/viajes/{id}:
+ *   delete:
+ *     summary: Eliminar un viaje (admin)
+ *     tags: [Viajes]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: integer
+ *         description: ID del viaje
+ *     responses:
+ *       200:
+ *         description: Viaje eliminado exitosamente
+ *       401:
+ *         description: No autenticado
+ *       403:
+ *         description: No autorizado
+ *       404:
+ *         description: Viaje no encontrado
+ */
 router.delete("/:id", authMiddleware.verificarToken, roleMiddleware.esAdministrador, viajeController.eliminarViaje);
 
 /**
@@ -291,6 +392,33 @@ router.patch(
   viajeController.cancelarViaje
 );
 
+/**
+ * @swagger
+ * /api/viajes/{id}/unirse:
+ *   post:
+ *     summary: Unirse a un viaje (pasajero)
+ *     tags: [Viajes]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: integer
+ *         description: ID del viaje
+ *     responses:
+ *       200:
+ *         description: Unido al viaje exitosamente
+ *       401:
+ *         description: No autenticado
+ *       403:
+ *         description: No autorizado
+ *       404:
+ *         description: Viaje no encontrado
+ *       409:
+ *         description: Conflicto (viaje lleno, ya unido, etc.)
+ */
 router.post(
   "/:id/unirse",
   authMiddleware.verificarToken,
@@ -298,6 +426,31 @@ router.post(
   viajeController.unirseAViaje
 );
 
+/**
+ * @swagger
+ * /api/viajes/{id}/bajarse:
+ *   delete:
+ *     summary: Bajarse de un viaje (pasajero)
+ *     tags: [Viajes]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: integer
+ *         description: ID del viaje
+ *     responses:
+ *       200:
+ *         description: Salida del viaje exitosa
+ *       401:
+ *         description: No autenticado
+ *       403:
+ *         description: No autorizado
+ *       404:
+ *         description: Viaje no encontrado
+ */
 router.delete(
   "/:id/bajarse",
   authMiddleware.verificarToken,

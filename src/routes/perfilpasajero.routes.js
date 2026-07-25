@@ -261,6 +261,56 @@ router.put("/:id", authMiddleware.verificarToken, roleMiddleware.esAdministrador
  */
 router.delete("/:id", authMiddleware.verificarToken, roleMiddleware.esAdministrador, perfilPasajeroController.eliminarPerfil);
 
+/**
+ * @swagger
+ * /api/perfiles-pasajero/crear-usuario:
+ *   post:
+ *     summary: Crear usuario pasajero + perfil simultáneamente (admin)
+ *     tags: [Perfiles Pasajero]
+ *     security:
+ *       - bearerAuth: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               datosUsuario:
+ *                 type: object
+ *                 properties:
+ *                   nombres:
+ *                     type: string
+ *                   apellidos:
+ *                     type: string
+ *                   correo:
+ *                     type: string
+ *                   contrasena:
+ *                     type: string
+ *               datosPerfil:
+ *                 type: object
+ *                 properties:
+ *                   telefono:
+ *                     type: string
+ *                   direccion:
+ *                     type: string
+ *                   tipoDocumentoId:
+ *                     type: integer
+ *                   numeroDocumento:
+ *                     type: string
+ *                   fechaNacimiento:
+ *                     type: string
+ *                     format: date
+ *     responses:
+ *       201:
+ *         description: Usuario y perfil creados exitosamente
+ *       400:
+ *         description: Datos inválidos
+ *       401:
+ *         description: No autenticado
+ *       403:
+ *         description: No autorizado
+ */
 router.post(
   "/crear-usuario",
   authMiddleware.verificarToken,
