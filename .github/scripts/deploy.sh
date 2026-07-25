@@ -20,6 +20,12 @@ echo "→ Normalizando datos para validaciones..."
 node scripts/migrar-validaciones.js
 echo "→ Agregando columna descripcion a catálogos..."
 node scripts/migrar-descripcion.js
+echo "→ Llenando descripciones de catálogos..."
+node scripts/llenar-descripciones.js
+echo "→ Agregando geometría a tabla Rutas..."
+node scripts/migrar-ruta-geometria.js
+echo "→ Creando viajes para horarios pendientes..."
+node scripts/migrar-viajes-pendientes.js
 echo "→ Eliminando dependencias de desarrollo..."
 npm prune --omit=dev
 echo "→ Reiniciando únicamente RutaGo Backend..."

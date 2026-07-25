@@ -1,6 +1,8 @@
 const horarioRepository = require("../repositories/horario.repository");
 const vehiculoRepository = require("../repositories/vehiculo.repository");
 const rutaRepository = require("../repositories/ruta.repository");
+const perfilConductorRepository = require("../repositories/perfilconductor.repository");
+const viajeRepository = require("../repositories/viaje.repository");
 const {
   formatearRespuestaPaginada,
   calcularOffset,
@@ -55,7 +57,18 @@ exports.crearHorario = async (datos) => {
     throw new Error("RUTA_NO_ENCONTRADA");
   }
 
-  return await horarioRepository.crearHorario(datos);
+  const horario = await horarioRepository.crearHorario(datos);
+
+  const perfilConductor = await perfilConductorRepository.obtenerPorVehiculo(vehiculoId);
+  const viajeData = {
+    rutaId,
+    horarioId: horario.id,
+    conductorId: perfilConductor ? perfilConductor.usuarioId : null,
+    estadoId: 1,
+  };
+  await viajeRepository.crearViaje(viajeData);
+
+  return horario;
 };
 
 exports.actualizarHorario = async (id, datos) => {

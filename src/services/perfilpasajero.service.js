@@ -1,9 +1,11 @@
 const perfilPasajeroRepository = require("../repositories/perfilpasajero.repository");
+const usuarioRepository = require("../repositories/usuario.repository");
 const { ROLES } = require("../config/roles");
 const {
   formatearRespuestaPaginada,
   calcularOffset,
 } = require("../helpers/paginacion.helper");
+const { encriptar } = require("../helpers/encriptarPassword");
 
 exports.obtenerTodos = async (paginaActual = 1, registrosPorPagina = 10, q, sortBy = "createdAt", sortOrder = "DESC") => {
   const offset = calcularOffset(paginaActual, registrosPorPagina);
@@ -73,4 +75,31 @@ exports.actualizarMiPerfil = async (usuarioId, datos) => {
 
 exports.eliminarPerfil = async (id) => {
   return await perfilPasajeroRepository.eliminarPerfil(id);
+};
+
+exports.crearConUsuario = async (datos) => {
+  const { datosUsuario, datosPerfil } = datos;
+
+  const usuarioExiste = await usuarioRepository.buscarPorCorreo(datosUsuario.correo);
+  if (usuarioExiste) throw new Error("EL_CORREO_YA_EXISTE");
+
+  const contrasenaEncriptada = await encriptar(datosUsuario.contrasena);
+  const nuevoUsuario = await usuarioRepository.guardarUsuario({
+    nombres: datosUsuario.nombres,
+    apellidos: datosUsuario.apellidos,
+    correo: datosUsuario.correo,
+    contrasena: contrasenaEncriptada,
+    rolId: ROLES.PASAJERO,
+  });
+
+  const perfil = await perfilPasajeroRepository.crearPerfil({
+    usuarioId: nuevoUsuario.id,
+    telefono: datosPerfil.telefono,
+    direccion: datosPerfil.direccion,
+    tipoDocumentoId: datosPerfil.tipoDocumentoId,
+    numeroDocumento: datosPerfil.numeroDocumento,
+    fechaNacimiento: datosPerfil.fechaNacimiento,
+  });
+
+  return { usuario: nuevoUsuario, perfil };
 };

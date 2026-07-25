@@ -5,6 +5,7 @@ exports.paraCrear = (data) => ({
   descripcion: data.descripcion?.trim(),
   distanciaKm: data.distanciaKm ? parseFloat(data.distanciaKm) : undefined,
   tiempoEstimadoMinutos: data.tiempoEstimadoMinutos ? parseInt(data.tiempoEstimadoMinutos, 10) : undefined,
+  rutaGeometria: data.rutaGeometria || undefined,
 });
 
 exports.paraActualizar = (data) => {
@@ -15,6 +16,7 @@ exports.paraActualizar = (data) => {
   if (data.descripcion && data.descripcion.trim()) dto.descripcion = data.descripcion.trim();
   if (data.distanciaKm) dto.distanciaKm = parseFloat(data.distanciaKm);
   if (data.tiempoEstimadoMinutos) dto.tiempoEstimadoMinutos = parseInt(data.tiempoEstimadoMinutos, 10);
+  if (data.rutaGeometria !== undefined) dto.rutaGeometria = data.rutaGeometria;
   return dto;
 };
 
@@ -28,6 +30,7 @@ exports.paraRespuesta = (model) => {
     descripcion: model.descripcion,
     distanciaKm: model.distanciaKm ? parseFloat(model.distanciaKm) : null,
     tiempoEstimadoMinutos: model.tiempoEstimadoMinutos,
+    rutaGeometria: model.rutaGeometria || null,
     createdAt: model.createdAt,
     updatedAt: model.updatedAt,
   };

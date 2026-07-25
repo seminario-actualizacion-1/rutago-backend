@@ -14,6 +14,20 @@ exports.paraActualizar = (data) => {
   return dto;
 };
 
+exports.paraCrearConUsuario = (data) => ({
+  datosUsuario: {
+    nombres: data.nombres?.trim(),
+    apellidos: data.apellidos?.trim(),
+    correo: data.correo?.trim().toLowerCase(),
+    contrasena: data.contrasena,
+  },
+  datosPerfil: {
+    razonSocial: data.razonSocial?.trim(),
+    nit: data.nit?.trim(),
+    telefonoContacto: data.telefonoContacto?.trim(),
+  },
+});
+
 exports.paraRespuesta = (model) => {
   if (!model) return null;
   return {

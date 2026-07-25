@@ -284,6 +284,51 @@ router.patch(
 
 /**
  * @swagger
+ * /api/perfiles-conductor/crear-usuario:
+ *   post:
+ *     summary: Crear usuario + perfil de conductor en una sola llamada
+ *     tags: [Perfiles Conductor]
+ *     security:
+ *       - bearerAuth: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - nombres
+ *               - apellidos
+ *               - correo
+ *               - contrasena
+ *             properties:
+ *               nombres:
+ *                 type: string
+ *               apellidos:
+ *                 type: string
+ *               correo:
+ *                 type: string
+ *               contrasena:
+ *                 type: string
+ *               vehiculoId:
+ *                 type: integer
+ *               licenciaConducir:
+ *                 type: string
+ *     responses:
+ *       201:
+ *         description: Conductor creado exitosamente
+ *       400:
+ *         description: Error de validación
+ */
+router.post(
+  "/crear-usuario",
+  authMiddleware.verificarToken,
+  roleMiddleware.esAdministrador,
+  perfilConductorController.crearConUsuario,
+);
+
+/**
+ * @swagger
  * /api/perfiles-conductor/{id}:
  *   delete:
  *     summary: Eliminar un perfil de conductor por ID

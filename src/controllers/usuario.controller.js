@@ -1,5 +1,6 @@
 const usuarioService = require("../services/usuario.service");
 const usuarioDto = require("../dtos/usuario.dto");
+const perfilPasajeroService = require("../services/perfilpasajero.service");
 
 const manejarError = (res, error) => {
   if (error.message?.includes("_NO_ENCONTRADO")) {
@@ -22,6 +23,20 @@ exports.registrarUsuario = async (req, res) => {
     if (!datos.rolId) datos.rolId = 3;
 
     const nuevoUsuario = await usuarioService.crearUsuario(datos);
+
+    if (datos.rolId === 3) {
+      const existente = await perfilPasajeroService.obtenerPorUsuario(nuevoUsuario.id).catch(() => null);
+      if (!existente) {
+        await perfilPasajeroService.crearPerfil({
+          usuarioId: nuevoUsuario.id,
+          telefono: datos.telefono,
+          direccion: datos.direccion,
+          tipoDocumentoId: datos.tipoDocumentoId,
+          numeroDocumento: datos.numeroDocumento,
+          fechaNacimiento: datos.fechaNacimiento,
+        });
+      }
+    }
 
     return res.status(201).json({
       success: true,
@@ -51,38 +66,6 @@ exports.registrarUsuario = async (req, res) => {
     return res
       .status(500)
       .json({ success: false, message: "Error interno del servidor." });
-  }
-};
-
-exports.login = async (req, res) => {
-  try {
-    const { correo, contrasena } = req.body;
-
-    if (!correo || !contrasena) {
-      return res
-        .status(400)
-        .json({ success: false, message: "Correo y contraseña requeridos." });
-    }
-
-    const resultado = await usuarioService.autenticarUsuario(
-      correo,
-      contrasena,
-    );
-
-    return res.status(200).json({
-      success: true,
-      message: "Inicio de sesión exitoso.",
-      ...resultado,
-    });
-  } catch (error) {
-    if (error.message === "CREDENCIALES_INVALIDAS") {
-      return res
-        .status(401)
-        .json({ success: false, message: "Correo o contraseña incorrectos." });
-    }
-    return res
-      .status(500)
-      .json({ success: false, message: "Error en el servidor." });
   }
 };
 
@@ -188,32 +171,4 @@ exports.eliminarUsuario = async (req, res) => {
   }
 };
 
-exports.verificarToken = async (req, res) => {
-  try {
-    if (!req.usuario || !req.usuario.id) {
-      return res
-        .status(401)
-        .json({ success: false, message: "Token inválido" });
-    }
 
-    const usuario = await usuarioService.obtenerPorId(req.usuario.id);
-
-    return res.status(200).json({
-      success: true,
-      usuario: {
-        id: usuario.id,
-        nombres: usuario.nombres,
-        apellidos: usuario.apellidos,
-        correo: usuario.correo,
-        rolId: usuario.rolId,
-        rol: usuario.rol ? usuario.rol.nombreRol : null,
-      },
-    });
-  } catch (error) {
-    console.error("Error en verificarToken:", error);
-    return res.status(401).json({
-      success: false,
-      message: "Token inválido o usuario no encontrado",
-    });
-  }
-};

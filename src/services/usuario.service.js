@@ -1,9 +1,7 @@
 const usuarioRepository = require("../repositories/usuario.repository");
 const rolRepository = require("../repositories/rol.repository");
-const bcrypt = require("bcryptjs");
 const crypto = require("crypto");
 const { encriptar } = require("../helpers/encriptarPassword");
-const { generarToken } = require("../helpers/generarToken");
 const {
   formatearRespuestaPaginada,
   calcularOffset,
@@ -31,36 +29,6 @@ exports.crearUsuario = async (datosUsuario) => {
     contrasena: contrasenaEncriptada,
     rolId,
   });
-};
-
-exports.autenticarUsuario = async (correo, contrasena) => {
-  const usuario = await usuarioRepository.buscarPorCorreo(correo);
-  if (!usuario) {
-    throw new Error("CREDENCIALES_INVALIDAS");
-  }
-
-  const esValida = await bcrypt.compare(contrasena, usuario.contrasena);
-  if (!esValida) {
-    throw new Error("CREDENCIALES_INVALIDAS");
-  }
-
-  const token = generarToken(usuario);
-
-  const rol = await rolRepository.obtenerPorId(usuario.rolId);
-
-  return {
-    token,
-    usuario: {
-      id: usuario.id,
-      nombres: usuario.nombres,
-      rol: rol
-        ? {
-            id: rol.id,
-            nombreRol: rol.nombreRol,
-          }
-        : null,
-    },
-  };
 };
 
 exports.obtenerTodos = async (

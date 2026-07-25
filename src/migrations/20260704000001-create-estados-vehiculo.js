@@ -6,16 +6,17 @@ module.exports = {
     await queryInterface.createTable("EstadosVehiculo", {
       id: { allowNull: false, autoIncrement: true, primaryKey: true, type: Sequelize.INTEGER },
       nombre: { type: Sequelize.STRING(30), allowNull: false, unique: true },
+      descripcion: { type: Sequelize.STRING(100), allowNull: true },
       createdAt: { allowNull: false, type: Sequelize.DATE },
       updatedAt: { allowNull: false, type: Sequelize.DATE },
     });
 
     // Insertar datos del catálogo (idempotente)
     await queryInterface.sequelize.query(`
-      INSERT IGNORE INTO EstadosVehiculo (id, nombre, createdAt, updatedAt) VALUES
-      (1, 'EN_TERMINAL', NOW(), NOW()),
-      (2, 'EN_RUTA', NOW(), NOW()),
-      (3, 'PROXIMO', NOW(), NOW())
+      INSERT IGNORE INTO EstadosVehiculo (id, nombre, descripcion, createdAt, updatedAt) VALUES
+      (1, 'EN_TERMINAL', 'Vehículo en terminal disponible', NOW(), NOW()),
+      (2, 'EN_RUTA', 'Vehículo en ruta', NOW(), NOW()),
+      (3, 'PROXIMO', 'Vehículo próximo a salir', NOW(), NOW())
     `);
 
     // Migrar columna estado → estadoId

@@ -1,9 +1,11 @@
 const perfilEntidadRepository = require("../repositories/perfilentidad.repository");
+const usuarioRepository = require("../repositories/usuario.repository");
 const { ROLES, NOMBRES_ROL } = require("../config/roles");
 const {
   formatearRespuestaPaginada,
   calcularOffset,
 } = require("../helpers/paginacion.helper");
+const { encriptar } = require("../helpers/encriptarPassword");
 
 exports.obtenerTodos = async (paginaActual = 1, registrosPorPagina = 10, q, sortBy = "createdAt", sortOrder = "DESC") => {
   const offset = calcularOffset(paginaActual, registrosPorPagina);
@@ -73,4 +75,29 @@ exports.actualizarMiEntidad = async (usuarioId, datos) => {
 
 exports.eliminarEntidad = async (id) => {
   return await perfilEntidadRepository.eliminarEntidad(id);
+};
+
+exports.crearConUsuario = async (datos) => {
+  const { datosUsuario, datosPerfil } = datos;
+
+  const usuarioExiste = await usuarioRepository.buscarPorCorreo(datosUsuario.correo);
+  if (usuarioExiste) throw new Error("EL_CORREO_YA_EXISTE");
+
+  const contrasenaEncriptada = await encriptar(datosUsuario.contrasena);
+  const nuevoUsuario = await usuarioRepository.guardarUsuario({
+    nombres: datosUsuario.nombres,
+    apellidos: datosUsuario.apellidos,
+    correo: datosUsuario.correo,
+    contrasena: contrasenaEncriptada,
+    rolId: ROLES.ENTIDAD,
+  });
+
+  const perfil = await perfilEntidadRepository.crearEntidad({
+    usuarioId: nuevoUsuario.id,
+    razonSocial: datosPerfil.razonSocial,
+    nit: datosPerfil.nit,
+    telefonoContacto: datosPerfil.telefonoContacto,
+  });
+
+  return { usuario: nuevoUsuario, perfil };
 };

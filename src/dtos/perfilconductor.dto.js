@@ -14,6 +14,20 @@ exports.paraActualizar = (data) => {
   return dto;
 };
 
+exports.paraCrearConUsuario = (data) => ({
+  datosUsuario: {
+    nombres: data.nombres?.trim(),
+    apellidos: data.apellidos?.trim(),
+    correo: data.correo?.trim().toLowerCase(),
+    contrasena: data.contrasena,
+  },
+  datosPerfil: {
+    vehiculoId: data.vehiculoId ? parseInt(data.vehiculoId, 10) : undefined,
+    licenciaConducir: data.licenciaConducir?.trim(),
+    estadoId: data.estadoId ? parseInt(data.estadoId, 10) : undefined,
+  },
+});
+
 exports.paraRespuesta = (model) => {
   if (!model) return null;
   return {
@@ -33,7 +47,7 @@ exports.paraRespuesta = (model) => {
       ? { id: model.vehiculo.id, placa: model.vehiculo.placa, marca: model.vehiculo.marca, modelo: model.vehiculo.modelo, color: model.vehiculo.color, capacidadPasajeros: model.vehiculo.capacidadPasajeros }
       : null,
     licenciaConducir: model.licenciaConducir,
-    estadoId: model.estadoId,
+    estado: model.estadoConductor ? { id: model.estadoConductor.id, nombre: model.estadoConductor.nombre } : { id: model.estadoId },
     createdAt: model.createdAt,
     updatedAt: model.updatedAt,
   };

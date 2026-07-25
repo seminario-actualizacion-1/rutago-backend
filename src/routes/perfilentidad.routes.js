@@ -281,4 +281,11 @@ router.delete(
   perfilEntidadController.eliminarEntidad,
 );
 
+router.post(
+  "/crear-usuario",
+  authMiddleware.verificarToken,
+  roleMiddleware.esAdministrador,
+  perfilEntidadController.crearConUsuario,
+);
+
 module.exports = router;

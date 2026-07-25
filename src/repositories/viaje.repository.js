@@ -1,39 +1,40 @@
 const { Op } = require("sequelize");
-const { Viaje, Barrio, Usuario, Rol } = require("../models");
+const { Viaje, ViajePasajero, Ruta, Horario, Vehiculo, Usuario, Rol, EstadoViaje, Comuna } = require("../models");
+
 const usuarioAttr = (as) => ({ model: Usuario, as, attributes: ["id", "nombres", "apellidos", "correo", "rolId", "createdAt", "updatedAt"], include: [{ model: Rol, as: "rol", attributes: ["id", "nombreRol"] }] });
+
+const includeDefault = [
+  { model: ViajePasajero, as: "pasajeros", include: [usuarioAttr("pasajero")] },
+  usuarioAttr("conductor"),
+  { model: Ruta, as: "ruta", attributes: ["id", "nombre", "distanciaKm", "tiempoEstimadoMinutos", "rutaGeometria"], include: [{ model: Comuna, as: "origen", attributes: ["id", "nombre"] }, { model: Comuna, as: "destino", attributes: ["id", "nombre"] }] },
+  { model: Horario, as: "horario", attributes: ["id", "horaSalida", "frecuenciaMinutos"], include: [{ model: Vehiculo, as: "vehiculo", attributes: ["id", "placa", "capacidadPasajeros"] }] },
+  { model: EstadoViaje, as: "estadoViaje", attributes: ["id", "nombre"] },
+];
 
 exports.obtenerTodos = async () => {
   return await Viaje.findAll({
-    include: [
-      usuarioAttr("pasajero"),
-      usuarioAttr("conductor"),
-      { model: Barrio, as: "barrioOrigen" },
-      { model: Barrio, as: "barrioDestino" },
-    ],
+    include: includeDefault,
     order: [["createdAt", "DESC"]],
   });
 };
 
-exports.obtenerTodosConPaginacion = async (limit, offset, q, sortBy = "createdAt", sortOrder = "DESC") => {
+exports.obtenerTodosConPaginacion = async (limit, offset, q, sortBy = "createdAt", sortOrder = "DESC", estadoId) => {
   const where = {};
   if (q) {
     where[Op.or] = [
-      { '$pasajero.nombres$': { [Op.like]: `%${q}%` } },
-      { '$pasajero.apellidos$': { [Op.like]: `%${q}%` } },
+      { '$pasajeros.pasajero.nombres$': { [Op.like]: `%${q}%` } },
+      { '$pasajeros.pasajero.apellidos$': { [Op.like]: `%${q}%` } },
       { '$conductor.nombres$': { [Op.like]: `%${q}%` } },
       { '$conductor.apellidos$': { [Op.like]: `%${q}%` } },
-      { '$barrioOrigen.nombre$': { [Op.like]: `%${q}%` } },
-      { '$barrioDestino.nombre$': { [Op.like]: `%${q}%` } },
+      { '$ruta.nombre$': { [Op.like]: `%${q}%` } },
     ];
+  }
+  if (estadoId) {
+    where.estadoId = parseInt(estadoId, 10);
   }
   return await Viaje.findAndCountAll({
     where,
-    include: [
-      usuarioAttr("pasajero"),
-      usuarioAttr("conductor"),
-      { model: Barrio, as: "barrioOrigen" },
-      { model: Barrio, as: "barrioDestino" },
-    ],
+    include: includeDefault,
     limit,
     offset,
     order: [[sortBy, sortOrder]],
@@ -43,28 +44,54 @@ exports.obtenerTodosConPaginacion = async (limit, offset, q, sortBy = "createdAt
 
 exports.obtenerPorId = async (id) => {
   const viaje = await Viaje.findByPk(id, {
-    include: [
-      usuarioAttr("pasajero"),
-      usuarioAttr("conductor"),
-      { model: Barrio, as: "barrioOrigen" },
-      { model: Barrio, as: "barrioDestino" },
-    ],
+    include: includeDefault,
   });
   if (!viaje) throw new Error("VIAJE_NO_ENCONTRADO");
   return viaje;
 };
 
-exports.obtenerMisViajes = async (usuarioId, esConductor) => {
-  const where = esConductor ? { conductorId: usuarioId } : { pasajeroId: usuarioId };
+exports.obtenerDisponibles = async (conductorId) => {
+  const where = { estadoId: { [Op.in]: [1, 2] } };
+  if (conductorId) {
+    where[Op.and] = [
+      { [Op.or]: [{ conductorId: null }, { conductorId: { [Op.ne]: conductorId } }] },
+    ];
+  }
+  return await Viaje.findAll({
+    where,
+    include: includeDefault,
+    order: [["createdAt", "DESC"]],
+  });
+};
+
+exports.obtenerDisponiblesPasajero = async (pasajeroId) => {
+  const viajesConPasajero = await ViajePasajero.findAll({
+    attributes: ["viajeId"],
+    where: { pasajeroId },
+    raw: true,
+  });
+  const idsConPasajero = viajesConPasajero.map((v) => v.viajeId);
+
+  const where = { estadoId: { [Op.in]: [1, 2] } };
+  if (idsConPasajero.length > 0) {
+    where.id = { [Op.notIn]: idsConPasajero };
+  }
 
   return await Viaje.findAll({
     where,
-    include: [
-      usuarioAttr("pasajero"),
-      usuarioAttr("conductor"),
-      { model: Barrio, as: "barrioOrigen" },
-      { model: Barrio, as: "barrioDestino" },
-    ],
+    include: includeDefault,
+    order: [["createdAt", "DESC"]],
+  });
+};
+
+exports.obtenerMisViajes = async (usuarioId, esConductor) => {
+  const where = esConductor
+    ? { conductorId: usuarioId }
+    : { '$pasajeros.pasajeroId$': usuarioId };
+
+  return await Viaje.findAll({
+    where,
+    include: includeDefault,
     order: [["createdAt", "DESC"]],
   });
 };
@@ -73,12 +100,37 @@ exports.crearViaje = async (datos) => {
   return await Viaje.create({ ...datos, estadoId: 1 });
 };
 
+exports.agregarPasajero = async (viajeId, pasajeroId) => {
+  return await ViajePasajero.create({ viajeId, pasajeroId });
+};
+
+exports.eliminarPasajero = async (viajeId, pasajeroId) => {
+  return await ViajePasajero.destroy({ where: { viajeId, pasajeroId } });
+};
+
 exports.obtenerPorIdSimple = async (id) => {
   return await Viaje.findByPk(id);
+};
+
+exports.obtenerPorConductorYHorario = async (conductorId, horarioId) => {
+  return await Viaje.findOne({
+    where: {
+      conductorId,
+      horarioId,
+      estadoId: { [Op.notIn]: [4, 5] },
+    },
+  });
 };
 
 exports.actualizarViaje = async (id, datos) => {
   const viaje = await Viaje.findByPk(id);
   if (!viaje) throw new Error("VIAJE_NO_ENCONTRADO");
   return await viaje.update(datos);
+};
+
+exports.eliminarViaje = async (id) => {
+  const viaje = await Viaje.findByPk(id);
+  if (!viaje) throw new Error("VIAJE_NO_ENCONTRADO");
+  await ViajePasajero.destroy({ where: { viajeId: id } });
+  return await viaje.destroy();
 };

@@ -54,21 +54,6 @@ const validarActualizarEntidad = [
     .trim()
     .isLength({ max: 30 }).withMessage("El teléfono no debe exceder 30 caracteres"),
 
-  body("nombre")
-    .optional({ values: "falsy" })
-    .trim()
-    .isLength({ max: 200 }).withMessage("El nombre no debe exceder 200 caracteres"),
-
-  body("direccion")
-    .optional({ values: "falsy" })
-    .trim()
-    .isLength({ max: 300 }).withMessage("La dirección no debe exceder 300 caracteres"),
-
-  body("telefono")
-    .optional({ values: "falsy" })
-    .trim()
-    .isLength({ max: 30 }).withMessage("El teléfono no debe exceder 30 caracteres"),
-
   manejarErroresValidacion,
 ];
 

@@ -261,4 +261,11 @@ router.put("/:id", authMiddleware.verificarToken, roleMiddleware.esAdministrador
  */
 router.delete("/:id", authMiddleware.verificarToken, roleMiddleware.esAdministrador, perfilPasajeroController.eliminarPerfil);
 
+router.post(
+  "/crear-usuario",
+  authMiddleware.verificarToken,
+  roleMiddleware.esAdministrador,
+  perfilPasajeroController.crearConUsuario,
+);
+
 module.exports = router;

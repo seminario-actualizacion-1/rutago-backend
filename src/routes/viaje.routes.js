@@ -76,12 +76,11 @@ router.get(
  *           schema:
  *             type: object
  *             required:
- *               - barrioOrigenId
- *               - barrioDestinoId
+ *               - rutaId
  *             properties:
- *               barrioOrigenId:
+ *               rutaId:
  *                 type: integer
- *               barrioDestinoId:
+ *               horarioId:
  *                 type: integer
  *     responses:
  *       201:
@@ -144,7 +143,25 @@ router.get(
  *       404:
  *         description: Viaje no encontrado
  */
+router.get(
+  "/disponibles",
+  authMiddleware.verificarToken,
+  roleMiddleware.esConductor,
+  viajeController.obtenerDisponibles
+);
+
+router.get(
+  "/disponibles-pasajero",
+  authMiddleware.verificarToken,
+  roleMiddleware.esPasajero,
+  viajeController.obtenerDisponiblesPasajero
+);
+
 router.get("/:id", authMiddleware.verificarToken, viajeController.obtenerPorId);
+
+router.put("/:id", authMiddleware.verificarToken, roleMiddleware.esAdministrador, viajeController.actualizarViaje);
+
+router.delete("/:id", authMiddleware.verificarToken, roleMiddleware.esAdministrador, viajeController.eliminarViaje);
 
 /**
  * @swagger
@@ -272,6 +289,20 @@ router.patch(
   authMiddleware.verificarToken,
   roleMiddleware.esPasajeroOConductorOAdmin,
   viajeController.cancelarViaje
+);
+
+router.post(
+  "/:id/unirse",
+  authMiddleware.verificarToken,
+  roleMiddleware.esPasajero,
+  viajeController.unirseAViaje
+);
+
+router.delete(
+  "/:id/bajarse",
+  authMiddleware.verificarToken,
+  roleMiddleware.esPasajero,
+  viajeController.bajarseDeViaje
 );
 
 module.exports = router;

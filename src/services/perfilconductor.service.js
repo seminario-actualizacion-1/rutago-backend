@@ -1,10 +1,13 @@
 const perfilConductorRepository = require("../repositories/perfilconductor.repository");
+const usuarioRepository = require("../repositories/usuario.repository");
+const viajeRepository = require("../repositories/viaje.repository");
 const { ROLES } = require("../config/roles");
 const {
   formatearRespuestaPaginada,
   calcularOffset,
 } = require("../helpers/paginacion.helper");
-const { ESTADOS_CONDUCTOR } = require("../config/estados");
+const { encriptar } = require("../helpers/encriptarPassword");
+const { ESTADOS_CONDUCTOR, ESTADOS_VIAJE } = require("../config/estados");
 
 const ESTADOS_VALIDOS = Object.values(ESTADOS_CONDUCTOR);
 
@@ -74,6 +77,22 @@ exports.actualizarPerfil = async (id, datos) => {
     throw new Error("ESTADO_CONDUCTOR_INVALIDO");
   }
 
+  if (datos.estadoId) {
+    const perfil = await perfilConductorRepository.obtenerPorId(id);
+    if (perfil) {
+      const viajesActivos = await viajeRepository.obtenerMisViajes(perfil.usuarioId, true);
+      const tieneActivo = viajesActivos.some((v) =>
+        v.estadoId === ESTADOS_VIAJE.ACEPTADO || v.estadoId === ESTADOS_VIAJE.EN_CURSO
+      );
+      if (datos.estadoId === ESTADOS_CONDUCTOR.DISPONIBLE && tieneActivo) {
+        throw new Error("CONDUCTOR_TIENE_VIAJE_ACTIVO");
+      }
+      if (datos.estadoId === ESTADOS_CONDUCTOR.INACTIVO && tieneActivo) {
+        throw new Error("CONDUCTOR_TIENE_VIAJE_ACTIVO");
+      }
+    }
+  }
+
   return await perfilConductorRepository.actualizarPerfil(id, datos);
 };
 
@@ -100,4 +119,29 @@ exports.actualizarEstado = async (id, estadoId) => {
 
 exports.eliminarPerfil = async (id) => {
   return await perfilConductorRepository.eliminarPerfil(id);
+};
+
+exports.crearConUsuario = async (datos) => {
+  const { datosUsuario, datosPerfil } = datos;
+
+  const usuarioExiste = await usuarioRepository.buscarPorCorreo(datosUsuario.correo);
+  if (usuarioExiste) throw new Error("EL_CORREO_YA_EXISTE");
+
+  const contrasenaEncriptada = await encriptar(datosUsuario.contrasena);
+  const nuevoUsuario = await usuarioRepository.guardarUsuario({
+    nombres: datosUsuario.nombres,
+    apellidos: datosUsuario.apellidos,
+    correo: datosUsuario.correo,
+    contrasena: contrasenaEncriptada,
+    rolId: ROLES.CONDUCTOR,
+  });
+
+  const perfil = await perfilConductorRepository.crearPerfil({
+    usuarioId: nuevoUsuario.id,
+    vehiculoId: datosPerfil.vehiculoId,
+    licenciaConducir: datosPerfil.licenciaConducir,
+    estadoId: datosPerfil.estadoId || ESTADOS_CONDUCTOR.DISPONIBLE,
+  });
+
+  return { usuario: nuevoUsuario, perfil };
 };

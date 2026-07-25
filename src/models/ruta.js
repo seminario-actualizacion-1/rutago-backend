@@ -22,6 +22,7 @@ module.exports = (sequelize, DataTypes) => {
       descripcion: DataTypes.TEXT,
       distanciaKm: DataTypes.DECIMAL,
       tiempoEstimadoMinutos: DataTypes.INTEGER,
+      rutaGeometria: DataTypes.TEXT,
     },
     {
       sequelize,
