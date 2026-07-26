@@ -6,6 +6,8 @@ exports.obtenerTodos = async (req, res) => {
     return res.status(200).json({ success: true, data: tipos });
   } catch (error) {
     console.error("Error al obtener tipos de documento:", error);
-    return res.status(500).json({ success: false, message: "Error al cargar tipos de documento" });
+    return res
+      .status(500)
+      .json({ success: false, message: "Error al cargar tipos de documento" });
   }
 };

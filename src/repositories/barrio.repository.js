@@ -46,7 +46,13 @@ exports.eliminarBarrio = async (id) => {
   return true;
 };
 
-exports.obtenerTodosConPaginacion = async (limit, offset, filtros = {}, sortBy = "id", sortOrder = "ASC") => {
+exports.obtenerTodosConPaginacion = async (
+  limit,
+  offset,
+  filtros = {},
+  sortBy = "id",
+  sortOrder = "ASC",
+) => {
   const where = {};
   if (filtros.comunaId) {
     where.comunaId = Number(filtros.comunaId);

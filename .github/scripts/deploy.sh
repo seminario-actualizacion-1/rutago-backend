@@ -33,6 +33,8 @@ echo "→ Agregando geometría a tabla Rutas..."
 node scripts/migrar-ruta-geometria.js
 echo "→ Creando viajes para horarios pendientes..."
 node scripts/migrar-viajes-pendientes.js
+echo "→ Migrando días de horarios a fechas..."
+node scripts/migrar-dias-horarios.js
 echo "→ Eliminando dependencias de desarrollo..."
 npm prune --omit=dev
 echo "→ Reiniciando únicamente RutaGo Backend..."

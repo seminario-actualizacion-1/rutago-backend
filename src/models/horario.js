@@ -3,7 +3,10 @@ const { Model } = require("sequelize");
 module.exports = (sequelize, DataTypes) => {
   class Horario extends Model {
     static associate(models) {
-      Horario.belongsTo(models.Vehiculo, { foreignKey: "vehiculoId", as: "vehiculo" });
+      Horario.belongsTo(models.Vehiculo, {
+        foreignKey: "vehiculoId",
+        as: "vehiculo",
+      });
       Horario.belongsTo(models.Ruta, { foreignKey: "rutaId", as: "ruta" });
     }
   }
@@ -14,12 +17,14 @@ module.exports = (sequelize, DataTypes) => {
       horaSalida: { type: DataTypes.TIME, allowNull: false },
       frecuenciaMinutos: DataTypes.INTEGER,
       diasSemana: DataTypes.STRING,
+      fechaInicio: DataTypes.DATEONLY,
+      fechaFin: DataTypes.DATEONLY,
     },
     {
       sequelize,
       modelName: "Horario",
       tableName: "Horarios",
-    }
+    },
   );
   return Horario;
 };

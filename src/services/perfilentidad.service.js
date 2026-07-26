@@ -7,18 +7,30 @@ const {
 } = require("../helpers/paginacion.helper");
 const { encriptar } = require("../helpers/encriptarPassword");
 
-exports.obtenerTodos = async (paginaActual = 1, registrosPorPagina = 10, q, sortBy = "createdAt", sortOrder = "DESC") => {
+exports.obtenerTodos = async (
+  paginaActual = 1,
+  registrosPorPagina = 10,
+  q,
+  sortBy = "createdAt",
+  sortOrder = "DESC",
+) => {
   const offset = calcularOffset(paginaActual, registrosPorPagina);
   const limit = parseInt(registrosPorPagina);
 
   const { count, rows } =
-    await perfilEntidadRepository.obtenerTodosConPaginacion(limit, offset, q, sortBy, sortOrder);
+    await perfilEntidadRepository.obtenerTodosConPaginacion(
+      limit,
+      offset,
+      q,
+      sortBy,
+      sortOrder,
+    );
 
   return formatearRespuestaPaginada(
     rows,
     count,
     paginaActual,
-    registrosPorPagina
+    registrosPorPagina,
   );
 };
 
@@ -80,7 +92,9 @@ exports.eliminarEntidad = async (id) => {
 exports.crearConUsuario = async (datos) => {
   const { datosUsuario, datosPerfil } = datos;
 
-  const usuarioExiste = await usuarioRepository.buscarPorCorreo(datosUsuario.correo);
+  const usuarioExiste = await usuarioRepository.buscarPorCorreo(
+    datosUsuario.correo,
+  );
   if (usuarioExiste) throw new Error("EL_CORREO_YA_EXISTE");
 
   const contrasenaEncriptada = await encriptar(datosUsuario.contrasena);

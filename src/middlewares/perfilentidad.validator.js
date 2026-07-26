@@ -17,23 +17,29 @@ const manejarErroresValidacion = (req, res, next) => {
 
 const validarCrearEntidad = [
   body("usuarioId")
-    .notEmpty().withMessage("El usuario es obligatorio")
-    .isInt({ min: 1 }).withMessage("El usuario debe ser un número entero positivo"),
+    .notEmpty()
+    .withMessage("El usuario es obligatorio")
+    .isInt({ min: 1 })
+    .withMessage("El usuario debe ser un número entero positivo"),
 
   body("razonSocial")
     .trim()
-    .notEmpty().withMessage("La razón social es obligatoria")
-    .isLength({ min: 3, max: 200 }).withMessage("La razón social debe tener entre 3 y 200 caracteres"),
+    .notEmpty()
+    .withMessage("La razón social es obligatoria")
+    .isLength({ min: 3, max: 200 })
+    .withMessage("La razón social debe tener entre 3 y 200 caracteres"),
 
   body("nit")
     .optional()
     .trim()
-    .isLength({ max: 50 }).withMessage("El NIT no debe exceder 50 caracteres"),
+    .isLength({ max: 50 })
+    .withMessage("El NIT no debe exceder 50 caracteres"),
 
   body("telefonoContacto")
     .optional()
     .trim()
-    .isLength({ max: 30 }).withMessage("El teléfono no debe exceder 30 caracteres"),
+    .isLength({ max: 30 })
+    .withMessage("El teléfono no debe exceder 30 caracteres"),
 
   manejarErroresValidacion,
 ];
@@ -42,17 +48,20 @@ const validarActualizarEntidad = [
   body("razonSocial")
     .optional({ values: "falsy" })
     .trim()
-    .isLength({ min: 3, max: 200 }).withMessage("La razón social debe tener entre 3 y 200 caracteres"),
+    .isLength({ min: 3, max: 200 })
+    .withMessage("La razón social debe tener entre 3 y 200 caracteres"),
 
   body("nit")
     .optional({ values: "falsy" })
     .trim()
-    .isLength({ max: 50 }).withMessage("El NIT no debe exceder 50 caracteres"),
+    .isLength({ max: 50 })
+    .withMessage("El NIT no debe exceder 50 caracteres"),
 
   body("telefonoContacto")
     .optional({ values: "falsy" })
     .trim()
-    .isLength({ max: 30 }).withMessage("El teléfono no debe exceder 30 caracteres"),
+    .isLength({ max: 30 })
+    .withMessage("El teléfono no debe exceder 30 caracteres"),
 
   manejarErroresValidacion,
 ];

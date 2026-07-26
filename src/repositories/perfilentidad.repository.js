@@ -1,6 +1,19 @@
 const { Op } = require("sequelize");
 const { PerfilEntidad, Usuario, Rol } = require("../models");
-const usuarioAttr = { model: Usuario, as: "usuario", attributes: ["id", "nombres", "apellidos", "correo", "rolId", "createdAt", "updatedAt"], include: [{ model: Rol, as: "rol", attributes: ["id", "nombreRol"] }] };
+const usuarioAttr = {
+  model: Usuario,
+  as: "usuario",
+  attributes: [
+    "id",
+    "nombres",
+    "apellidos",
+    "correo",
+    "rolId",
+    "createdAt",
+    "updatedAt",
+  ],
+  include: [{ model: Rol, as: "rol", attributes: ["id", "nombreRol"] }],
+};
 
 exports.obtenerTodos = async () => {
   return await PerfilEntidad.findAll({
@@ -40,15 +53,21 @@ exports.eliminarEntidad = async (id) => {
   return true;
 };
 
-exports.obtenerTodosConPaginacion = async (limit, offset, q, sortBy = "createdAt", sortOrder = "DESC") => {
+exports.obtenerTodosConPaginacion = async (
+  limit,
+  offset,
+  q,
+  sortBy = "createdAt",
+  sortOrder = "DESC",
+) => {
   const where = {};
   if (q) {
     where[Op.or] = [
       { razonSocial: { [Op.like]: `%${q}%` } },
       { nit: { [Op.like]: `%${q}%` } },
       { telefonoContacto: { [Op.like]: `%${q}%` } },
-      { '$usuario.nombres$': { [Op.like]: `%${q}%` } },
-      { '$usuario.correo$': { [Op.like]: `%${q}%` } },
+      { "$usuario.nombres$": { [Op.like]: `%${q}%` } },
+      { "$usuario.correo$": { [Op.like]: `%${q}%` } },
     ];
   }
   return await PerfilEntidad.findAndCountAll({

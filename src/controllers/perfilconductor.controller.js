@@ -3,25 +3,38 @@ const perfilConductorDto = require("../dtos/perfilconductor.dto");
 
 const manejarError = (res, error) => {
   if (error.message?.includes("_NO_ENCONTRADO")) {
-    return res.status(404).json({ success: false, message: "Recurso no encontrado" });
+    return res
+      .status(404)
+      .json({ success: false, message: "Recurso no encontrado" });
   }
   if (error.message === "CONDUCTOR_TIENE_VIAJE_ACTIVO") {
-    return res.status(400).json({ success: false, message: "El conductor tiene un viaje activo. Finaliza o cancela el viaje antes de cambiar su estado." });
+    return res
+      .status(400)
+      .json({
+        success: false,
+        message:
+          "El conductor tiene un viaje activo. Finaliza o cancela el viaje antes de cambiar su estado.",
+      });
   }
   res.status(400).json({ success: false, message: error.message });
 };
 
 exports.obtenerTodos = async (req, res) => {
   try {
-    const { paginaActual, registrosPorPagina, q, sortBy, sortOrder } = req.query;
+    const { paginaActual, registrosPorPagina, q, sortBy, sortOrder } =
+      req.query;
     const resultado = await perfilConductorService.obtenerTodos(
       paginaActual,
       registrosPorPagina,
       q,
       sortBy,
-      sortOrder
+      sortOrder,
     );
-    res.json({ success: true, data: resultado.data.map(perfilConductorDto.paraRespuesta), paginacion: resultado.paginacion });
+    res.json({
+      success: true,
+      data: resultado.data.map(perfilConductorDto.paraRespuesta),
+      paginacion: resultado.paginacion,
+    });
   } catch (error) {
     manejarError(res, error);
   }
@@ -38,7 +51,9 @@ exports.obtenerPorId = async (req, res) => {
 
 exports.obtenerMiPerfil = async (req, res) => {
   try {
-    const perfil = await perfilConductorService.obtenerPorUsuario(req.usuario.id);
+    const perfil = await perfilConductorService.obtenerPorUsuario(
+      req.usuario.id,
+    );
     res.json({ success: true, data: perfilConductorDto.paraRespuesta(perfil) });
   } catch (error) {
     if (error.message === "PERFIL_CONDUCTOR_NO_ENCONTRADO") {
@@ -67,8 +82,15 @@ exports.crearPerfil = async (req, res) => {
 exports.actualizarPerfil = async (req, res) => {
   try {
     const datos = perfilConductorDto.paraActualizar(req.body);
-    const perfil = await perfilConductorService.actualizarPerfil(req.params.id, datos);
-    res.json({ success: true, message: "Perfil actualizado", data: perfilConductorDto.paraRespuesta(perfil) });
+    const perfil = await perfilConductorService.actualizarPerfil(
+      req.params.id,
+      datos,
+    );
+    res.json({
+      success: true,
+      message: "Perfil actualizado",
+      data: perfilConductorDto.paraRespuesta(perfil),
+    });
   } catch (error) {
     manejarError(res, error);
   }
@@ -77,7 +99,10 @@ exports.actualizarPerfil = async (req, res) => {
 exports.actualizarMiPerfil = async (req, res) => {
   try {
     const datos = perfilConductorDto.paraActualizar(req.body);
-    const perfil = await perfilConductorService.actualizarMiPerfil(req.usuario.id, datos);
+    const perfil = await perfilConductorService.actualizarMiPerfil(
+      req.usuario.id,
+      datos,
+    );
     res.json({
       success: true,
       message: "Perfil de conductor actualizado",
@@ -91,7 +116,10 @@ exports.actualizarMiPerfil = async (req, res) => {
 exports.cambiarEstado = async (req, res) => {
   try {
     const { estadoId } = req.body;
-    const perfil = await perfilConductorService.actualizarEstado(req.params.id, estadoId);
+    const perfil = await perfilConductorService.actualizarEstado(
+      req.params.id,
+      estadoId,
+    );
     res.json({ success: true, message: "Estado actualizado", data: perfil });
   } catch (error) {
     manejarError(res, error);
@@ -101,8 +129,18 @@ exports.cambiarEstado = async (req, res) => {
 exports.crearConUsuario = async (req, res) => {
   try {
     const datos = perfilConductorDto.paraCrearConUsuario(req.body);
-    if (!datos.datosUsuario.nombres || !datos.datosUsuario.apellidos || !datos.datosUsuario.correo || !datos.datosUsuario.contrasena) {
-      return res.status(400).json({ success: false, message: "Todos los campos del usuario son obligatorios." });
+    if (
+      !datos.datosUsuario.nombres ||
+      !datos.datosUsuario.apellidos ||
+      !datos.datosUsuario.correo ||
+      !datos.datosUsuario.contrasena
+    ) {
+      return res
+        .status(400)
+        .json({
+          success: false,
+          message: "Todos los campos del usuario son obligatorios.",
+        });
     }
     const resultado = await perfilConductorService.crearConUsuario(datos);
     res.status(201).json({
@@ -112,7 +150,12 @@ exports.crearConUsuario = async (req, res) => {
     });
   } catch (error) {
     if (error.message === "EL_CORREO_YA_EXISTE") {
-      return res.status(400).json({ success: false, message: "El correo electrónico ya está registrado." });
+      return res
+        .status(400)
+        .json({
+          success: false,
+          message: "El correo electrónico ya está registrado.",
+        });
     }
     manejarError(res, error);
   }

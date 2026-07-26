@@ -2,7 +2,11 @@ const usuarioRepository = require("../repositories/usuario.repository");
 const rolRepository = require("../repositories/rol.repository");
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
-const { generarToken, generarRefreshToken } = require("../helpers/generarToken");
+const config = require("../config");
+const {
+  generarToken,
+  generarRefreshToken,
+} = require("../helpers/generarToken");
 
 exports.autenticarUsuario = async (correo, contrasena) => {
   const usuario = await usuarioRepository.buscarPorCorreo(correo);
@@ -28,11 +32,14 @@ exports.autenticarUsuario = async (correo, contrasena) => {
 
 exports.refrescarToken = async (refreshToken) => {
   try {
-    const decoded = jwt.verify(refreshToken, process.env.JWT_SECRET);
+    const decoded = jwt.verify(refreshToken, config.jwt.secreto);
     if (decoded.type !== "refresh") throw new Error("REFRESH_INVALIDO");
     const usuario = await usuarioRepository.obtenerPorId(decoded.id);
     if (!usuario) throw new Error("USUARIO_NO_ENCONTRADO");
-    return { token: generarToken(usuario), refreshToken: generarRefreshToken(usuario) };
+    return {
+      token: generarToken(usuario),
+      refreshToken: generarRefreshToken(usuario),
+    };
   } catch (err) {
     throw new Error("REFRESH_INVALIDO");
   }

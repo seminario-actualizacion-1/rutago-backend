@@ -3,25 +3,37 @@ const perfilPasajeroDto = require("../dtos/perfilpasajero.dto");
 
 const manejarError = (res, error) => {
   if (error.message?.includes("_NO_ENCONTRADO")) {
-    return res.status(404).json({ success: false, message: "Recurso no encontrado" });
+    return res
+      .status(404)
+      .json({ success: false, message: "Recurso no encontrado" });
   }
   if (error.message === "EL_CORREO_YA_EXISTE") {
-    return res.status(400).json({ success: false, message: "El correo electrónico ya está registrado." });
+    return res
+      .status(400)
+      .json({
+        success: false,
+        message: "El correo electrónico ya está registrado.",
+      });
   }
   res.status(400).json({ success: false, message: error.message });
 };
 
 exports.obtenerTodos = async (req, res) => {
   try {
-    const { paginaActual, registrosPorPagina, q, sortBy, sortOrder } = req.query;
+    const { paginaActual, registrosPorPagina, q, sortBy, sortOrder } =
+      req.query;
     const resultado = await perfilPasajeroService.obtenerTodos(
       paginaActual,
       registrosPorPagina,
       q,
       sortBy,
-      sortOrder
+      sortOrder,
     );
-    res.json({ success: true, data: resultado.data.map(perfilPasajeroDto.paraRespuesta), paginacion: resultado.paginacion });
+    res.json({
+      success: true,
+      data: resultado.data.map(perfilPasajeroDto.paraRespuesta),
+      paginacion: resultado.paginacion,
+    });
   } catch (error) {
     manejarError(res, error);
   }
@@ -38,7 +50,9 @@ exports.obtenerPorId = async (req, res) => {
 
 exports.obtenerPorUsuarioId = async (req, res) => {
   try {
-    const perfil = await perfilPasajeroService.obtenerPorUsuario(req.params.usuarioId);
+    const perfil = await perfilPasajeroService.obtenerPorUsuario(
+      req.params.usuarioId,
+    );
     res.json({ success: true, data: perfilPasajeroDto.paraRespuesta(perfil) });
   } catch (error) {
     if (error.message === "PERFIL_PASAJERO_NO_ENCONTRADO") {
@@ -52,7 +66,9 @@ exports.obtenerPorUsuarioId = async (req, res) => {
 
 exports.obtenerMiPerfil = async (req, res) => {
   try {
-    const perfil = await perfilPasajeroService.obtenerPorUsuario(req.usuario.id);
+    const perfil = await perfilPasajeroService.obtenerPorUsuario(
+      req.usuario.id,
+    );
     res.json({ success: true, data: perfilPasajeroDto.paraRespuesta(perfil) });
   } catch (error) {
     if (error.message === "PERFIL_PASAJERO_NO_ENCONTRADO") {
@@ -81,8 +97,15 @@ exports.crearPerfil = async (req, res) => {
 exports.actualizarPerfil = async (req, res) => {
   try {
     const datos = perfilPasajeroDto.paraActualizar(req.body);
-    const perfil = await perfilPasajeroService.actualizarPerfil(req.params.id, datos);
-    res.json({ success: true, message: "Perfil actualizado", data: perfilPasajeroDto.paraRespuesta(perfil) });
+    const perfil = await perfilPasajeroService.actualizarPerfil(
+      req.params.id,
+      datos,
+    );
+    res.json({
+      success: true,
+      message: "Perfil actualizado",
+      data: perfilPasajeroDto.paraRespuesta(perfil),
+    });
   } catch (error) {
     manejarError(res, error);
   }
@@ -91,7 +114,10 @@ exports.actualizarPerfil = async (req, res) => {
 exports.actualizarMiPerfil = async (req, res) => {
   try {
     const datos = perfilPasajeroDto.paraActualizar(req.body);
-    const perfil = await perfilPasajeroService.actualizarMiPerfil(req.usuario.id, datos);
+    const perfil = await perfilPasajeroService.actualizarMiPerfil(
+      req.usuario.id,
+      datos,
+    );
     res.json({
       success: true,
       message: "Perfil de pasajero actualizado",
@@ -105,8 +131,18 @@ exports.actualizarMiPerfil = async (req, res) => {
 exports.crearConUsuario = async (req, res) => {
   try {
     const datos = perfilPasajeroDto.paraCrearConUsuario(req.body);
-    if (!datos.datosUsuario.nombres || !datos.datosUsuario.apellidos || !datos.datosUsuario.correo || !datos.datosUsuario.contrasena) {
-      return res.status(400).json({ success: false, message: "Todos los campos del usuario son obligatorios." });
+    if (
+      !datos.datosUsuario.nombres ||
+      !datos.datosUsuario.apellidos ||
+      !datos.datosUsuario.correo ||
+      !datos.datosUsuario.contrasena
+    ) {
+      return res
+        .status(400)
+        .json({
+          success: false,
+          message: "Todos los campos del usuario son obligatorios.",
+        });
     }
     const resultado = await perfilPasajeroService.crearConUsuario(datos);
     res.status(201).json({

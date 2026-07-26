@@ -28,7 +28,13 @@ exports.eliminarComuna = async (id) => {
   return true;
 };
 
-exports.obtenerTodasConPaginacion = async (limit, offset, q, sortBy = "nombre", sortOrder = "ASC") => {
+exports.obtenerTodasConPaginacion = async (
+  limit,
+  offset,
+  q,
+  sortBy = "nombre",
+  sortOrder = "ASC",
+) => {
   const where = {};
   if (q) {
     where.nombre = { [Op.like]: `%${q}%` };

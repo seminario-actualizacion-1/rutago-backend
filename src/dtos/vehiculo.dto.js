@@ -3,7 +3,9 @@ exports.paraCrear = (data) => ({
   marca: data.marca?.trim(),
   modelo: data.modelo?.trim(),
   color: data.color?.trim(),
-  capacidadPasajeros: data.capacidadPasajeros ? parseInt(data.capacidadPasajeros, 10) : undefined,
+  capacidadPasajeros: data.capacidadPasajeros
+    ? parseInt(data.capacidadPasajeros, 10)
+    : undefined,
   entidadId: data.entidadId ? parseInt(data.entidadId, 10) : undefined,
   estadoId: data.estadoId ? parseInt(data.estadoId, 10) : undefined,
   latitud: data.latitud ? parseFloat(data.latitud) : undefined,
@@ -12,11 +14,13 @@ exports.paraCrear = (data) => ({
 
 exports.paraActualizar = (data) => {
   const dto = {};
-  if (data.placa && data.placa.trim()) dto.placa = data.placa.trim().toUpperCase();
+  if (data.placa && data.placa.trim())
+    dto.placa = data.placa.trim().toUpperCase();
   if (data.marca && data.marca.trim()) dto.marca = data.marca.trim();
   if (data.modelo && data.modelo.trim()) dto.modelo = data.modelo.trim();
   if (data.color && data.color.trim()) dto.color = data.color.trim();
-  if (data.capacidadPasajeros) dto.capacidadPasajeros = parseInt(data.capacidadPasajeros, 10);
+  if (data.capacidadPasajeros)
+    dto.capacidadPasajeros = parseInt(data.capacidadPasajeros, 10);
   if (data.entidadId) dto.entidadId = parseInt(data.entidadId, 10);
   if (data.estadoId) dto.estadoId = parseInt(data.estadoId, 10);
   if (data.latitud) dto.latitud = parseFloat(data.latitud);
@@ -46,12 +50,26 @@ exports.paraRespuesta = (model) => {
           nit: model.perfilEntidad.nit,
           telefonoContacto: model.perfilEntidad.telefonoContacto,
           usuario: model.perfilEntidad.usuario
-            ? { id: model.perfilEntidad.usuario.id, nombres: model.perfilEntidad.usuario.nombres, correo: model.perfilEntidad.usuario.correo, rol: model.perfilEntidad.usuario.rol ? { id: model.perfilEntidad.usuario.rol.id, nombreRol: model.perfilEntidad.usuario.rol.nombreRol } : { id: model.perfilEntidad.usuario.rolId } }
+            ? {
+                id: model.perfilEntidad.usuario.id,
+                nombres: model.perfilEntidad.usuario.nombres,
+                correo: model.perfilEntidad.usuario.correo,
+                rol: model.perfilEntidad.usuario.rol
+                  ? {
+                      id: model.perfilEntidad.usuario.rol.id,
+                      nombreRol: model.perfilEntidad.usuario.rol.nombreRol,
+                    }
+                  : { id: model.perfilEntidad.usuario.rolId },
+              }
             : undefined,
         }
       : undefined,
     estado: model.estadoVehiculo
-      ? { id: model.estadoVehiculo.id, nombre: model.estadoVehiculo.nombre, descripcion: model.estadoVehiculo.descripcion }
+      ? {
+          id: model.estadoVehiculo.id,
+          nombre: model.estadoVehiculo.nombre,
+          descripcion: model.estadoVehiculo.descripcion,
+        }
       : { id: model.estadoId },
     latitud: model.latitud ? parseFloat(model.latitud) : null,
     longitud: model.longitud ? parseFloat(model.longitud) : null,

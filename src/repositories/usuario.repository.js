@@ -1,4 +1,10 @@
-const { Usuario, Rol, PerfilConductor, PerfilEntidad, PerfilPasajero } = require("../models");
+const {
+  Usuario,
+  Rol,
+  PerfilConductor,
+  PerfilEntidad,
+  PerfilPasajero,
+} = require("../models");
 const { Op } = require("sequelize");
 
 exports.buscarPorCorreo = async (correo) => {
@@ -28,7 +34,13 @@ exports.buscarTodos = async () => {
   });
 };
 
-exports.buscarTodosConPaginacion = async (limit, offset, filtros = {}, sortBy = "id", sortOrder = "ASC") => {
+exports.buscarTodosConPaginacion = async (
+  limit,
+  offset,
+  filtros = {},
+  sortBy = "id",
+  sortOrder = "ASC",
+) => {
   const where = {};
 
   if (filtros.rolId) {

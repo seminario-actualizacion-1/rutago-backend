@@ -1,13 +1,62 @@
 const { Op } = require("sequelize");
-const { Viaje, ViajePasajero, Ruta, Horario, Vehiculo, Usuario, Rol, EstadoViaje, Comuna } = require("../models");
+const {
+  Viaje,
+  ViajePasajero,
+  Ruta,
+  Horario,
+  Vehiculo,
+  Usuario,
+  Rol,
+  EstadoViaje,
+  Comuna,
+} = require("../models");
+const { ESTADOS_VIAJE } = require("../config/estados");
 
-const usuarioAttr = (as) => ({ model: Usuario, as, attributes: ["id", "nombres", "apellidos", "correo", "rolId", "createdAt", "updatedAt"], include: [{ model: Rol, as: "rol", attributes: ["id", "nombreRol"] }] });
+const usuarioAttr = (as) => ({
+  model: Usuario,
+  as,
+  attributes: [
+    "id",
+    "nombres",
+    "apellidos",
+    "correo",
+    "rolId",
+    "createdAt",
+    "updatedAt",
+  ],
+  include: [{ model: Rol, as: "rol", attributes: ["id", "nombreRol"] }],
+});
 
 const includeDefault = [
   { model: ViajePasajero, as: "pasajeros", include: [usuarioAttr("pasajero")] },
   usuarioAttr("conductor"),
-  { model: Ruta, as: "ruta", attributes: ["id", "nombre", "distanciaKm", "tiempoEstimadoMinutos", "rutaGeometria"], include: [{ model: Comuna, as: "origen", attributes: ["id", "nombre"] }, { model: Comuna, as: "destino", attributes: ["id", "nombre"] }] },
-  { model: Horario, as: "horario", attributes: ["id", "horaSalida", "frecuenciaMinutos"], include: [{ model: Vehiculo, as: "vehiculo", attributes: ["id", "placa", "capacidadPasajeros"] }] },
+  {
+    model: Ruta,
+    as: "ruta",
+    attributes: [
+      "id",
+      "nombre",
+      "distanciaKm",
+      "tiempoEstimadoMinutos",
+      "rutaGeometria",
+    ],
+    include: [
+      { model: Comuna, as: "origen", attributes: ["id", "nombre"] },
+      { model: Comuna, as: "destino", attributes: ["id", "nombre"] },
+    ],
+  },
+  {
+    model: Horario,
+    as: "horario",
+    attributes: ["id", "horaSalida", "frecuenciaMinutos"],
+    include: [
+      {
+        model: Vehiculo,
+        as: "vehiculo",
+        attributes: ["id", "placa", "capacidadPasajeros"],
+      },
+    ],
+  },
   { model: EstadoViaje, as: "estadoViaje", attributes: ["id", "nombre"] },
 ];
 
@@ -18,15 +67,22 @@ exports.obtenerTodos = async () => {
   });
 };
 
-exports.obtenerTodosConPaginacion = async (limit, offset, q, sortBy = "createdAt", sortOrder = "DESC", estadoId) => {
+exports.obtenerTodosConPaginacion = async (
+  limit,
+  offset,
+  q,
+  sortBy = "createdAt",
+  sortOrder = "DESC",
+  estadoId,
+) => {
   const where = {};
   if (q) {
     where[Op.or] = [
-      { '$pasajeros.pasajero.nombres$': { [Op.like]: `%${q}%` } },
-      { '$pasajeros.pasajero.apellidos$': { [Op.like]: `%${q}%` } },
-      { '$conductor.nombres$': { [Op.like]: `%${q}%` } },
-      { '$conductor.apellidos$': { [Op.like]: `%${q}%` } },
-      { '$ruta.nombre$': { [Op.like]: `%${q}%` } },
+      { "$pasajeros.pasajero.nombres$": { [Op.like]: `%${q}%` } },
+      { "$pasajeros.pasajero.apellidos$": { [Op.like]: `%${q}%` } },
+      { "$conductor.nombres$": { [Op.like]: `%${q}%` } },
+      { "$conductor.apellidos$": { [Op.like]: `%${q}%` } },
+      { "$ruta.nombre$": { [Op.like]: `%${q}%` } },
     ];
   }
   if (estadoId) {
@@ -51,10 +107,17 @@ exports.obtenerPorId = async (id) => {
 };
 
 exports.obtenerDisponibles = async (conductorId) => {
-  const where = { estadoId: { [Op.in]: [1, 2] } };
+  const where = {
+    estadoId: { [Op.in]: [ESTADOS_VIAJE.BUSCANDO, ESTADOS_VIAJE.ACEPTADO] },
+  };
   if (conductorId) {
     where[Op.and] = [
-      { [Op.or]: [{ conductorId: null }, { conductorId: { [Op.ne]: conductorId } }] },
+      {
+        [Op.or]: [
+          { conductorId: null },
+          { conductorId: { [Op.ne]: conductorId } },
+        ],
+      },
     ];
   }
   return await Viaje.findAll({
@@ -72,7 +135,9 @@ exports.obtenerDisponiblesPasajero = async (pasajeroId) => {
   });
   const idsConPasajero = viajesConPasajero.map((v) => v.viajeId);
 
-  const where = { estadoId: { [Op.in]: [1, 2] } };
+  const where = {
+    estadoId: { [Op.in]: [ESTADOS_VIAJE.BUSCANDO, ESTADOS_VIAJE.ACEPTADO] },
+  };
   if (idsConPasajero.length > 0) {
     where.id = { [Op.notIn]: idsConPasajero };
   }
@@ -87,7 +152,7 @@ exports.obtenerDisponiblesPasajero = async (pasajeroId) => {
 exports.obtenerMisViajes = async (usuarioId, esConductor) => {
   const where = esConductor
     ? { conductorId: usuarioId }
-    : { '$pasajeros.pasajeroId$': usuarioId };
+    : { "$pasajeros.pasajeroId$": usuarioId };
 
   return await Viaje.findAll({
     where,
@@ -97,7 +162,7 @@ exports.obtenerMisViajes = async (usuarioId, esConductor) => {
 };
 
 exports.crearViaje = async (datos) => {
-  return await Viaje.create({ ...datos, estadoId: 1 });
+  return await Viaje.create({ ...datos, estadoId: ESTADOS_VIAJE.BUSCANDO });
 };
 
 exports.agregarPasajero = async (viajeId, pasajeroId) => {
@@ -117,7 +182,9 @@ exports.obtenerPorConductorYHorario = async (conductorId, horarioId) => {
     where: {
       conductorId,
       horarioId,
-      estadoId: { [Op.notIn]: [4, 5] },
+      estadoId: {
+        [Op.notIn]: [ESTADOS_VIAJE.FINALIZADO, ESTADOS_VIAJE.CANCELADO],
+      },
     },
   });
 };

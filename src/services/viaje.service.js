@@ -7,11 +7,22 @@ const {
   formatearRespuestaPaginada,
   calcularOffset,
 } = require("../helpers/paginacion.helper");
-const { ESTADOS_VIAJE, ESTADOS_CONDUCTOR, TRANSICIONES_VIAJE } = require("../config/estados");
+const {
+  ESTADOS_VIAJE,
+  ESTADOS_CONDUCTOR,
+  TRANSICIONES_VIAJE,
+} = require("../config/estados");
 
 const ESTADOS_VALIDOS = Object.values(ESTADOS_VIAJE);
 
-exports.obtenerTodos = async (paginaActual = 1, registrosPorPagina = 10, q, sortBy = "createdAt", sortOrder = "DESC", estadoId) => {
+exports.obtenerTodos = async (
+  paginaActual = 1,
+  registrosPorPagina = 10,
+  q,
+  sortBy = "createdAt",
+  sortOrder = "DESC",
+  estadoId,
+) => {
   const offset = calcularOffset(paginaActual, registrosPorPagina);
   const limit = parseInt(registrosPorPagina);
 
@@ -21,14 +32,14 @@ exports.obtenerTodos = async (paginaActual = 1, registrosPorPagina = 10, q, sort
     q,
     sortBy,
     sortOrder,
-    estadoId
+    estadoId,
   );
 
   return formatearRespuestaPaginada(
     rows,
     count,
     paginaActual,
-    registrosPorPagina
+    registrosPorPagina,
   );
 };
 
@@ -43,11 +54,16 @@ exports.obtenerDisponiblesPasajero = async (pasajeroId) => {
 exports.unirseAViaje = async (viajeId, pasajeroId) => {
   const viaje = await viajeRepository.obtenerPorId(viajeId);
   if (!viaje) throw new Error("VIAJE_NO_ENCONTRADO");
-  if (viaje.estadoId !== ESTADOS_VIAJE.BUSCANDO && viaje.estadoId !== ESTADOS_VIAJE.ACEPTADO) {
+  if (
+    viaje.estadoId !== ESTADOS_VIAJE.BUSCANDO &&
+    viaje.estadoId !== ESTADOS_VIAJE.ACEPTADO
+  ) {
     throw new Error("VIAJE_NO_DISPONIBLE");
   }
 
-  const yaEsPasajero = (viaje.pasajeros || []).some((vp) => vp.pasajeroId === pasajeroId);
+  const yaEsPasajero = (viaje.pasajeros || []).some(
+    (vp) => vp.pasajeroId === pasajeroId,
+  );
   if (yaEsPasajero) throw new Error("YA_ES_PASAJERO");
 
   const capacidad = viaje.horario?.vehiculo?.capacidadPasajeros || 0;
@@ -62,7 +78,9 @@ exports.bajarseDeViaje = async (viajeId, pasajeroId) => {
   const viaje = await viajeRepository.obtenerPorId(viajeId);
   if (!viaje) throw new Error("VIAJE_NO_ENCONTRADO");
 
-  const yaEsPasajero = (viaje.pasajeros || []).some((vp) => vp.pasajeroId === pasajeroId);
+  const yaEsPasajero = (viaje.pasajeros || []).some(
+    (vp) => vp.pasajeroId === pasajeroId,
+  );
   if (!yaEsPasajero) throw new Error("NO_ES_PASAJERO");
 
   await viajeRepository.eliminarPasajero(viajeId, pasajeroId);
@@ -129,7 +147,9 @@ exports.actualizarViaje = async (id, datos) => {
   }
 
   if (datos.conductorId) {
-    const perfil = await perfilConductorRepository.obtenerPorUsuario(datos.conductorId);
+    const perfil = await perfilConductorRepository.obtenerPorUsuario(
+      datos.conductorId,
+    );
     if (!perfil) throw new Error("CONDUCTOR_SIN_PERFIL");
   }
 
@@ -152,25 +172,46 @@ exports.actualizarEstado = async (id, nuevoEstadoId, conductorId = null) => {
 
   if (nuevoEstadoId === ESTADOS_VIAJE.ACEPTADO) {
     if (!conductorId) throw new Error("SE_REQUIERE_CONDUCTOR");
-    const perfil = await perfilConductorRepository.obtenerPorUsuario(conductorId);
+    const perfil =
+      await perfilConductorRepository.obtenerPorUsuario(conductorId);
     if (!perfil) throw new Error("CONDUCTOR_SIN_PERFIL");
     if (perfil.estadoId !== ESTADOS_CONDUCTOR.DISPONIBLE) {
       throw new Error("CONDUCTOR_NO_DISPONIBLE");
     }
     if (viaje.horarioId) {
-      const existente = await viajeRepository.obtenerPorConductorYHorario(conductorId, viaje.horarioId);
+      const existente = await viajeRepository.obtenerPorConductorYHorario(
+        conductorId,
+        viaje.horarioId,
+      );
       if (existente) throw new Error("CONDUCTOR_OCUPADO_EN_HORARIO");
     }
-    await perfilConductorRepository.actualizarEstado(perfil.id, ESTADOS_CONDUCTOR.EN_VIAJE);
-    return await viajeRepository.actualizarViaje(id, { estadoId: nuevoEstadoId, conductorId });
+    await perfilConductorRepository.actualizarEstado(
+      perfil.id,
+      ESTADOS_CONDUCTOR.EN_VIAJE,
+    );
+    return await viajeRepository.actualizarViaje(id, {
+      estadoId: nuevoEstadoId,
+      conductorId,
+    });
   }
 
-  const resultado = await viajeRepository.actualizarViaje(id, { estadoId: nuevoEstadoId });
+  const resultado = await viajeRepository.actualizarViaje(id, {
+    estadoId: nuevoEstadoId,
+  });
 
-  if (viaje.conductorId && (nuevoEstadoId === ESTADOS_VIAJE.FINALIZADO || nuevoEstadoId === ESTADOS_VIAJE.CANCELADO)) {
-    const perfil = await perfilConductorRepository.obtenerPorUsuario(viaje.conductorId);
+  if (
+    viaje.conductorId &&
+    (nuevoEstadoId === ESTADOS_VIAJE.FINALIZADO ||
+      nuevoEstadoId === ESTADOS_VIAJE.CANCELADO)
+  ) {
+    const perfil = await perfilConductorRepository.obtenerPorUsuario(
+      viaje.conductorId,
+    );
     if (perfil) {
-      await perfilConductorRepository.actualizarEstado(perfil.id, ESTADOS_CONDUCTOR.DISPONIBLE);
+      await perfilConductorRepository.actualizarEstado(
+        perfil.id,
+        ESTADOS_CONDUCTOR.DISPONIBLE,
+      );
     }
   }
 

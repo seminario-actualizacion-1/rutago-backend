@@ -5,7 +5,13 @@ const {
   calcularOffset,
 } = require("../helpers/paginacion.helper");
 
-exports.obtenerTodos = async (paginaActual = 1, registrosPorPagina = 10, filtros = {}, sortBy = "id", sortOrder = "ASC") => {
+exports.obtenerTodos = async (
+  paginaActual = 1,
+  registrosPorPagina = 10,
+  filtros = {},
+  sortBy = "id",
+  sortOrder = "ASC",
+) => {
   const offset = calcularOffset(paginaActual, registrosPorPagina);
   const limit = parseInt(registrosPorPagina);
 
@@ -14,14 +20,14 @@ exports.obtenerTodos = async (paginaActual = 1, registrosPorPagina = 10, filtros
     offset,
     filtros,
     sortBy,
-    sortOrder
+    sortOrder,
   );
 
   return formatearRespuestaPaginada(
     rows,
     count,
     paginaActual,
-    registrosPorPagina
+    registrosPorPagina,
   );
 };
 

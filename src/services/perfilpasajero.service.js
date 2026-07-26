@@ -7,18 +7,30 @@ const {
 } = require("../helpers/paginacion.helper");
 const { encriptar } = require("../helpers/encriptarPassword");
 
-exports.obtenerTodos = async (paginaActual = 1, registrosPorPagina = 10, q, sortBy = "createdAt", sortOrder = "DESC") => {
+exports.obtenerTodos = async (
+  paginaActual = 1,
+  registrosPorPagina = 10,
+  q,
+  sortBy = "createdAt",
+  sortOrder = "DESC",
+) => {
   const offset = calcularOffset(paginaActual, registrosPorPagina);
   const limit = parseInt(registrosPorPagina);
 
   const { count, rows } =
-    await perfilPasajeroRepository.obtenerTodosConPaginacion(limit, offset, q, sortBy, sortOrder);
+    await perfilPasajeroRepository.obtenerTodosConPaginacion(
+      limit,
+      offset,
+      q,
+      sortBy,
+      sortOrder,
+    );
 
   return formatearRespuestaPaginada(
     rows,
     count,
     paginaActual,
-    registrosPorPagina
+    registrosPorPagina,
   );
 };
 
@@ -37,7 +49,8 @@ exports.crearPerfil = async (datos) => {
 
   const usuario = await perfilPasajeroRepository.obtenerUsuarioPorId(usuarioId);
   if (!usuario) throw new Error("USUARIO_NO_ENCONTRADO");
-  if (usuario.rolId !== ROLES.PASAJERO) throw new Error("EL_USUARIO_NO_ES_PASAJERO");
+  if (usuario.rolId !== ROLES.PASAJERO)
+    throw new Error("EL_USUARIO_NO_ES_PASAJERO");
 
   const existente = await perfilPasajeroRepository.obtenerExistente(usuarioId);
   if (existente) throw new Error("EL_PASAJERO_YA_TIENE_PERFIL");
@@ -70,7 +83,10 @@ exports.actualizarMiPerfil = async (usuarioId, datos) => {
     fechaNacimiento: datos.fechaNacimiento,
   };
 
-  return await perfilPasajeroRepository.actualizarPerfil(perfil.id, datosPermitidos);
+  return await perfilPasajeroRepository.actualizarPerfil(
+    perfil.id,
+    datosPermitidos,
+  );
 };
 
 exports.eliminarPerfil = async (id) => {
@@ -80,7 +96,9 @@ exports.eliminarPerfil = async (id) => {
 exports.crearConUsuario = async (datos) => {
   const { datosUsuario, datosPerfil } = datos;
 
-  const usuarioExiste = await usuarioRepository.buscarPorCorreo(datosUsuario.correo);
+  const usuarioExiste = await usuarioRepository.buscarPorCorreo(
+    datosUsuario.correo,
+  );
   if (usuarioExiste) throw new Error("EL_CORREO_YA_EXISTE");
 
   const contrasenaEncriptada = await encriptar(datosUsuario.contrasena);

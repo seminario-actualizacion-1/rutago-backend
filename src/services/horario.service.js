@@ -3,6 +3,7 @@ const vehiculoRepository = require("../repositories/vehiculo.repository");
 const rutaRepository = require("../repositories/ruta.repository");
 const perfilConductorRepository = require("../repositories/perfilconductor.repository");
 const viajeRepository = require("../repositories/viaje.repository");
+const { ESTADOS_VIAJE } = require("../config/estados");
 const {
   formatearRespuestaPaginada,
   calcularOffset,
@@ -64,7 +65,7 @@ exports.crearHorario = async (datos) => {
     rutaId,
     horarioId: horario.id,
     conductorId: perfilConductor ? perfilConductor.usuarioId : null,
-    estadoId: 1,
+    estadoId: ESTADOS_VIAJE.BUSCANDO,
   };
   await viajeRepository.crearViaje(viajeData);
 

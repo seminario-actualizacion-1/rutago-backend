@@ -34,38 +34,38 @@ exports.esEntidad = (req, res, next) => {
   if (req.usuario && req.usuario.rolId === ROLES.ENTIDAD) {
     next();
   } else {
-    return res
-      .status(403)
-      .json({
-        success: false,
-        message: "Requiere permisos de entidad externa.",
-      });
+    return res.status(403).json({
+      success: false,
+      message: "Requiere permisos de entidad externa.",
+    });
   }
 };
 
 exports.esConductorOAdmin = (req, res, next) => {
-  if (req.usuario && (req.usuario.rolId === ROLES.ADMIN || req.usuario.rolId === ROLES.CONDUCTOR)) {
+  if (
+    req.usuario &&
+    (req.usuario.rolId === ROLES.ADMIN || req.usuario.rolId === ROLES.CONDUCTOR)
+  ) {
     next();
   } else {
-    return res
-      .status(403)
-      .json({
-        success: false,
-        message: "Requiere permisos de conductor o administrador.",
-      });
+    return res.status(403).json({
+      success: false,
+      message: "Requiere permisos de conductor o administrador.",
+    });
   }
 };
 
 exports.esAdminOEntidad = (req, res, next) => {
-  if (req.usuario && (req.usuario.rolId === ROLES.ADMIN || req.usuario.rolId === ROLES.ENTIDAD)) {
+  if (
+    req.usuario &&
+    (req.usuario.rolId === ROLES.ADMIN || req.usuario.rolId === ROLES.ENTIDAD)
+  ) {
     next();
   } else {
-    return res
-      .status(403)
-      .json({
-        success: false,
-        message: "Requiere permisos de administrador o entidad externa.",
-      });
+    return res.status(403).json({
+      success: false,
+      message: "Requiere permisos de administrador o entidad externa.",
+    });
   }
 };
 
@@ -78,11 +78,9 @@ exports.esPasajeroOConductorOAdmin = (req, res, next) => {
   ) {
     next();
   } else {
-    return res
-      .status(403)
-      .json({
-        success: false,
-        message: "Requiere permisos de pasajero, conductor o administrador.",
-      });
+    return res.status(403).json({
+      success: false,
+      message: "Requiere permisos de pasajero, conductor o administrador.",
+    });
   }
 };

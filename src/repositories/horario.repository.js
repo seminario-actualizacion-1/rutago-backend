@@ -10,13 +10,19 @@ exports.obtenerTodos = async () => {
   });
 };
 
-exports.obtenerTodosConPaginacion = async (limit, offset, q, sortBy = "id", sortOrder = "ASC") => {
+exports.obtenerTodosConPaginacion = async (
+  limit,
+  offset,
+  q,
+  sortBy = "id",
+  sortOrder = "ASC",
+) => {
   const where = {};
   if (q) {
     where[Op.or] = [
       { horaSalida: { [Op.like]: `%${q}%` } },
-      { '$vehiculo.placa$': { [Op.like]: `%${q}%` } },
-      { '$ruta.nombre$': { [Op.like]: `%${q}%` } },
+      { "$vehiculo.placa$": { [Op.like]: `%${q}%` } },
+      { "$ruta.nombre$": { [Op.like]: `%${q}%` } },
     ];
   }
   return await Horario.findAndCountAll({

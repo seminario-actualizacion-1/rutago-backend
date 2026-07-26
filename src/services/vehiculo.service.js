@@ -8,7 +8,15 @@ const { ESTADOS_VEHICULO } = require("../config/estados");
 const ESTADOS_VALIDOS_VEHICULO = Object.values(ESTADOS_VEHICULO);
 
 const validarVehiculoPayload = async (datos) => {
-  const { placa, marca, modelo, color, capacidadPasajeros, entidadId, estadoId } = datos;
+  const {
+    placa,
+    marca,
+    modelo,
+    color,
+    capacidadPasajeros,
+    entidadId,
+    estadoId,
+  } = datos;
 
   if (!placa || !marca || !modelo || !color) {
     throw new Error("PLACA_MARCA_MODELO_Y_COLOR_SON_OBLIGATORIOS");
@@ -28,7 +36,14 @@ const validarVehiculoPayload = async (datos) => {
   }
 };
 
-exports.obtenerTodos = async (paginaActual = 1, registrosPorPagina = 10, q, estadoId, sortBy = "id", sortOrder = "ASC") => {
+exports.obtenerTodos = async (
+  paginaActual = 1,
+  registrosPorPagina = 10,
+  q,
+  estadoId,
+  sortBy = "id",
+  sortOrder = "ASC",
+) => {
   const offset = calcularOffset(paginaActual, registrosPorPagina);
   const limit = parseInt(registrosPorPagina);
 
@@ -38,14 +53,14 @@ exports.obtenerTodos = async (paginaActual = 1, registrosPorPagina = 10, q, esta
     q,
     estadoId,
     sortBy,
-    sortOrder
+    sortOrder,
   );
 
   return formatearRespuestaPaginada(
     rows,
     count,
     paginaActual,
-    registrosPorPagina
+    registrosPorPagina,
   );
 };
 

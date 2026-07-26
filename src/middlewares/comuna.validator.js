@@ -18,8 +18,10 @@ const manejarErroresValidacion = (req, res, next) => {
 const validarCrearComuna = [
   body("nombre")
     .trim()
-    .notEmpty().withMessage("El nombre de la comuna es obligatorio")
-    .isLength({ min: 2, max: 100 }).withMessage("El nombre debe tener entre 2 y 100 caracteres"),
+    .notEmpty()
+    .withMessage("El nombre de la comuna es obligatorio")
+    .isLength({ min: 2, max: 100 })
+    .withMessage("El nombre debe tener entre 2 y 100 caracteres"),
 
   manejarErroresValidacion,
 ];
@@ -28,7 +30,8 @@ const validarActualizarComuna = [
   body("nombre")
     .optional({ values: "falsy" })
     .trim()
-    .isLength({ min: 2, max: 100 }).withMessage("El nombre debe tener entre 2 y 100 caracteres"),
+    .isLength({ min: 2, max: 100 })
+    .withMessage("El nombre debe tener entre 2 y 100 caracteres"),
 
   manejarErroresValidacion,
 ];
