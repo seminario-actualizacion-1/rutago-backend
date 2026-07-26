@@ -1,10 +1,9 @@
-require("dotenv").config();
-
 const express = require("express");
 const cors = require("cors");
 const rateLimit = require("express-rate-limit");
 const swaggerUi = require("swagger-ui-express");
 const swaggerJsdoc = require("swagger-jsdoc");
+const config = require("./config");
 const errorHandler = require("./middlewares/error.middleware");
 
 const { sequelize } = require("./models");
@@ -30,14 +29,17 @@ const app = express();
 const authLimiter = rateLimit({
   windowMs: 15 * 60 * 1000,
   max: 20,
-  message: { success: false, message: "Demasiadas solicitudes, intente de nuevo más tarde" },
+  message: {
+    success: false,
+    message: "Demasiadas solicitudes, intente de nuevo más tarde",
+  },
 });
 
 app.use(express.json({ limit: "10kb" }));
 const origenesPermitidos = [
   "http://localhost:5173",
   "http://localhost:8082",
-  ...(process.env.CORS_ORIGIN ? process.env.CORS_ORIGIN.split(",") : []),
+  ...(config.cors.origen ? config.cors.origen.split(",") : []),
 ];
 
 app.use(
@@ -50,10 +52,10 @@ app.use(
       }
     },
     credentials: true,
-  })
+  }),
 );
 
-const PORT = process.env.PORT;
+const PORT = config.puerto;
 
 const swaggerOptions = {
   definition: {
@@ -64,7 +66,10 @@ const swaggerOptions = {
       description: "Documentación de la API para RutaGo",
     },
     tags: [
-      { name: "Autenticación", description: "Login, registro, recuperación de contraseña" },
+      {
+        name: "Autenticación",
+        description: "Login, registro, recuperación de contraseña",
+      },
       { name: "Usuarios", description: "Gestión de usuarios" },
       { name: "Roles", description: "Roles del sistema" },
       { name: "Perfiles Conductor", description: "Perfiles de conductores" },
@@ -87,7 +92,7 @@ const swaggerOptions = {
         description: "Local (desarrollo) — ej: http://localhost:8082",
       },
       {
-        url: "https://rutago.seminario1.eleueleo.com",
+        url: config.apiUrl,
         description: "Producción (VPS)",
       },
     ],
@@ -106,11 +111,7 @@ const swaggerOptions = {
 
 const swaggerDocs = swaggerJsdoc(swaggerOptions);
 
-app.use(
-  "/api/docs",
-  swaggerUi.serve,
-  swaggerUi.setup(swaggerDocs),
-);
+app.use("/api/docs", swaggerUi.serve, swaggerUi.setup(swaggerDocs));
 app.use("/api/auth/login", authLimiter);
 app.use("/api/usuarios/registro", authLimiter);
 app.use("/api/usuarios/recuperar-contrasena", authLimiter);
@@ -142,7 +143,7 @@ app.get("/api/ping", (req, res) => {
 app.use(errorHandler);
 
 const iniciarServidor = async () => {
-  if (process.env.NODE_ENV !== "production") {
+  if (config.entorno !== "production") {
     await sequelize.sync();
     console.log("Base de datos sincronizada (modo desarrollo).");
   }

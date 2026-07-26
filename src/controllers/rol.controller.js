@@ -2,7 +2,9 @@ const rolService = require("../services/rol.service");
 
 const manejarError = (res, error) => {
   if (error.message?.includes("_NO_ENCONTRADO")) {
-    return res.status(404).json({ success: false, message: "Recurso no encontrado" });
+    return res
+      .status(404)
+      .json({ success: false, message: "Recurso no encontrado" });
   }
   res.status(400).json({ success: false, message: error.message });
 };

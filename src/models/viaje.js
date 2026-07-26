@@ -1,4 +1,4 @@
-  "use strict";
+"use strict";
 const { Model } = require("sequelize");
 module.exports = (sequelize, DataTypes) => {
   class Viaje extends Model {
@@ -7,18 +7,22 @@ module.exports = (sequelize, DataTypes) => {
         foreignKey: "viajeId",
         as: "pasajeros",
       });
+
       Viaje.belongsTo(models.Usuario, {
         foreignKey: "conductorId",
         as: "conductor",
       });
+
       Viaje.belongsTo(models.Ruta, {
         foreignKey: "rutaId",
         as: "ruta",
       });
+
       Viaje.belongsTo(models.Horario, {
         foreignKey: "horarioId",
         as: "horario",
       });
+
       Viaje.belongsTo(models.EstadoViaje, {
         foreignKey: "estadoId",
         as: "estadoViaje",

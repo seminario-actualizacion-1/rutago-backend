@@ -26,9 +26,7 @@ const validarPaginacion = [
   query("registrosPorPagina")
     .optional()
     .isInt({ min: 1, max: 100 })
-    .withMessage(
-      "Los registros por página deben ser un número entre 1 y 100"
-    )
+    .withMessage("Los registros por página deben ser un número entre 1 y 100")
     .toInt()
     .customSanitizer((value) => (value ? Number(value) : 10)),
 

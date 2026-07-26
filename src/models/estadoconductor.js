@@ -3,7 +3,10 @@ const { Model } = require("sequelize");
 module.exports = (sequelize, DataTypes) => {
   class EstadoConductor extends Model {
     static associate(models) {
-      EstadoConductor.hasMany(models.PerfilConductor, { foreignKey: "estadoId", as: "perfilesConductor" });
+      EstadoConductor.hasMany(models.PerfilConductor, {
+        foreignKey: "estadoId",
+        as: "perfilesConductor",
+      });
     }
   }
   EstadoConductor.init(
@@ -11,7 +14,12 @@ module.exports = (sequelize, DataTypes) => {
       nombre: { type: DataTypes.STRING(30), allowNull: false, unique: true },
       descripcion: DataTypes.STRING(100),
     },
-    { sequelize, modelName: "EstadoConductor", tableName: "EstadosConductor", timestamps: true },
+    {
+      sequelize,
+      modelName: "EstadoConductor",
+      tableName: "EstadosConductor",
+      timestamps: true,
+    },
   );
   return EstadoConductor;
 };

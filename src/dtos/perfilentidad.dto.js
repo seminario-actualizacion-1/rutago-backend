@@ -8,9 +8,11 @@ exports.paraCrear = (data) => ({
 exports.paraActualizar = (data) => {
   const dto = {};
   if (data.usuarioId) dto.usuarioId = parseInt(data.usuarioId, 10);
-  if (data.razonSocial && data.razonSocial.trim()) dto.razonSocial = data.razonSocial.trim();
+  if (data.razonSocial && data.razonSocial.trim())
+    dto.razonSocial = data.razonSocial.trim();
   if (data.nit && data.nit.trim()) dto.nit = data.nit.trim();
-  if (data.telefonoContacto && data.telefonoContacto.trim()) dto.telefonoContacto = data.telefonoContacto.trim();
+  if (data.telefonoContacto && data.telefonoContacto.trim())
+    dto.telefonoContacto = data.telefonoContacto.trim();
   return dto;
 };
 
@@ -39,7 +41,11 @@ exports.paraRespuesta = (model) => {
           apellidos: model.usuario.apellidos,
           correo: model.usuario.correo,
           rol: model.usuario.rol
-            ? { id: model.usuario.rol.id, nombreRol: model.usuario.rol.nombreRol, descripcion: model.usuario.rol.descripcion }
+            ? {
+                id: model.usuario.rol.id,
+                nombreRol: model.usuario.rol.nombreRol,
+                descripcion: model.usuario.rol.descripcion,
+              }
             : { id: model.usuario.rolId },
         }
       : undefined,

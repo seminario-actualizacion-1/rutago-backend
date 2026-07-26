@@ -1,6 +1,7 @@
 const usuarioService = require("../services/usuario.service");
 const usuarioDto = require("../dtos/usuario.dto");
 const perfilPasajeroService = require("../services/perfilpasajero.service");
+const { ROLES } = require("../config/roles");
 
 const manejarError = (res, error) => {
   if (error.message?.includes("_NO_ENCONTRADO")) {
@@ -20,11 +21,11 @@ exports.registrarUsuario = async (req, res) => {
       });
     }
 
-    if (!datos.rolId) datos.rolId = 3;
+    if (!datos.rolId) datos.rolId = ROLES.PASAJERO;
 
     const nuevoUsuario = await usuarioService.crearUsuario(datos);
 
-    if (datos.rolId === 3) {
+    if (datos.rolId === ROLES.PASAJERO) {
       const existente = await perfilPasajeroService.obtenerPorUsuario(nuevoUsuario.id).catch(() => null);
       if (!existente) {
         await perfilPasajeroService.crearPerfil({

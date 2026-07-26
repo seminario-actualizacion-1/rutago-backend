@@ -7,6 +7,7 @@ module.exports = (sequelize, DataTypes) => {
         foreignKey: "viajeId",
         as: "viaje",
       });
+
       ViajePasajero.belongsTo(models.Usuario, {
         foreignKey: "pasajeroId",
         as: "pasajero",

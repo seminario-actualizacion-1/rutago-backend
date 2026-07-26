@@ -1,4 +1,5 @@
 const jwt = require("jsonwebtoken");
+const config = require("../config");
 
 exports.verificarToken = (req, res, next) => {
   const authHeader = req.headers["authorization"];
@@ -11,7 +12,7 @@ exports.verificarToken = (req, res, next) => {
   }
 
   try {
-    const verificado = jwt.verify(token, process.env.JWT_SECRET);
+    const verificado = jwt.verify(token, config.jwt.secreto);
     req.usuario = verificado;
     next();
   } catch (error) {

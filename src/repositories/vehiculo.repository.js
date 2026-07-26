@@ -1,10 +1,27 @@
 const { Op } = require("sequelize");
-const { Vehiculo, PerfilEntidad, EstadoVehiculo, Usuario, Rol } = require("../models");
+const {
+  Vehiculo,
+  PerfilEntidad,
+  EstadoVehiculo,
+  Usuario,
+  Rol,
+} = require("../models");
 const includeEntidad = {
-  model: PerfilEntidad, as: "perfilEntidad",
-  include: [{ model: Usuario, as: "usuario", attributes: ["id", "nombres", "apellidos", "correo", "rolId"], include: [{ model: Rol, as: "rol", attributes: ["id", "nombreRol"] }] }],
+  model: PerfilEntidad,
+  as: "perfilEntidad",
+  include: [
+    {
+      model: Usuario,
+      as: "usuario",
+      attributes: ["id", "nombres", "apellidos", "correo", "rolId"],
+      include: [{ model: Rol, as: "rol", attributes: ["id", "nombreRol"] }],
+    },
+  ],
 };
-const includeVehiculo = [includeEntidad, { model: EstadoVehiculo, as: "estadoVehiculo" }];
+const includeVehiculo = [
+  includeEntidad,
+  { model: EstadoVehiculo, as: "estadoVehiculo" },
+];
 
 exports.obtenerTodos = async () => {
   return await Vehiculo.findAll({
@@ -12,7 +29,14 @@ exports.obtenerTodos = async () => {
   });
 };
 
-exports.obtenerTodosConPaginacion = async (limit, offset, q, estadoId, sortBy = "id", sortOrder = "ASC") => {
+exports.obtenerTodosConPaginacion = async (
+  limit,
+  offset,
+  q,
+  estadoId,
+  sortBy = "id",
+  sortOrder = "ASC",
+) => {
   const where = {};
   if (q) {
     where[Op.or] = [

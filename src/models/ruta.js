@@ -5,11 +5,11 @@ module.exports = (sequelize, DataTypes) => {
     static associate(models) {
       Ruta.belongsTo(models.Comuna, { foreignKey: "origenId", as: "origen" });
       Ruta.belongsTo(models.Comuna, { foreignKey: "destinoId", as: "destino" });
-      Ruta.belongsToMany(models.Barrio, { 
-        through: "RutaBarrio", 
-        foreignKey: "rutaId", 
+      Ruta.belongsToMany(models.Barrio, {
+        through: "RutaBarrio",
+        foreignKey: "rutaId",
         otherKey: "barrioId",
-        as: "barrios"
+        as: "barrios",
       });
       Ruta.hasMany(models.Horario, { foreignKey: "rutaId", as: "horarios" });
     }
@@ -28,7 +28,7 @@ module.exports = (sequelize, DataTypes) => {
       sequelize,
       modelName: "Ruta",
       tableName: "Rutas",
-    }
+    },
   );
   return Ruta;
 };
