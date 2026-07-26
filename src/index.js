@@ -20,6 +20,10 @@ const viajeRoutes = require("./routes/viaje.routes");
 const rutaRoutes = require("./routes/ruta.routes");
 const horarioRoutes = require("./routes/horario.routes");
 const perfilPasajeroRoutes = require("./routes/perfilpasajero.routes");
+const tipoDocumentoRoutes = require("./routes/tipodocumento.routes");
+const estadoVehiculoRoutes = require("./routes/estadovehiculo.routes");
+const estadoConductorRoutes = require("./routes/estadoconductor.routes");
+const estadoViajeRoutes = require("./routes/estadoviaje.routes");
 
 const app = express();
 
@@ -72,6 +76,10 @@ const swaggerOptions = {
       { name: "Barrios", description: "Barrios del sistema" },
       { name: "Comunas", description: "Comunas del sistema" },
       { name: "Viajes", description: "Gestión de viajes" },
+      { name: "Estados Vehículo", description: "Estados de vehículos" },
+      { name: "Estados Conductor", description: "Estados de conductores" },
+      { name: "Estados Viaje", description: "Estados de viajes" },
+      { name: "Tipos Documento", description: "Tipos de documento" },
     ],
     servers: [
       {
@@ -119,6 +127,10 @@ app.use("/api/viajes", viajeRoutes);
 app.use("/api/rutas", rutaRoutes);
 app.use("/api/horarios", horarioRoutes);
 app.use("/api/perfiles-pasajero", perfilPasajeroRoutes);
+app.use("/api/tipos-documento", tipoDocumentoRoutes);
+app.use("/api/estados-vehiculo", estadoVehiculoRoutes);
+app.use("/api/estados-conductor", estadoConductorRoutes);
+app.use("/api/estados-viaje", estadoViajeRoutes);
 
 app.get("/api/ping", (req, res) => {
   res.json({

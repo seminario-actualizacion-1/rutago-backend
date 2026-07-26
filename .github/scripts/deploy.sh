@@ -7,6 +7,13 @@ echo "========================================"
 cd "$HOME/backend"
 echo "→ Actualizando repositorio..."
 git pull --ff-only origin main
+echo "→ Verificando variables de entorno..."
+if ! grep -q "CORS_ORIGIN" .env 2>/dev/null; then
+  echo "CORS_ORIGIN=https://rutago.seminario1.eleueleo.com" >> .env
+  echo "  ✓ CORS_ORIGIN agregado al .env"
+else
+  echo "  ✓ CORS_ORIGIN ya existe en .env"
+fi
 echo "→ Instalando dependencias..."
 npm ci --include=dev
 echo "→ Ejecutando migraciones de producción..."

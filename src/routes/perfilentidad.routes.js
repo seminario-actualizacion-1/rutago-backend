@@ -281,6 +281,51 @@ router.delete(
   perfilEntidadController.eliminarEntidad,
 );
 
+/**
+ * @swagger
+ * /api/perfiles-entidad/crear-usuario:
+ *   post:
+ *     summary: Crear usuario entidad + perfil simultáneamente (admin)
+ *     tags: [Perfiles Entidad]
+ *     security:
+ *       - bearerAuth: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               datosUsuario:
+ *                 type: object
+ *                 properties:
+ *                   nombres:
+ *                     type: string
+ *                   apellidos:
+ *                     type: string
+ *                   correo:
+ *                     type: string
+ *                   contrasena:
+ *                     type: string
+ *               datosPerfil:
+ *                 type: object
+ *                 properties:
+ *                   razonSocial:
+ *                     type: string
+ *                   direccion:
+ *                     type: string
+ *                   telefono:
+ *                     type: string
+ *     responses:
+ *       201:
+ *         description: Usuario y perfil creados exitosamente
+ *       400:
+ *         description: Datos inválidos
+ *       401:
+ *         description: No autenticado
+ *       403:
+ *         description: No autorizado
+ */
 router.post(
   "/crear-usuario",
   authMiddleware.verificarToken,
