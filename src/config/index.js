@@ -22,8 +22,9 @@ const envSchema = z.object({
 const parsed = envSchema.safeParse(process.env);
 if (!parsed.success) {
   console.error("\n Variables de entorno inválidas:");
-  for (const err of parsed.error.errors) {
-    console.error(`   ${err.path.join(".")}: ${err.message}`);
+  const issues = parsed.error?.issues || parsed.error?.errors || [];
+  for (const err of issues) {
+    console.error(`   ${err.path?.join(".") || "?"}: ${err.message}`);
   }
   console.error();
   process.exit(1);
