@@ -1,6 +1,35 @@
 # [**RutaGo**](https://rutago.seminario1.eleueleo.com/) - Backend
 
+![Node.js](https://img.shields.io/badge/Node.js-18-339933?style=flat&logo=nodedotjs)
+![Express](https://img.shields.io/badge/Express-4.21-000000?style=flat&logo=express)
+![Sequelize](https://img.shields.io/badge/Sequelize-6-52B0E7?style=flat&logo=sequelize)
+![MySQL](https://img.shields.io/badge/MySQL-8.0-4479A1?style=flat&logo=mysql)
+![JWT](https://img.shields.io/badge/JWT-black?style=flat&logo=jsonwebtoken)
+![Zod](https://img.shields.io/badge/Zod-3.23-3E67B1?style=flat&logo=zod)
+
 Backend del proyecto RutaGo
+
+## 📑 Tabla de Contenido
+
+- [Integrantes](#integrantes)
+- [Tecnologías](#tecnologias)
+- [Requisitos previos](#requisitos-previos)
+- [Estructura del proyecto](#estructura-del-proyecto)
+- [Scripts disponibles](#scripts-disponibles)
+- [Arquitectura](#arquitectura)
+- [URLs activas](#urls-activas)
+- [Usuarios de prueba](#usuarios-de-prueba)
+- [Roles del sistema](#roles-del-sistema)
+- [Instalación](#instalación)
+- [Configuración de variables de entorno](#configuración-de-variables-de-entorno)
+- [Base de datos con Sequelize](#base-de-datos-con-sequelize)
+- [API Endpoints](#api-endpoints)
+- [Ejecución](#ejecución)
+- [Estado del Proyecto](#estado-del-proyecto)
+- [Checklist de Evaluación](#checklist-de-evaluación--fase-2)
+- [Enlaces](#enlaces)
+
+---
 
 ## Integrantes:
 
@@ -12,15 +41,19 @@ Angel Santiago Estupiñan Gomez<br>
 
 ---
 
+<a id="tecnologias"></a>
+
 ## 🛠️ Tecnologías
 
-- Node.js + Express.js
-- Sequelize ORM
-- MySQL
-- JWT (jsonwebtoken)
-- bcrypt
+- ⚙️ **Node.js 18** + **Express 4.21** — Framework backend
+- 🗄️ **Sequelize 6** + **MySQL 8** — ORM y persistencia
+- 🔐 **JWT** + **bcrypt** — Autenticación y hash
+- ✅ **Zod** — Validación de schemas
+- 🛡️ **express-rate-limit** — Seguridad y rate limiting
 
 ---
+
+<a id="requisitos-previos"></a>
 
 ## 📋 Requisitos previos
 
@@ -30,32 +63,41 @@ Angel Santiago Estupiñan Gomez<br>
 
 ---
 
+<a id="estructura-del-proyecto"></a>
+
 ## 📁 Estructura del proyecto
 
 ```
 rutago-backend/
 ├── .github/
-│   ├── workflows/        # GitHub Actions (blank.yml)
-│   └── scripts/          # Scripts de deploy
+│   ├── workflows/          # GitHub Actions (blank.yml)
+│   └── scripts/            # Scripts de deploy
+├── scripts/                # Scripts auxiliares
 ├── src/
-│   ├── config/           # Configuración (DB, roles, estados)
-│   ├── controllers/      # Controladores por módulo
-│   ├── helpers/          # Utilidades (paginación)
-│   ├── middlewares/      # Auth y role middleware
-│   ├── migrations/       # Migraciones Sequelize
-│   ├── models/           # Modelos Sequelize
-│   ├── repositories/     # Capa de acceso a datos
-│   ├── routes/           # Definición de rutas
-│   ├── seeders/          # Seeders con datos iniciales
-│   ├── services/         # Lógica de negocio
-│   └── index.js          # Punto de entrada
-├── scripts/              # Scripts auxiliares (migrarPasajeros.js)
-├── .env                  # Variables de entorno
-├── .sequelizerc          # Configuración Sequelize CLI
-└── package.json
+│   ├── config/             # Configuración (DB, Zod, estados)
+│   ├── controllers/        # Controladores por módulo
+│   ├── dtos/               # DTOs de respuesta
+│   ├── helpers/            # Utilidades (paginación)
+│   ├── middlewares/        # Auth, role y validación Zod
+│   ├── migrations/         # Migraciones Sequelize
+│   ├── models/             # Modelos Sequelize
+│   ├── repositories/       # Capa de acceso a datos
+│   ├── routes/             # Definición de rutas
+│   ├── schemas/            # Schemas de validación Zod
+│   ├── seeders/            # Seeders con datos iniciales
+│   ├── services/           # Lógica de negocio
+│   └── index.js            # Punto de entrada
+├── .env                    # Variables de entorno
+├── .env.example            # Plantilla de variables de entorno
+├── .gitignore
+├── .sequelizerc            # Configuración Sequelize CLI
+├── package.json
+└── README.md
 ```
 
 ---
+
+<a id="scripts-disponibles"></a>
 
 ## 📦 Scripts disponibles
 
@@ -65,6 +107,8 @@ npm run dev        # Iniciar con nodemon (desarrollo)
 ```
 
 ---
+
+<a id="arquitectura"></a>
 
 ## 🏗️ Arquitectura
 
@@ -87,15 +131,19 @@ El frontend se sirve desde el mismo dominio VPS. Las peticiones a `/api` son red
 
 ---
 
+<a id="urls-activas"></a>
+
 ## 🔗 URLs activas
 
-| Servicio   | URL                                        |
-| ---------- | ------------------------------------------ |
-| Frontend   | https://rutago.seminario1.eleueleo.com/    |
-| Backend    | https://rutago.seminario1.eleueleo.com/api |
-| Swagger    | http://localhost:8082/api/docs             |
+| Servicio | URL                                         |
+| -------- | ------------------------------------------- |
+| Frontend | https://rutago.seminario1.eleueleo.com/     |
+| Backend  | https://rutago.seminario1.eleueleo.com/api  |
+| Swagger  | http://localhost:8082/api/docs (solo local) |
 
 ---
+
+<a id="usuarios-de-prueba"></a>
 
 ## 👥 Usuarios de prueba
 
@@ -108,6 +156,8 @@ El frontend se sirve desde el mismo dominio VPS. Las peticiones a `/api` son red
 
 ---
 
+<a id="roles-del-sistema"></a>
+
 ## 👥 Roles del sistema
 
 | ID  | Nombre          | Descripción                         |
@@ -117,12 +167,16 @@ El frontend se sirve desde el mismo dominio VPS. Las peticiones a `/api` son red
 | 3   | Pasajero        | Consulta rutas y horarios           |
 | 4   | Entidad Externa | Gestiona vehículos de su entidad    |
 
+<a id="instalacion"></a>
+
 ## ⚙️ Instalación
 
 ```bash
 # Instalar dependencias
 npm install
 ```
+
+<a id="configuracion-de-variables-de-entorno"></a>
 
 ## 🔧 Configuración de variables de entorno
 
@@ -131,12 +185,18 @@ El archivo `.env` debe estar en la raíz del backend. Ejemplo mínimo:
 ```env
 PORT=8082
 HOST=localhost
-PORT_DB=3307
+PORT_DB=3306
 USER_DB=root
-DB_PASSWORD=""
+DB_PASSWORD=tu_password
 DB_NAME=rutago_db
 JWT_SECRET=tu_clave_super_secreta
+JWT_EXPIRES_IN=15m
+JWT_REFRESH_EXPIRES_IN=7d
+API_URL=https://rutago.seminario1.eleueleo.com/api
+CORS_ORIGIN=https://rutago.seminario1.eleueleo.com
 ```
+
+<a id="base-de-datos-con-sequelize"></a>
 
 ## 🗄️ Base de datos con Sequelize
 
@@ -178,6 +238,8 @@ npx sequelize-cli db:seed:all
 npm start
 ```
 
+<a id="api-endpoints"></a>
+
 ## 🌐 API Endpoints
 
 ### Autenticación
@@ -190,16 +252,17 @@ npm start
 
 ### Usuarios
 
-| Método | Ruta                          | Roles | Descripción                 |
-| ------ | ----------------------------- | ----- | --------------------------- |
-| GET    | /api/usuarios                 | Admin | Listar usuarios             |
-| GET    | /api/usuarios/:id             | Admin | Obtener usuario por ID      |
-| POST   | /api/usuarios                 | Admin | Crear usuario               |
-| PUT    | /api/usuarios/:id             | Admin | Actualizar usuario          |
-| DELETE | /api/usuarios/:id             | Admin | Eliminar usuario            |
-| GET    | /api/usuarios/verificar-token | Auth  | Verificar validez del token |
-| GET    | /api/usuarios/me/perfil       | Auth  | Obtener perfil del usuario autenticado |
+| Método | Ruta                          | Roles | Descripción                               |
+| ------ | ----------------------------- | ----- | ----------------------------------------- |
+| GET    | /api/usuarios                 | Admin | Listar usuarios                           |
+| GET    | /api/usuarios/:id             | Admin | Obtener usuario por ID                    |
+| POST   | /api/usuarios                 | Admin | Crear usuario                             |
+| PUT    | /api/usuarios/:id             | Admin | Actualizar usuario                        |
+| DELETE | /api/usuarios/:id             | Admin | Eliminar usuario                          |
+| GET    | /api/usuarios/verificar-token | Auth  | Verificar validez del token               |
+| GET    | /api/usuarios/me/perfil       | Auth  | Obtener perfil del usuario autenticado    |
 | PUT    | /api/usuarios/me/perfil       | Auth  | Actualizar perfil del usuario autenticado |
+| PUT    | /api/usuarios/:id/rol         | Admin | Cambiar rol de un usuario                 |
 
 ### Vehículos
 
@@ -210,44 +273,71 @@ npm start
 | GET    | /api/vehiculos/:id/ubicacion | Auth          | Obtener ubicación            |
 | POST   | /api/vehiculos               | Admin/Entidad | Crear vehículo               |
 | PUT    | /api/vehiculos/:id           | Admin/Entidad | Actualizar vehículo          |
+| PUT    | /api/vehiculos/:id/ubicacion | Conductor     | Actualizar ubicación         |
 | DELETE | /api/vehiculos/:id           | Admin/Entidad | Eliminar vehículo            |
 
 ### Perfiles (Conductor, Pasajero, Entidad)
 
-| Método | Ruta                                        | Roles  | Descripción                          |
-| ------ | ------------------------------------------- | ------ | ------------------------------------ |
-| GET    | /api/perfiles-conductor                     | Admin  | Listar perfiles de conductor         |
-| GET    | /api/perfiles-conductor/me/perfil           | Cond.  | Obtener mi perfil de conductor       |
-| PUT    | /api/perfiles-conductor/me/perfil           | Cond.  | Actualizar mi perfil de conductor    |
-| GET    | /api/perfiles-pasajero                      | Admin  | Listar perfiles de pasajero          |
-| GET    | /api/perfiles-pasajero/me/perfil            | Pasaj. | Obtener mi perfil de pasajero        |
-| PUT    | /api/perfiles-pasajero/me/perfil            | Pasaj. | Actualizar mi perfil de pasajero     |
-| GET    | /api/perfiles-entidad                       | Admin  | Listar perfiles de entidad           |
-| GET    | /api/perfiles-entidad/me/perfil             | Entid. | Obtener mi perfil de entidad         |
-| PUT    | /api/perfiles-entidad/me/perfil             | Entid. | Actualizar mi perfil de entidad      |
+| Método | Ruta                                      | Roles  | Descripción                       |
+| ------ | ----------------------------------------- | ------ | --------------------------------- |
+| GET    | /api/perfiles-conductor                   | Admin  | Listar perfiles de conductor      |
+| GET    | /api/perfiles-conductor/me/perfil         | Cond.  | Obtener mi perfil de conductor    |
+| PUT    | /api/perfiles-conductor/me/perfil         | Cond.  | Actualizar mi perfil de conductor |
+| PATCH  | /api/perfiles-conductor/:id/estado        | Admin  | Cambiar estado del conductor      |
+| POST   | /api/perfiles-conductor/crear-con-usuario | Admin  | Crear conductor con usuario nuevo |
+| GET    | /api/perfiles-pasajero                    | Admin  | Listar perfiles de pasajero       |
+| GET    | /api/perfiles-pasajero/me/perfil          | Pasaj. | Obtener mi perfil de pasajero     |
+| PUT    | /api/perfiles-pasajero/me/perfil          | Pasaj. | Actualizar mi perfil de pasajero  |
+| POST   | /api/perfiles-pasajero/crear-con-usuario  | Admin  | Crear pasajero con usuario nuevo  |
+| GET    | /api/perfiles-entidad                     | Admin  | Listar perfiles de entidad        |
+| GET    | /api/perfiles-entidad/me/perfil           | Entid. | Obtener mi perfil de entidad      |
+| PUT    | /api/perfiles-entidad/me/perfil           | Entid. | Actualizar mi perfil de entidad   |
+| POST   | /api/perfiles-entidad/crear-con-usuario   | Admin  | Crear entidad con usuario nuevo   |
 
-### Rutas, Horarios, Barrios, Comunas, Viajes
+### Catálogos
+
+| Método | Ruta                   | Roles | Descripción                 |
+| ------ | ---------------------- | ----- | --------------------------- |
+| GET    | /api/estados-vehiculo  | Auth  | Listar estados de vehículo  |
+| GET    | /api/estados-conductor | Auth  | Listar estados de conductor |
+| GET    | /api/estados-viaje     | Auth  | Listar estados de viaje     |
+| GET    | /api/tipos-documento   | Auth  | Listar tipos de documento   |
+
+### Rutas, Horarios, Barrios, Comunas
 
 Siguen el mismo patrón CRUD con paginación, búsqueda (`q`) y ordenamiento (`sortBy`, `sortOrder`).
 
-| Recurso       | Ruta base                  | Roles permitidos |
-| ------------- | -------------------------- | ---------------- |
-| Rutas         | /api/rutas                 | Admin            |
-| Horarios      | /api/horarios              | Admin            |
-| Barrios       | /api/barrios               | Admin            |
-| Comunas       | /api/comunas               | Admin            |
-| Viajes        | /api/viajes                | Admin/Auth       |
+| Recurso  | Ruta base     | Roles permitidos |
+| -------- | ------------- | ---------------- |
+| Rutas    | /api/rutas    | Admin            |
+| Horarios | /api/horarios | Admin            |
+| Barrios  | /api/barrios  | Admin            |
+| Comunas  | /api/comunas  | Admin            |
 
 Endpoints destacados adicionales:
 
-| Método | Ruta                                    | Roles  | Descripción                       |
-| ------ | --------------------------------------- | ------ | --------------------------------- |
-| GET    | /api/rutas/destino/:destino             | Auth   | Buscar rutas por destino          |
-| GET    | /api/viajes/mis-viajes                  | Auth   | Obtener viajes del usuario actual |
-| GET    | /api/horarios/ruta/:rutaId              | Auth   | Horarios de una ruta              |
-| GET    | /api/horarios/vehiculo/:vehiculoId      | Auth   | Horarios de un vehículo           |
+| Método | Ruta                               | Roles | Descripción              |
+| ------ | ---------------------------------- | ----- | ------------------------ |
+| GET    | /api/rutas/destino/:destino        | Auth  | Buscar rutas por destino |
+| GET    | /api/horarios/ruta/:rutaId         | Auth  | Horarios de una ruta     |
+| GET    | /api/horarios/vehiculo/:vehiculoId | Auth  | Horarios de un vehículo  |
+
+### Viajes
+
+| Método | Ruta                   | Roles      | Descripción                       |
+| ------ | ---------------------- | ---------- | --------------------------------- |
+| GET    | /api/viajes            | Admin      | Listar viajes                     |
+| GET    | /api/viajes/:id        | Auth       | Obtener viaje por ID              |
+| POST   | /api/viajes            | Auth       | Crear viaje                       |
+| PUT    | /api/viajes/:id        | Admin      | Actualizar viaje                  |
+| DELETE | /api/viajes/:id        | Admin      | Eliminar viaje                    |
+| PATCH  | /api/viajes/:id/estado | Admin/Cond | Cambiar estado del viaje          |
+| POST   | /api/viajes/:id/unirse | Pasajero   | Unirse a un viaje como pasajero   |
+| GET    | /api/viajes/mis-viajes | Auth       | Obtener viajes del usuario actual |
 
 ---
+
+<a id="ejecucion"></a>
 
 ## 🚀 Ejecución
 
@@ -259,20 +349,49 @@ npm run dev
 npm start
 ```
 
-## 🔗 Enlaces
+---
 
-[Frontend](https://github.com/seminario-actualizacion-1/rutago-frontend)
+<a id="cicd-y-deploy"></a>
+
+## 🚀 CI/CD y Deploy
+
+### Workflow
+
+`.github/workflows/blank.yml`
+
+### Flujo de despliegue automático
+
+```
+Push a main
+     ↓
+Checkout código
+     ↓
+npm install
+     ↓
+Ejecutar migraciones (npx sequelize-cli db:migrate)
+     ↓
+Ejecutar seeders (npx sequelize-cli db:seed:all)
+     ↓
+rsync archivos → VPS
+     ↓
+sudo systemctl restart rutago-backend
+```
+
+El pipeline ejecuta migraciones y seeders automáticamente antes de reiniciar el servicio, garantizando que la estructura de la BD esté siempre actualizada en producción.
 
 ---
+
+<a id="estado-del-proyecto"></a>
 
 ## 📊 Estado del Proyecto
 
 ### ✅ Completado
 
-- Sistema de autenticación con JWT (login, registro, verificación de token).
+- Sistema de autenticación con JWT (login, registro, verificación de token, refresh).
 - Roles: Administrador, Conductor, Pasajero, Entidad Externa.
+- Validación de entrada con Zod (schemas + middleware).
+- Catálogos dinámicos desde BD: estados de vehículo, conductor, viaje y tipos de documento.
 - CRUD completo con paginación, búsqueda (`q`) y ordenamiento (`sortBy`/`sortOrder`) en 10 módulos: Usuarios, Vehículos, Rutas, Horarios, Conductores, Pasajeros, Entidades, Barrios, Comunas, Viajes.
-- Catalogo de estados y tipos documento con migraciones y seeders idempotentes.
 - Datos reales de Buenaventura (12 comunas, 104 barrios).
 - Migraciones y seeders con Sequelize, ejecutados automáticamente en el pipeline de deploy.
 - CI/CD con GitHub Actions: despliegue automático al hacer push a `main`.
@@ -289,8 +408,34 @@ npm start
 
 ### 📌 Pendiente
 
+- Migración de MySQL a PostgreSQL + PostGIS (datos espaciales).
 - Seguimiento GPS en tiempo real.
 - Estado de buses en tiempo real.
 - Notificaciones automáticas.
 
 ---
+
+<a id="checklist-de-evaluacion--fase-2"></a>
+
+## ✅ Checklist de Evaluación — Fase 2
+
+### Pruebas Funcionales en Vivo
+
+- [ ] **Verificación de Rutas**: Al ingresar directamente a `/admin` sin autenticar, el sistema redirige al Login.
+- [ ] **Prueba de Roles**: Al loguearse con un usuario no-admin, el sistema bloquea el acceso a `/admin` mostrando error 403.
+- [ ] **Lectura Transaccional**: El panel administrativo carga datos dinámicos de al menos dos tablas transaccionales.
+- [ ] **Cierre de Sesión Efectivo**: Al cerrar sesión, el token se destruye en cliente y no se puede volver atrás con el navegador.
+
+### Pruebas de Despliegue y Automatización
+
+- [ ] **Despliegue por Git**: Último cambio en producción realizado mediante GitHub Actions.
+- [ ] **Consistencia de Base de Datos**: Migraciones ejecutadas exitosamente en el pipeline de deploy.
+- [ ] **Validación de Documentación**: README con arquitectura, URLs activas y usuarios de prueba.
+
+---
+
+<a id="enlaces"></a>
+
+## 🔗 Enlaces
+
+[Frontend](https://github.com/seminario-actualizacion-1/rutago-frontend)
