@@ -36,11 +36,7 @@ const authLimiter = rateLimit({
 });
 
 app.use(express.json({ limit: "10kb" }));
-const origenesPermitidos = [
-  "http://localhost:5173",
-  "http://localhost:8082",
-  ...(config.cors.origen ? config.cors.origen.split(",") : []),
-];
+const origenesPermitidos = config.cors.origen.split(",");
 
 app.use(
   cors({

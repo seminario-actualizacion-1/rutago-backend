@@ -14,6 +14,12 @@ if ! grep -q "CORS_ORIGIN" .env 2>/dev/null; then
 else
   echo "  ✓ CORS_ORIGIN ya existe en .env"
 fi
+if ! grep -q "JWT_SECRET" .env 2>/dev/null; then
+  echo "JWT_SECRET=$(openssl rand -base64 32)" >> .env
+  echo "  ✓ JWT_SECRET generado y agregado al .env"
+else
+  echo "  ✓ JWT_SECRET ya existe en .env"
+fi
 echo "→ Instalando dependencias..."
 npm ci --include=dev
 echo "→ Ejecutando migraciones de producción..."

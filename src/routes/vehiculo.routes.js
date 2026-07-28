@@ -3,13 +3,8 @@ const router = express.Router();
 const vehiculoController = require("../controllers/vehiculo.controller");
 const authMiddleware = require("../middlewares/auth.middleware");
 const roleMiddleware = require("../middlewares/role.middleware");
-const {
-  validarPaginacion,
-} = require("../middlewares/paginacion.validator");
-const {
-  validarCrearVehiculo,
-  validarActualizarVehiculo,
-} = require("../middlewares/vehiculo.validator");
+const { validarSchema } = require("../middlewares/validator.middleware");
+const vehiculoSchema = require("../schemas/vehiculo.schema");
 
 /**
  * @swagger
@@ -60,8 +55,8 @@ const {
 router.get(
   "/",
   authMiddleware.verificarToken,
-  validarPaginacion,
-  vehiculoController.obtenerTodos
+  validarSchema(require("../schemas/paginacion.schema").paginacion, "query"),
+  vehiculoController.obtenerTodos,
 );
 
 /**
@@ -87,7 +82,11 @@ router.get(
  *       404:
  *         description: Vehículo no encontrado
  */
-router.get("/:id", authMiddleware.verificarToken, vehiculoController.obtenerPorId);
+router.get(
+  "/:id",
+  authMiddleware.verificarToken,
+  vehiculoController.obtenerPorId,
+);
 
 /**
  * @swagger
@@ -112,7 +111,11 @@ router.get("/:id", authMiddleware.verificarToken, vehiculoController.obtenerPorI
  *       404:
  *         description: Vehículo no encontrado
  */
-router.get("/:id/ubicacion", authMiddleware.verificarToken, vehiculoController.obtenerUbicacion);
+router.get(
+  "/:id/ubicacion",
+  authMiddleware.verificarToken,
+  vehiculoController.obtenerUbicacion,
+);
 
 /**
  * @swagger
@@ -164,7 +167,8 @@ router.put(
   "/:id/ubicacion",
   authMiddleware.verificarToken,
   roleMiddleware.esConductor,
-  vehiculoController.actualizarUbicacion
+  validarSchema(vehiculoSchema.actualizarUbicacion),
+  vehiculoController.actualizarUbicacion,
 );
 
 /**
@@ -218,8 +222,8 @@ router.post(
   "/",
   authMiddleware.verificarToken,
   roleMiddleware.esAdminOEntidad,
-  validarCrearVehiculo,
-  vehiculoController.crearVehiculo
+  validarSchema(vehiculoSchema.crear),
+  vehiculoController.crearVehiculo,
 );
 
 /**
@@ -274,8 +278,8 @@ router.put(
   "/:id",
   authMiddleware.verificarToken,
   roleMiddleware.esAdminOEntidad,
-  validarActualizarVehiculo,
-  vehiculoController.actualizarVehiculo
+  validarSchema(vehiculoSchema.actualizar),
+  vehiculoController.actualizarVehiculo,
 );
 
 /**
@@ -307,7 +311,7 @@ router.delete(
   "/:id",
   authMiddleware.verificarToken,
   roleMiddleware.esAdminOEntidad,
-  vehiculoController.eliminarVehiculo
+  vehiculoController.eliminarVehiculo,
 );
 
 module.exports = router;

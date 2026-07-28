@@ -1,28 +1,54 @@
 require("dotenv").config();
+const { z } = require("zod");
+
+const envSchema = z.object({
+  PORT: z.string(),
+  API_URL: z.string().url(),
+  NODE_ENV: z.enum(["development", "production", "test"]),
+  HOST: z.string(),
+  PORT_DB: z.string(),
+  USER_DB: z.string(),
+  DB_PASSWORD: z.string(),
+  DB_NAME: z.string(),
+  CORS_ORIGIN: z.string().min(1, "CORS_ORIGIN es obligatorio"),
+  FRONTEND_URL: z.string().url().optional(),
+  JWT_SECRET: z
+    .string()
+    .min(10, "JWT_SECRET debe tener al menos 10 caracteres"),
+  JWT_EXPIRES_IN: z.string(),
+  JWT_REFRESH_EXPIRES_IN: z.string(),
+});
+
+const parsed = envSchema.safeParse(process.env);
+if (!parsed.success) {
+  console.error("\n Variables de entorno inválidas:");
+  for (const err of parsed.error.errors) {
+    console.error(`   ${err.path.join(".")}: ${err.message}`);
+  }
+  console.error();
+  process.exit(1);
+}
 
 module.exports = {
-  puerto: process.env.PORT || 8082,
-  apiUrl: process.env.API_URL || "http://localhost:8082",
-  entorno: process.env.NODE_ENV || "development",
+  puerto: parsed.data.PORT,
+  apiUrl: parsed.data.API_URL,
+  entorno: parsed.data.NODE_ENV,
 
   jwt: {
-    secreto: process.env.JWT_SECRET,
-    expiracion: process.env.JWT_EXPIRES_IN || "8h",
-    refreshExpiracion: process.env.JWT_REFRESH_EXPIRES_IN || "7d",
+    secreto: parsed.data.JWT_SECRET,
+    expiracion: parsed.data.JWT_EXPIRES_IN,
+    refreshExpiracion: parsed.data.JWT_REFRESH_EXPIRES_IN,
   },
 
   db: {
-    host: process.env.HOST || "localhost",
-    puerto: process.env.PORT_DB || 3306,
-    usuario: process.env.USER_DB || "root",
-    password: process.env.DB_PASSWORD,
-    nombre: process.env.DB_NAME || "rutago_db",
+    host: parsed.data.HOST,
+    puerto: parsed.data.PORT_DB,
+    usuario: parsed.data.USER_DB,
+    password: parsed.data.DB_PASSWORD,
+    nombre: parsed.data.DB_NAME,
   },
 
   cors: {
-    origen:
-      process.env.CORS_ORIGIN ||
-      process.env.FRONTEND_URL ||
-      "http://localhost:5173",
+    origen: parsed.data.CORS_ORIGIN,
   },
 };

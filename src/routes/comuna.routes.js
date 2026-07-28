@@ -3,13 +3,8 @@ const router = express.Router();
 const comunaController = require("../controllers/comuna.controller");
 const authMiddleware = require("../middlewares/auth.middleware");
 const roleMiddleware = require("../middlewares/role.middleware");
-const {
-  validarPaginacion,
-} = require("../middlewares/paginacion.validator");
-const {
-  validarCrearComuna,
-  validarActualizarComuna,
-} = require("../middlewares/comuna.validator");
+const { validarSchema } = require("../middlewares/validator.middleware");
+const comunaSchema = require("../schemas/comuna.schema");
 
 /**
  * @swagger
@@ -55,8 +50,8 @@ const {
 router.get(
   "/",
   authMiddleware.verificarToken,
-  validarPaginacion,
-  comunaController.obtenerTodas
+  validarSchema(require("../schemas/paginacion.schema").paginacion, "query"),
+  comunaController.obtenerTodas,
 );
 
 /**
@@ -82,7 +77,11 @@ router.get(
  *       404:
  *         description: Comuna no encontrada
  */
-router.get("/:id", authMiddleware.verificarToken, comunaController.obtenerPorId);
+router.get(
+  "/:id",
+  authMiddleware.verificarToken,
+  comunaController.obtenerPorId,
+);
 
 /**
  * @swagger
@@ -117,8 +116,8 @@ router.post(
   "/",
   authMiddleware.verificarToken,
   roleMiddleware.esAdministrador,
-  validarCrearComuna,
-  comunaController.crearComuna
+  validarSchema(comunaSchema.crear),
+  comunaController.crearComuna,
 );
 
 /**
@@ -161,8 +160,8 @@ router.put(
   "/:id",
   authMiddleware.verificarToken,
   roleMiddleware.esAdministrador,
-  validarActualizarComuna,
-  comunaController.actualizarComuna
+  validarSchema(comunaSchema.actualizar),
+  comunaController.actualizarComuna,
 );
 
 /**
@@ -194,7 +193,7 @@ router.delete(
   "/:id",
   authMiddleware.verificarToken,
   roleMiddleware.esAdministrador,
-  comunaController.eliminarComuna
+  comunaController.eliminarComuna,
 );
 
 module.exports = router;

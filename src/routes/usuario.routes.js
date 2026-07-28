@@ -3,15 +3,8 @@ const router = express.Router();
 const usuarioController = require("../controllers/usuario.controller");
 const authMiddleware = require("../middlewares/auth.middleware");
 const roleMiddleware = require("../middlewares/role.middleware");
-const {
-  validarRegistro,
-  validarRecuperarContrasena,
-  validarCambiarContrasena,
-  validarActualizarPerfil,
-} = require("../middlewares/usuario.validator");
-const {
-  validarPaginacion,
-} = require("../middlewares/paginacion.validator");
+const { validarSchema } = require("../middlewares/validator.middleware");
+const usuarioSchema = require("../schemas/usuario.schema");
 
 /**
  * @swagger
@@ -49,7 +42,11 @@ const {
  *       400:
  *         description: Datos inválidos
  */
-router.post("/registro", validarRegistro, usuarioController.registrarUsuario);
+router.post(
+  "/registro",
+  validarSchema(usuarioSchema.registro),
+  usuarioController.registrarUsuario,
+);
 
 /**
  * @swagger
@@ -79,8 +76,8 @@ router.post("/registro", validarRegistro, usuarioController.registrarUsuario);
  */
 router.post(
   "/recuperar-contrasena",
-  validarRecuperarContrasena,
-  usuarioController.recuperarContrasena
+  validarSchema(usuarioSchema.recuperarContrasena),
+  usuarioController.recuperarContrasena,
 );
 
 /**
@@ -112,8 +109,8 @@ router.post(
  */
 router.post(
   "/cambiar-contrasena",
-  validarCambiarContrasena,
-  usuarioController.cambiarContrasena
+  validarSchema(usuarioSchema.cambiarContrasena),
+  usuarioController.cambiarContrasena,
 );
 
 /**
@@ -133,7 +130,7 @@ router.post(
 router.get(
   "/me/perfil",
   authMiddleware.verificarToken,
-  usuarioController.obtenerMiPerfil
+  usuarioController.obtenerMiPerfil,
 );
 
 /**
@@ -169,8 +166,8 @@ router.get(
 router.put(
   "/me/perfil",
   authMiddleware.verificarToken,
-  validarActualizarPerfil,
-  usuarioController.actualizarMiPerfil
+  validarSchema(usuarioSchema.actualizarPerfil),
+  usuarioController.actualizarMiPerfil,
 );
 
 /**
@@ -220,8 +217,8 @@ router.get(
   "/",
   authMiddleware.verificarToken,
   roleMiddleware.esAdministrador,
-  validarPaginacion,
-  usuarioController.obtenerTodos
+  validarSchema(require("../schemas/paginacion.schema").paginacion, "query"),
+  usuarioController.obtenerTodos,
 );
 
 /**
@@ -303,6 +300,7 @@ router.put(
   "/:id",
   authMiddleware.verificarToken,
   roleMiddleware.esAdministrador,
+  validarSchema(usuarioSchema.actualizarPerfil),
   usuarioController.actualizarUsuario,
 );
 
@@ -348,6 +346,7 @@ router.put(
   "/:id/rol",
   authMiddleware.verificarToken,
   roleMiddleware.esAdministrador,
+  validarSchema(usuarioSchema.cambiarRol),
   usuarioController.cambiarRol,
 );
 

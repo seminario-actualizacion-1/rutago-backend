@@ -1,18 +1,11 @@
 const authService = require("../services/auth.service");
 const usuarioService = require("../services/usuario.service");
-const authDto = require("../dtos/auth.dto");
 
 exports.login = async (req, res) => {
   try {
-    const datos = authDto.paraLogin(req.body);
-    if (!datos.correo || !datos.contrasena) {
-      return res
-        .status(400)
-        .json({ success: false, message: "Correo y contraseña requeridos." });
-    }
     const resultado = await authService.autenticarUsuario(
-      datos.correo,
-      datos.contrasena,
+      req.body.correo,
+      req.body.contrasena,
     );
     return res
       .status(200)
@@ -35,13 +28,7 @@ exports.login = async (req, res) => {
 
 exports.refrescarToken = async (req, res) => {
   try {
-    const datos = authDto.paraRefresh(req.body);
-    if (!datos.refreshToken) {
-      return res
-        .status(400)
-        .json({ success: false, message: "Refresh token requerido" });
-    }
-    const tokens = await authService.refrescarToken(datos.refreshToken);
+    const tokens = await authService.refrescarToken(req.body.refreshToken);
     res.json({ success: true, ...tokens });
   } catch (error) {
     res

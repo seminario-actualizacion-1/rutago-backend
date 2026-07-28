@@ -1,35 +1,5 @@
-exports.paraCrear = (data) => ({
-  usuarioId: data.usuarioId ? parseInt(data.usuarioId, 10) : undefined,
-  vehiculoId: data.vehiculoId ? parseInt(data.vehiculoId, 10) : undefined,
-  licenciaConducir: data.licenciaConducir?.trim(),
-  estadoId: data.estadoId ? parseInt(data.estadoId, 10) : undefined,
-});
 
-exports.paraActualizar = (data) => {
-  const dto = {};
-  if (data.usuarioId) dto.usuarioId = parseInt(data.usuarioId, 10);
-  if (data.vehiculoId) dto.vehiculoId = parseInt(data.vehiculoId, 10);
-  if (data.licenciaConducir && data.licenciaConducir.trim())
-    dto.licenciaConducir = data.licenciaConducir.trim();
-  if (data.estadoId) dto.estadoId = parseInt(data.estadoId, 10);
-  return dto;
-};
-
-exports.paraCrearConUsuario = (data) => ({
-  datosUsuario: {
-    nombres: data.nombres?.trim(),
-    apellidos: data.apellidos?.trim(),
-    correo: data.correo?.trim().toLowerCase(),
-    contrasena: data.contrasena,
-  },
-  datosPerfil: {
-    vehiculoId: data.vehiculoId ? parseInt(data.vehiculoId, 10) : undefined,
-    licenciaConducir: data.licenciaConducir?.trim(),
-    estadoId: data.estadoId ? parseInt(data.estadoId, 10) : undefined,
-  },
-});
-
-exports.paraRespuesta = (model) => {
+exports.RespuestaConductoresDto = (model) => {
   if (!model) return null;
   return {
     id: model.id,

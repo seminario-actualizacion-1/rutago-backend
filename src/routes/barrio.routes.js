@@ -3,13 +3,8 @@ const router = express.Router();
 const barrioController = require("../controllers/barrio.controller");
 const authMiddleware = require("../middlewares/auth.middleware");
 const roleMiddleware = require("../middlewares/role.middleware");
-const {
-  validarPaginacion,
-} = require("../middlewares/paginacion.validator");
-const {
-  validarCrearBarrio,
-  validarActualizarBarrio,
-} = require("../middlewares/barrio.validator");
+const { validarSchema } = require("../middlewares/validator.middleware");
+const barrioSchema = require("../schemas/barrio.schema");
 
 /**
  * @swagger
@@ -55,8 +50,8 @@ const {
 router.get(
   "/",
   authMiddleware.verificarToken,
-  validarPaginacion,
-  barrioController.obtenerTodos
+  validarSchema(require("../schemas/paginacion.schema").paginacion, "query"),
+  barrioController.obtenerTodos,
 );
 
 /**
@@ -82,7 +77,11 @@ router.get(
  *       404:
  *         description: Comuna no encontrada
  */
-router.get("/comuna/:comunaId", authMiddleware.verificarToken, barrioController.obtenerPorComuna);
+router.get(
+  "/comuna/:comunaId",
+  authMiddleware.verificarToken,
+  barrioController.obtenerPorComuna,
+);
 
 /**
  * @swagger
@@ -107,7 +106,11 @@ router.get("/comuna/:comunaId", authMiddleware.verificarToken, barrioController.
  *       404:
  *         description: Barrio no encontrado
  */
-router.get("/:id", authMiddleware.verificarToken, barrioController.obtenerPorId);
+router.get(
+  "/:id",
+  authMiddleware.verificarToken,
+  barrioController.obtenerPorId,
+);
 
 /**
  * @swagger
@@ -145,8 +148,8 @@ router.post(
   "/",
   authMiddleware.verificarToken,
   roleMiddleware.esAdministrador,
-  validarCrearBarrio,
-  barrioController.crearBarrio
+  validarSchema(barrioSchema.crear),
+  barrioController.crearBarrio,
 );
 
 /**
@@ -191,8 +194,8 @@ router.put(
   "/:id",
   authMiddleware.verificarToken,
   roleMiddleware.esAdministrador,
-  validarActualizarBarrio,
-  barrioController.actualizarBarrio
+  validarSchema(barrioSchema.actualizar),
+  barrioController.actualizarBarrio,
 );
 
 /**
@@ -224,7 +227,7 @@ router.delete(
   "/:id",
   authMiddleware.verificarToken,
   roleMiddleware.esAdministrador,
-  barrioController.eliminarBarrio
+  barrioController.eliminarBarrio,
 );
 
 module.exports = router;

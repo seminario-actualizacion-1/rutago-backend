@@ -23,7 +23,7 @@ exports.obtenerTodos = async (req, res) => {
     );
     res.json({
       success: true,
-      data: resultado.data.map(barrioDto.paraRespuesta),
+      data: resultado.data.map(barrioDto.RespuestaBarriosDto),
       paginacion: resultado.paginacion,
     });
   } catch (error) {
@@ -34,7 +34,7 @@ exports.obtenerTodos = async (req, res) => {
 exports.obtenerPorId = async (req, res) => {
   try {
     const barrio = await barrioService.obtenerPorId(req.params.id);
-    res.json({ success: true, data: barrioDto.paraRespuesta(barrio) });
+    res.json({ success: true, data: barrioDto.RespuestaBarriosDto(barrio) });
   } catch (error) {
     manejarError(res, error);
   }
@@ -43,7 +43,7 @@ exports.obtenerPorId = async (req, res) => {
 exports.obtenerPorComuna = async (req, res) => {
   try {
     const barrios = await barrioService.obtenerPorComuna(req.params.comunaId);
-    res.json({ success: true, data: barrios.map(barrioDto.paraRespuesta) });
+    res.json({ success: true, data: barrios.map(barrioDto.RespuestaBarriosDto) });
   } catch (error) {
     manejarError(res, error);
   }
@@ -51,14 +51,14 @@ exports.obtenerPorComuna = async (req, res) => {
 
 exports.crearBarrio = async (req, res) => {
   try {
-    const datos = barrioDto.paraCrear(req.body);
+    const datos = req.body;
     const barrio = await barrioService.crearBarrio(datos);
     res
       .status(201)
       .json({
         success: true,
         message: "Barrio creado",
-        data: barrioDto.paraRespuesta(barrio),
+        data: barrioDto.RespuestaBarriosDto(barrio),
       });
   } catch (error) {
     manejarError(res, error);
@@ -67,12 +67,12 @@ exports.crearBarrio = async (req, res) => {
 
 exports.actualizarBarrio = async (req, res) => {
   try {
-    const datos = barrioDto.paraActualizar(req.body);
+    const datos = req.body;
     const barrio = await barrioService.actualizarBarrio(req.params.id, datos);
     res.json({
       success: true,
       message: "Barrio actualizado",
-      data: barrioDto.paraRespuesta(barrio),
+      data: barrioDto.RespuestaBarriosDto(barrio),
     });
   } catch (error) {
     manejarError(res, error);

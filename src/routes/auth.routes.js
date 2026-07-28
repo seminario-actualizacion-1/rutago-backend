@@ -2,7 +2,8 @@ const express = require("express");
 const router = express.Router();
 const authController = require("../controllers/auth.controller");
 const authMiddleware = require("../middlewares/auth.middleware");
-const { validarLogin } = require("../middlewares/usuario.validator");
+const { validarSchema } = require("../middlewares/validator.middleware");
+const authSchema = require("../schemas/auth.schema");
 
 /**
  * @swagger
@@ -34,7 +35,7 @@ const { validarLogin } = require("../middlewares/usuario.validator");
  *       401:
  *         description: Credenciales incorrectas
  */
-router.post("/login", validarLogin, authController.login);
+router.post("/login", validarSchema(authSchema.login), authController.login);
 
 /**
  * @swagger
@@ -59,7 +60,11 @@ router.post("/login", validarLogin, authController.login);
  *       401:
  *         description: Refresh token inválido
  */
-router.post("/refresh", authController.refrescarToken);
+router.post(
+  "/refresh",
+  validarSchema(authSchema.refresh),
+  authController.refrescarToken,
+);
 
 /**
  * @swagger
@@ -75,6 +80,10 @@ router.post("/refresh", authController.refrescarToken);
  *       401:
  *         description: Token inválido
  */
-router.get("/verificar-token", authMiddleware.verificarToken, authController.verificarToken);
+router.get(
+  "/verificar-token",
+  authMiddleware.verificarToken,
+  authController.verificarToken,
+);
 
 module.exports = router;

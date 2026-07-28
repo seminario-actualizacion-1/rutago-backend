@@ -3,13 +3,8 @@ const router = express.Router();
 const rutaController = require("../controllers/ruta.controller");
 const authMiddleware = require("../middlewares/auth.middleware");
 const roleMiddleware = require("../middlewares/role.middleware");
-const {
-  validarPaginacion,
-} = require("../middlewares/paginacion.validator");
-const {
-  validarCrearRuta,
-  validarActualizarRuta,
-} = require("../middlewares/ruta.validator");
+const { validarSchema } = require("../middlewares/validator.middleware");
+const rutaSchema = require("../schemas/ruta.schema");
 
 /**
  * @swagger
@@ -55,8 +50,8 @@ const {
 router.get(
   "/",
   authMiddleware.verificarToken,
-  validarPaginacion,
-  rutaController.obtenerTodas
+  validarSchema(require("../schemas/paginacion.schema").paginacion, "query"),
+  rutaController.obtenerTodas,
 );
 
 /**
@@ -82,7 +77,11 @@ router.get(
  *       404:
  *         description: No se encontraron rutas
  */
-router.get("/destino/:destino", authMiddleware.verificarToken, rutaController.buscarPorDestino);
+router.get(
+  "/destino/:destino",
+  authMiddleware.verificarToken,
+  rutaController.buscarPorDestino,
+);
 
 /**
  * @swagger
@@ -157,8 +156,8 @@ router.post(
   "/",
   authMiddleware.verificarToken,
   roleMiddleware.esAdministrador,
-  validarCrearRuta,
-  rutaController.crearRuta
+  validarSchema(rutaSchema.crear),
+  rutaController.crearRuta,
 );
 
 /**
@@ -212,8 +211,8 @@ router.put(
   "/:id",
   authMiddleware.verificarToken,
   roleMiddleware.esAdministrador,
-  validarActualizarRuta,
-  rutaController.actualizarRuta
+  validarSchema(rutaSchema.actualizar),
+  rutaController.actualizarRuta,
 );
 
 /**
@@ -245,7 +244,7 @@ router.delete(
   "/:id",
   authMiddleware.verificarToken,
   roleMiddleware.esAdministrador,
-  rutaController.eliminarRuta
+  rutaController.eliminarRuta,
 );
 
 module.exports = router;

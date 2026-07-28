@@ -3,13 +3,8 @@ const router = express.Router();
 const horarioController = require("../controllers/horario.controller");
 const authMiddleware = require("../middlewares/auth.middleware");
 const roleMiddleware = require("../middlewares/role.middleware");
-const {
-  validarPaginacion,
-} = require("../middlewares/paginacion.validator");
-const {
-  validarCrearHorario,
-  validarActualizarHorario,
-} = require("../middlewares/horario.validator");
+const { validarSchema } = require("../middlewares/validator.middleware");
+const horarioSchema = require("../schemas/horario.schema");
 
 /**
  * @swagger
@@ -55,8 +50,8 @@ const {
 router.get(
   "/",
   authMiddleware.verificarToken,
-  validarPaginacion,
-  horarioController.obtenerTodos
+  validarSchema(require("../schemas/paginacion.schema").paginacion, "query"),
+  horarioController.obtenerTodos,
 );
 
 /**
@@ -82,7 +77,11 @@ router.get(
  *       404:
  *         description: Ruta no encontrada
  */
-router.get("/ruta/:rutaId", authMiddleware.verificarToken, horarioController.obtenerPorRuta);
+router.get(
+  "/ruta/:rutaId",
+  authMiddleware.verificarToken,
+  horarioController.obtenerPorRuta,
+);
 
 /**
  * @swagger
@@ -107,7 +106,11 @@ router.get("/ruta/:rutaId", authMiddleware.verificarToken, horarioController.obt
  *       404:
  *         description: Vehículo no encontrado
  */
-router.get("/vehiculo/:vehiculoId", authMiddleware.verificarToken, horarioController.obtenerPorVehiculo);
+router.get(
+  "/vehiculo/:vehiculoId",
+  authMiddleware.verificarToken,
+  horarioController.obtenerPorVehiculo,
+);
 
 /**
  * @swagger
@@ -132,7 +135,11 @@ router.get("/vehiculo/:vehiculoId", authMiddleware.verificarToken, horarioContro
  *       404:
  *         description: Horario no encontrado
  */
-router.get("/:id", authMiddleware.verificarToken, horarioController.obtenerPorId);
+router.get(
+  "/:id",
+  authMiddleware.verificarToken,
+  horarioController.obtenerPorId,
+);
 
 /**
  * @swagger
@@ -177,8 +184,8 @@ router.post(
   "/",
   authMiddleware.verificarToken,
   roleMiddleware.esAdministrador,
-  validarCrearHorario,
-  horarioController.crearHorario
+  validarSchema(horarioSchema.crear),
+  horarioController.crearHorario,
 );
 
 /**
@@ -228,8 +235,8 @@ router.put(
   "/:id",
   authMiddleware.verificarToken,
   roleMiddleware.esAdministrador,
-  validarActualizarHorario,
-  horarioController.actualizarHorario
+  validarSchema(horarioSchema.actualizar),
+  horarioController.actualizarHorario,
 );
 
 /**
@@ -261,7 +268,7 @@ router.delete(
   "/:id",
   authMiddleware.verificarToken,
   roleMiddleware.esAdministrador,
-  horarioController.eliminarHorario
+  horarioController.eliminarHorario,
 );
 
 module.exports = router;

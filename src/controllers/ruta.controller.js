@@ -23,7 +23,7 @@ exports.obtenerTodas = async (req, res) => {
     );
     res.json({
       success: true,
-      data: resultado.data.map(rutaDto.paraRespuesta),
+      data: resultado.data.map(rutaDto.RespuestaRutasDto),
       paginacion: resultado.paginacion,
     });
   } catch (error) {
@@ -34,7 +34,7 @@ exports.obtenerTodas = async (req, res) => {
 exports.obtenerPorId = async (req, res) => {
   try {
     const ruta = await rutaService.obtenerPorId(req.params.id);
-    res.json({ success: true, data: rutaDto.paraRespuesta(ruta) });
+    res.json({ success: true, data: rutaDto.RespuestaRutasDto(ruta) });
   } catch (error) {
     manejarError(res, error);
   }
@@ -42,14 +42,14 @@ exports.obtenerPorId = async (req, res) => {
 
 exports.crearRuta = async (req, res) => {
   try {
-    const datos = rutaDto.paraCrear(req.body);
+    const datos = req.body;
     const ruta = await rutaService.crearRuta(datos);
     res
       .status(201)
       .json({
         success: true,
         message: "Ruta creada",
-        data: rutaDto.paraRespuesta(ruta),
+        data: rutaDto.RespuestaRutasDto(ruta),
       });
   } catch (error) {
     if (error.message === "RUTA_YA_EXISTE") {
@@ -63,12 +63,12 @@ exports.crearRuta = async (req, res) => {
 
 exports.actualizarRuta = async (req, res) => {
   try {
-    const datos = rutaDto.paraActualizar(req.body);
+    const datos = req.body;
     const ruta = await rutaService.actualizarRuta(req.params.id, datos);
     res.json({
       success: true,
       message: "Ruta actualizada",
-      data: rutaDto.paraRespuesta(ruta),
+      data: rutaDto.RespuestaRutasDto(ruta),
     });
   } catch (error) {
     manejarError(res, error);
@@ -78,7 +78,7 @@ exports.actualizarRuta = async (req, res) => {
 exports.buscarPorDestino = async (req, res) => {
   try {
     const rutas = await rutaService.buscarPorDestino(req.params.destino);
-    res.json({ success: true, data: rutas.map(rutaDto.paraRespuesta) });
+    res.json({ success: true, data: rutas.map(rutaDto.RespuestaRutasDto) });
   } catch (error) {
     manejarError(res, error);
   }
