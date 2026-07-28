@@ -106,19 +106,18 @@ exports.obtenerPorId = async (id) => {
   return viaje;
 };
 
-exports.obtenerDisponibles = async (conductorId) => {
+exports.obtenerDisponibles = async (vehiculoId) => {
   const where = {
-    estadoId: { [Op.in]: [ESTADOS_VIAJE.BUSCANDO, ESTADOS_VIAJE.ACEPTADO] },
+    estadoId: ESTADOS_VIAJE.BUSCANDO,
+    conductorId: null,
   };
-  if (conductorId) {
-    where[Op.and] = [
-      {
-        [Op.or]: [
-          { conductorId: null },
-          { conductorId: { [Op.ne]: conductorId } },
-        ],
-      },
-    ];
+  if (vehiculoId) {
+    const horarios = await Horario.findAll({
+      attributes: ["id"],
+      where: { vehiculoId },
+      raw: true,
+    });
+    where.horarioId = { [Op.in]: horarios.map((h) => h.id) };
   }
   return await Viaje.findAll({
     where,
@@ -177,16 +176,30 @@ exports.obtenerPorIdSimple = async (id) => {
   return await Viaje.findByPk(id);
 };
 
-exports.obtenerPorConductorYHorario = async (conductorId, horarioId) => {
+exports.obtenerEnCursoPorPasajero = async (pasajeroId) => {
   return await Viaje.findOne({
-    where: {
-      conductorId,
-      horarioId,
-      estadoId: {
-        [Op.notIn]: [ESTADOS_VIAJE.FINALIZADO, ESTADOS_VIAJE.CANCELADO],
-      },
-    },
+    include: [{
+      model: ViajePasajero,
+      as: "pasajeros",
+      where: { pasajeroId },
+      required: true,
+      attributes: [],
+    }],
+    where: { estadoId: ESTADOS_VIAJE.EN_CURSO },
   });
+};
+
+exports.obtenerPorConductorYHorario = async (
+  conductorId,
+  horarioId,
+  excludeId,
+) => {
+  const where = { conductorId, horarioId };
+  where.estadoId = {
+    [Op.notIn]: [ESTADOS_VIAJE.FINALIZADO, ESTADOS_VIAJE.CANCELADO],
+  };
+  if (excludeId) where.id = { [Op.ne]: excludeId };
+  return await Viaje.findOne({ where });
 };
 
 exports.actualizarViaje = async (id, datos) => {

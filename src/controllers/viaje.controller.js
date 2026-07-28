@@ -2,6 +2,7 @@ const viajeService = require("../services/viaje.service");
 const viajeDto = require("../dtos/viaje.dto");
 
 const manejarError = (res, error) => {
+  console.error("[viaje]", error);
   if (error.message?.includes("_NO_ENCONTRADO")) {
     return res
       .status(404)
@@ -24,7 +25,7 @@ exports.obtenerTodos = async (req, res) => {
     );
     res.json({
       success: true,
-      data: resultado.data.map(viajeDto.paraRespuesta),
+      data: resultado.data.map(viajeDto.RespuestaViajesDto),
       paginacion: resultado.paginacion,
     });
   } catch (error) {
@@ -35,7 +36,7 @@ exports.obtenerTodos = async (req, res) => {
 exports.obtenerDisponibles = async (req, res) => {
   try {
     const viajes = await viajeService.obtenerDisponibles(req.usuario.id);
-    res.json({ success: true, data: viajes.map(viajeDto.paraRespuesta) });
+    res.json({ success: true, data: viajes.map(viajeDto.RespuestaViajesDto) });
   } catch (error) {
     manejarError(res, error);
   }
@@ -44,7 +45,7 @@ exports.obtenerDisponibles = async (req, res) => {
 exports.obtenerPorId = async (req, res) => {
   try {
     const viaje = await viajeService.obtenerPorId(req.params.id);
-    res.json({ success: true, data: viajeDto.paraRespuesta(viaje) });
+    res.json({ success: true, data: viajeDto.RespuestaViajesDto(viaje) });
   } catch (error) {
     manejarError(res, error);
   }
@@ -56,7 +57,7 @@ exports.obtenerMisViajes = async (req, res) => {
       req.usuario.id,
       req.usuario.rolId,
     );
-    res.json({ success: true, data: viajes.map(viajeDto.paraRespuesta) });
+    res.json({ success: true, data: viajes.map(viajeDto.RespuestaViajesDto) });
   } catch (error) {
     manejarError(res, error);
   }
@@ -64,19 +65,13 @@ exports.obtenerMisViajes = async (req, res) => {
 
 exports.crearViaje = async (req, res) => {
   try {
-    const datos = viajeDto.paraCrear(req.body);
-    datos.pasajeroId = req.usuario.id;
-    if (req.body.precioEstimado !== undefined)
-      datos.precioEstimado = req.body.precioEstimado;
-    if (req.body.conductorId !== undefined)
-      datos.conductorId = req.body.conductorId;
-    const viaje = await viajeService.crearViaje(datos);
+    const viaje = await viajeService.crearViaje({ ...req.body, pasajeroId: req.usuario.id });
     res
       .status(201)
       .json({
         success: true,
         message: "Viaje solicitado",
-        data: viajeDto.paraRespuesta(viaje),
+        data: viajeDto.RespuestaViajesDto(viaje),
       });
   } catch (error) {
     if (error.message === "PRECIO_INVALIDO") {
@@ -109,12 +104,12 @@ exports.crearViaje = async (req, res) => {
 
 exports.actualizarViaje = async (req, res) => {
   try {
-    const datos = viajeDto.paraActualizar(req.body);
+    const datos = req.body;
     const viaje = await viajeService.actualizarViaje(req.params.id, datos);
     res.json({
       success: true,
       message: "Viaje actualizado",
-      data: viajeDto.paraRespuesta(viaje),
+      data: viajeDto.RespuestaViajesDto(viaje),
     });
   } catch (error) {
     if (error.message === "VIAJE_NO_ENCONTRADO") {
@@ -156,7 +151,7 @@ exports.aceptarViaje = async (req, res) => {
     res.json({
       success: true,
       message: "Viaje aceptado",
-      data: viajeDto.paraRespuesta(viaje),
+      data: viajeDto.RespuestaViajesDto(viaje),
     });
   } catch (error) {
     if (error.message === "CONDUCTOR_OCUPADO_EN_HORARIO") {
@@ -177,7 +172,7 @@ exports.iniciarViaje = async (req, res) => {
     res.json({
       success: true,
       message: "Viaje iniciado",
-      data: viajeDto.paraRespuesta(viaje),
+      data: viajeDto.RespuestaViajesDto(viaje),
     });
   } catch (error) {
     manejarError(res, error);
@@ -190,7 +185,7 @@ exports.finalizarViaje = async (req, res) => {
     res.json({
       success: true,
       message: "Viaje finalizado",
-      data: viajeDto.paraRespuesta(viaje),
+      data: viajeDto.RespuestaViajesDto(viaje),
     });
   } catch (error) {
     manejarError(res, error);
@@ -203,7 +198,7 @@ exports.cancelarViaje = async (req, res) => {
     res.json({
       success: true,
       message: "Viaje cancelado",
-      data: viajeDto.paraRespuesta(viaje),
+      data: viajeDto.RespuestaViajesDto(viaje),
     });
   } catch (error) {
     manejarError(res, error);
@@ -215,7 +210,7 @@ exports.obtenerDisponiblesPasajero = async (req, res) => {
     const viajes = await viajeService.obtenerDisponiblesPasajero(
       req.usuario.id,
     );
-    res.json({ success: true, data: viajes.map(viajeDto.paraRespuesta) });
+    res.json({ success: true, data: viajes.map(viajeDto.RespuestaViajesDto) });
   } catch (error) {
     manejarError(res, error);
   }
@@ -230,7 +225,7 @@ exports.unirseAViaje = async (req, res) => {
     res.json({
       success: true,
       message: "Te has unido al viaje",
-      data: viajeDto.paraRespuesta(viaje),
+      data: viajeDto.RespuestaViajesDto(viaje),
     });
   } catch (error) {
     if (error.message === "VIAJE_NO_ENCONTRADO") {
@@ -272,7 +267,7 @@ exports.bajarseDeViaje = async (req, res) => {
     res.json({
       success: true,
       message: "Te has retirado del viaje",
-      data: viajeDto.paraRespuesta(viaje),
+      data: viajeDto.RespuestaViajesDto(viaje),
     });
   } catch (error) {
     if (error.message === "VIAJE_NO_ENCONTRADO") {

@@ -3,13 +3,8 @@ const router = express.Router();
 const perfilConductorController = require("../controllers/perfilconductor.controller");
 const authMiddleware = require("../middlewares/auth.middleware");
 const roleMiddleware = require("../middlewares/role.middleware");
-const {
-  validarPaginacion,
-} = require("../middlewares/paginacion.validator");
-const {
-  validarCrearPerfilConductor,
-  validarActualizarPerfilConductor,
-} = require("../middlewares/perfilconductor.validator");
+const { validarSchema } = require("../middlewares/validator.middleware");
+const perfilConductorSchema = require("../schemas/perfilconductor.schema");
 
 /**
  * @swagger
@@ -57,8 +52,8 @@ const {
 router.get(
   "/",
   authMiddleware.verificarToken,
-  validarPaginacion,
-  perfilConductorController.obtenerTodos
+  validarSchema(require("../schemas/paginacion.schema").paginacion, "query"),
+  perfilConductorController.obtenerTodos,
 );
 
 /**
@@ -119,7 +114,7 @@ router.put(
   "/me/perfil",
   authMiddleware.verificarToken,
   roleMiddleware.esConductor,
-  validarActualizarPerfilConductor,
+  validarSchema(perfilConductorSchema.actualizar),
   perfilConductorController.actualizarMiPerfil,
 );
 
@@ -148,7 +143,11 @@ router.put(
  *       404:
  *         description: Perfil no encontrado
  */
-router.get("/:id", authMiddleware.verificarToken, perfilConductorController.obtenerPorId);
+router.get(
+  "/:id",
+  authMiddleware.verificarToken,
+  perfilConductorController.obtenerPorId,
+);
 
 /**
  * @swagger
@@ -185,7 +184,7 @@ router.post(
   "/",
   authMiddleware.verificarToken,
   roleMiddleware.esAdministrador,
-  validarCrearPerfilConductor,
+  validarSchema(perfilConductorSchema.crear),
   perfilConductorController.crearPerfil,
 );
 
@@ -233,7 +232,7 @@ router.put(
   "/:id",
   authMiddleware.verificarToken,
   roleMiddleware.esAdministrador,
-  validarActualizarPerfilConductor,
+  validarSchema(perfilConductorSchema.actualizar),
   perfilConductorController.actualizarPerfil,
 );
 
@@ -279,6 +278,7 @@ router.patch(
   "/:id/estado",
   authMiddleware.verificarToken,
   roleMiddleware.esConductor,
+  validarSchema(perfilConductorSchema.cambiarEstado),
   perfilConductorController.cambiarEstado,
 );
 
@@ -324,6 +324,7 @@ router.post(
   "/crear-usuario",
   authMiddleware.verificarToken,
   roleMiddleware.esAdministrador,
+  validarSchema(perfilConductorSchema.crearConUsuario),
   perfilConductorController.crearConUsuario,
 );
 

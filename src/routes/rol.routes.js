@@ -8,21 +8,18 @@ const roleMiddleware = require("../middlewares/role.middleware");
  * @swagger
  * /api/roles:
  *   get:
- *     summary: Obtiene todos los roles (solo admin)
+ *     summary: Obtiene todos los roles
  *     tags: [Roles]
  *     responses:
  *       '200':
  *         description: Lista de roles del sistema
  *       '401':
  *         description: Token inválido o faltante
- *       '403':
- *         description: No tiene rol administrador
  */
 router.get(
   "/",
   authMiddleware.verificarToken,
-  roleMiddleware.esAdministrador,
-  rolController.obtenerTodos
+  rolController.obtenerTodos,
 );
 
 /**
@@ -51,7 +48,7 @@ router.get(
   "/:id",
   authMiddleware.verificarToken,
   roleMiddleware.esAdministrador,
-  rolController.obtenerPorId
+  rolController.obtenerPorId,
 );
 
 module.exports = router;

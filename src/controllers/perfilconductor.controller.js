@@ -32,7 +32,7 @@ exports.obtenerTodos = async (req, res) => {
     );
     res.json({
       success: true,
-      data: resultado.data.map(perfilConductorDto.paraRespuesta),
+      data: resultado.data.map(perfilConductorDto.RespuestaConductoresDto),
       paginacion: resultado.paginacion,
     });
   } catch (error) {
@@ -43,7 +43,7 @@ exports.obtenerTodos = async (req, res) => {
 exports.obtenerPorId = async (req, res) => {
   try {
     const perfil = await perfilConductorService.obtenerPorId(req.params.id);
-    res.json({ success: true, data: perfilConductorDto.paraRespuesta(perfil) });
+    res.json({ success: true, data: perfilConductorDto.RespuestaConductoresDto(perfil) });
   } catch (error) {
     manejarError(res, error);
   }
@@ -54,7 +54,7 @@ exports.obtenerMiPerfil = async (req, res) => {
     const perfil = await perfilConductorService.obtenerPorUsuario(
       req.usuario.id,
     );
-    res.json({ success: true, data: perfilConductorDto.paraRespuesta(perfil) });
+    res.json({ success: true, data: perfilConductorDto.RespuestaConductoresDto(perfil) });
   } catch (error) {
     if (error.message === "PERFIL_CONDUCTOR_NO_ENCONTRADO") {
       return res
@@ -67,12 +67,12 @@ exports.obtenerMiPerfil = async (req, res) => {
 
 exports.crearPerfil = async (req, res) => {
   try {
-    const datos = perfilConductorDto.paraCrear(req.body);
+    const datos = req.body;
     const perfil = await perfilConductorService.crearPerfil(datos);
     res.status(201).json({
       success: true,
       message: "Perfil de conductor creado",
-      data: perfilConductorDto.paraRespuesta(perfil),
+      data: perfilConductorDto.RespuestaConductoresDto(perfil),
     });
   } catch (error) {
     manejarError(res, error);
@@ -81,7 +81,7 @@ exports.crearPerfil = async (req, res) => {
 
 exports.actualizarPerfil = async (req, res) => {
   try {
-    const datos = perfilConductorDto.paraActualizar(req.body);
+    const datos = req.body;
     const perfil = await perfilConductorService.actualizarPerfil(
       req.params.id,
       datos,
@@ -89,7 +89,7 @@ exports.actualizarPerfil = async (req, res) => {
     res.json({
       success: true,
       message: "Perfil actualizado",
-      data: perfilConductorDto.paraRespuesta(perfil),
+      data: perfilConductorDto.RespuestaConductoresDto(perfil),
     });
   } catch (error) {
     manejarError(res, error);
@@ -98,7 +98,7 @@ exports.actualizarPerfil = async (req, res) => {
 
 exports.actualizarMiPerfil = async (req, res) => {
   try {
-    const datos = perfilConductorDto.paraActualizar(req.body);
+    const datos = req.body;
     const perfil = await perfilConductorService.actualizarMiPerfil(
       req.usuario.id,
       datos,
@@ -106,7 +106,7 @@ exports.actualizarMiPerfil = async (req, res) => {
     res.json({
       success: true,
       message: "Perfil de conductor actualizado",
-      data: perfilConductorDto.paraRespuesta(perfil),
+      data: perfilConductorDto.RespuestaConductoresDto(perfil),
     });
   } catch (error) {
     manejarError(res, error);
@@ -128,25 +128,11 @@ exports.cambiarEstado = async (req, res) => {
 
 exports.crearConUsuario = async (req, res) => {
   try {
-    const datos = perfilConductorDto.paraCrearConUsuario(req.body);
-    if (
-      !datos.datosUsuario.nombres ||
-      !datos.datosUsuario.apellidos ||
-      !datos.datosUsuario.correo ||
-      !datos.datosUsuario.contrasena
-    ) {
-      return res
-        .status(400)
-        .json({
-          success: false,
-          message: "Todos los campos del usuario son obligatorios.",
-        });
-    }
-    const resultado = await perfilConductorService.crearConUsuario(datos);
+    const resultado = await perfilConductorService.crearConUsuario(req.body);
     res.status(201).json({
       success: true,
       message: "Conductor creado exitosamente",
-      data: perfilConductorDto.paraRespuesta(resultado.perfil),
+      data: perfilConductorDto.RespuestaConductoresDto(resultado.perfil),
     });
   } catch (error) {
     if (error.message === "EL_CORREO_YA_EXISTE") {

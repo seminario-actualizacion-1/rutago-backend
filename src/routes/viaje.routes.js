@@ -3,12 +3,8 @@ const router = express.Router();
 const viajeController = require("../controllers/viaje.controller");
 const authMiddleware = require("../middlewares/auth.middleware");
 const roleMiddleware = require("../middlewares/role.middleware");
-const {
-  validarPaginacion,
-} = require("../middlewares/paginacion.validator");
-const {
-  validarCrearViaje,
-} = require("../middlewares/viaje.validator");
+const { validarSchema } = require("../middlewares/validator.middleware");
+const viajeSchema = require("../schemas/viaje.schema");
 
 /**
  * @swagger
@@ -57,15 +53,15 @@ router.get(
   "/",
   authMiddleware.verificarToken,
   roleMiddleware.esAdministrador,
-  validarPaginacion,
-  viajeController.obtenerTodos
+  validarSchema(require("../schemas/paginacion.schema").paginacion, "query"),
+  viajeController.obtenerTodos,
 );
 
 /**
  * @swagger
  * /api/viajes:
  *   post:
- *     summary: Crear un nuevo viaje
+ *     summary: Crear un nuevo viaje (admin)
  *     tags: [Viajes]
  *     security:
  *       - bearerAuth: []
@@ -95,9 +91,8 @@ router.get(
 router.post(
   "/",
   authMiddleware.verificarToken,
-  roleMiddleware.esPasajero,
-  validarCrearViaje,
-  viajeController.crearViaje
+  validarSchema(viajeSchema.crear),
+  viajeController.crearViaje,
 );
 
 /**
@@ -117,7 +112,7 @@ router.post(
 router.get(
   "/me/mis-viajes",
   authMiddleware.verificarToken,
-  viajeController.obtenerMisViajes
+  viajeController.obtenerMisViajes,
 );
 
 /**
@@ -163,7 +158,7 @@ router.get(
   "/disponibles",
   authMiddleware.verificarToken,
   roleMiddleware.esConductor,
-  viajeController.obtenerDisponibles
+  viajeController.obtenerDisponibles,
 );
 
 /**
@@ -186,7 +181,7 @@ router.get(
   "/disponibles-pasajero",
   authMiddleware.verificarToken,
   roleMiddleware.esPasajero,
-  viajeController.obtenerDisponiblesPasajero
+  viajeController.obtenerDisponiblesPasajero,
 );
 
 router.get("/:id", authMiddleware.verificarToken, viajeController.obtenerPorId);
@@ -235,7 +230,12 @@ router.get("/:id", authMiddleware.verificarToken, viajeController.obtenerPorId);
  *       404:
  *         description: Viaje no encontrado
  */
-router.put("/:id", authMiddleware.verificarToken, roleMiddleware.esAdministrador, viajeController.actualizarViaje);
+router.put(
+  "/:id",
+  authMiddleware.verificarToken,
+  roleMiddleware.esAdministrador,
+  viajeController.actualizarViaje,
+);
 
 /**
  * @swagger
@@ -262,7 +262,12 @@ router.put("/:id", authMiddleware.verificarToken, roleMiddleware.esAdministrador
  *       404:
  *         description: Viaje no encontrado
  */
-router.delete("/:id", authMiddleware.verificarToken, roleMiddleware.esAdministrador, viajeController.eliminarViaje);
+router.delete(
+  "/:id",
+  authMiddleware.verificarToken,
+  roleMiddleware.esAdministrador,
+  viajeController.eliminarViaje,
+);
 
 /**
  * @swagger
@@ -293,7 +298,7 @@ router.patch(
   "/:id/aceptar",
   authMiddleware.verificarToken,
   roleMiddleware.esConductor,
-  viajeController.aceptarViaje
+  viajeController.aceptarViaje,
 );
 
 /**
@@ -325,7 +330,7 @@ router.patch(
   "/:id/iniciar",
   authMiddleware.verificarToken,
   roleMiddleware.esConductorOAdmin,
-  viajeController.iniciarViaje
+  viajeController.iniciarViaje,
 );
 
 /**
@@ -357,7 +362,7 @@ router.patch(
   "/:id/finalizar",
   authMiddleware.verificarToken,
   roleMiddleware.esConductorOAdmin,
-  viajeController.finalizarViaje
+  viajeController.finalizarViaje,
 );
 
 /**
@@ -389,7 +394,7 @@ router.patch(
   "/:id/cancelar",
   authMiddleware.verificarToken,
   roleMiddleware.esPasajeroOConductorOAdmin,
-  viajeController.cancelarViaje
+  viajeController.cancelarViaje,
 );
 
 /**
@@ -423,7 +428,7 @@ router.post(
   "/:id/unirse",
   authMiddleware.verificarToken,
   roleMiddleware.esPasajero,
-  viajeController.unirseAViaje
+  viajeController.unirseAViaje,
 );
 
 /**
@@ -455,7 +460,7 @@ router.delete(
   "/:id/bajarse",
   authMiddleware.verificarToken,
   roleMiddleware.esPasajero,
-  viajeController.bajarseDeViaje
+  viajeController.bajarseDeViaje,
 );
 
 module.exports = router;

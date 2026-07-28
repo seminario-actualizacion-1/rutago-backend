@@ -3,13 +3,8 @@ const router = express.Router();
 const perfilEntidadController = require("../controllers/perfilentidad.controller");
 const authMiddleware = require("../middlewares/auth.middleware");
 const roleMiddleware = require("../middlewares/role.middleware");
-const {
-  validarPaginacion,
-} = require("../middlewares/paginacion.validator");
-const {
-  validarCrearEntidad,
-  validarActualizarEntidad,
-} = require("../middlewares/perfilentidad.validator");
+const { validarSchema } = require("../middlewares/validator.middleware");
+const perfilEntidadSchema = require("../schemas/perfilentidad.schema");
 
 /**
  * @swagger
@@ -58,8 +53,8 @@ router.get(
   "/",
   authMiddleware.verificarToken,
   roleMiddleware.esAdministrador,
-  validarPaginacion,
-  perfilEntidadController.obtenerTodos
+  validarSchema(require("../schemas/paginacion.schema").paginacion, "query"),
+  perfilEntidadController.obtenerTodos,
 );
 
 /**
@@ -122,7 +117,7 @@ router.put(
   "/me/perfil",
   authMiddleware.verificarToken,
   roleMiddleware.esEntidad,
-  validarActualizarEntidad,
+  validarSchema(perfilEntidadSchema.actualizar),
   perfilEntidadController.actualizarMiEntidad,
 );
 
@@ -195,7 +190,7 @@ router.post(
   "/",
   authMiddleware.verificarToken,
   roleMiddleware.esAdministrador,
-  validarCrearEntidad,
+  validarSchema(perfilEntidadSchema.crear),
   perfilEntidadController.crearEntidad,
 );
 
@@ -245,7 +240,7 @@ router.put(
   "/:id",
   authMiddleware.verificarToken,
   roleMiddleware.esAdministrador,
-  validarActualizarEntidad,
+  validarSchema(perfilEntidadSchema.actualizar),
   perfilEntidadController.actualizarEntidad,
 );
 
@@ -330,6 +325,7 @@ router.post(
   "/crear-usuario",
   authMiddleware.verificarToken,
   roleMiddleware.esAdministrador,
+  validarSchema(perfilEntidadSchema.crearConUsuario),
   perfilEntidadController.crearConUsuario,
 );
 

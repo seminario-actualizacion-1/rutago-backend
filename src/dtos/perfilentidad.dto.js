@@ -1,36 +1,5 @@
-exports.paraCrear = (data) => ({
-  usuarioId: data.usuarioId ? parseInt(data.usuarioId, 10) : undefined,
-  razonSocial: data.razonSocial?.trim(),
-  nit: data.nit?.trim(),
-  telefonoContacto: data.telefonoContacto?.trim(),
-});
 
-exports.paraActualizar = (data) => {
-  const dto = {};
-  if (data.usuarioId) dto.usuarioId = parseInt(data.usuarioId, 10);
-  if (data.razonSocial && data.razonSocial.trim())
-    dto.razonSocial = data.razonSocial.trim();
-  if (data.nit && data.nit.trim()) dto.nit = data.nit.trim();
-  if (data.telefonoContacto && data.telefonoContacto.trim())
-    dto.telefonoContacto = data.telefonoContacto.trim();
-  return dto;
-};
-
-exports.paraCrearConUsuario = (data) => ({
-  datosUsuario: {
-    nombres: data.nombres?.trim(),
-    apellidos: data.apellidos?.trim(),
-    correo: data.correo?.trim().toLowerCase(),
-    contrasena: data.contrasena,
-  },
-  datosPerfil: {
-    razonSocial: data.razonSocial?.trim(),
-    nit: data.nit?.trim(),
-    telefonoContacto: data.telefonoContacto?.trim(),
-  },
-});
-
-exports.paraRespuesta = (model) => {
+exports.RespuestaEntidadesDto = (model) => {
   if (!model) return null;
   return {
     id: model.id,

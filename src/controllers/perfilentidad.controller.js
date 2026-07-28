@@ -23,7 +23,7 @@ exports.obtenerTodos = async (req, res) => {
     );
     res.json({
       success: true,
-      data: resultado.data.map(perfilEntidadDto.paraRespuesta),
+      data: resultado.data.map(perfilEntidadDto.RespuestaEntidadesDto),
       paginacion: resultado.paginacion,
     });
   } catch (error) {
@@ -34,7 +34,7 @@ exports.obtenerTodos = async (req, res) => {
 exports.obtenerPorId = async (req, res) => {
   try {
     const entidad = await perfilEntidadService.obtenerPorId(req.params.id);
-    res.json({ success: true, data: perfilEntidadDto.paraRespuesta(entidad) });
+    res.json({ success: true, data: perfilEntidadDto.RespuestaEntidadesDto(entidad) });
   } catch (error) {
     manejarError(res, error);
   }
@@ -45,7 +45,7 @@ exports.obtenerMiEntidad = async (req, res) => {
     const entidad = await perfilEntidadService.obtenerPorUsuario(
       req.usuario.id,
     );
-    res.json({ success: true, data: perfilEntidadDto.paraRespuesta(entidad) });
+    res.json({ success: true, data: perfilEntidadDto.RespuestaEntidadesDto(entidad) });
   } catch (error) {
     if (error.message === "ENTIDAD_NO_ENCONTRADA") {
       return res
@@ -58,12 +58,12 @@ exports.obtenerMiEntidad = async (req, res) => {
 
 exports.crearEntidad = async (req, res) => {
   try {
-    const datos = perfilEntidadDto.paraCrear(req.body);
+    const datos = req.body;
     const entidad = await perfilEntidadService.crearEntidad(datos);
     res.status(201).json({
       success: true,
       message: "Perfil de entidad creado",
-      data: perfilEntidadDto.paraRespuesta(entidad),
+      data: perfilEntidadDto.RespuestaEntidadesDto(entidad),
     });
   } catch (error) {
     manejarError(res, error);
@@ -72,7 +72,7 @@ exports.crearEntidad = async (req, res) => {
 
 exports.actualizarEntidad = async (req, res) => {
   try {
-    const datos = perfilEntidadDto.paraActualizar(req.body);
+    const datos = req.body;
     const entidad = await perfilEntidadService.actualizarEntidad(
       req.params.id,
       datos,
@@ -80,7 +80,7 @@ exports.actualizarEntidad = async (req, res) => {
     res.json({
       success: true,
       message: "Perfil actualizado",
-      data: perfilEntidadDto.paraRespuesta(entidad),
+      data: perfilEntidadDto.RespuestaEntidadesDto(entidad),
     });
   } catch (error) {
     manejarError(res, error);
@@ -89,7 +89,7 @@ exports.actualizarEntidad = async (req, res) => {
 
 exports.actualizarMiEntidad = async (req, res) => {
   try {
-    const datos = perfilEntidadDto.paraActualizar(req.body);
+    const datos = req.body;
     const entidad = await perfilEntidadService.actualizarMiEntidad(
       req.usuario.id,
       datos,
@@ -97,7 +97,7 @@ exports.actualizarMiEntidad = async (req, res) => {
     res.json({
       success: true,
       message: "Perfil de entidad actualizado",
-      data: perfilEntidadDto.paraRespuesta(entidad),
+      data: perfilEntidadDto.RespuestaEntidadesDto(entidad),
     });
   } catch (error) {
     manejarError(res, error);
@@ -106,25 +106,11 @@ exports.actualizarMiEntidad = async (req, res) => {
 
 exports.crearConUsuario = async (req, res) => {
   try {
-    const datos = perfilEntidadDto.paraCrearConUsuario(req.body);
-    if (
-      !datos.datosUsuario.nombres ||
-      !datos.datosUsuario.apellidos ||
-      !datos.datosUsuario.correo ||
-      !datos.datosUsuario.contrasena
-    ) {
-      return res
-        .status(400)
-        .json({
-          success: false,
-          message: "Todos los campos del usuario son obligatorios.",
-        });
-    }
-    const resultado = await perfilEntidadService.crearConUsuario(datos);
+    const resultado = await perfilEntidadService.crearConUsuario(req.body);
     res.status(201).json({
       success: true,
       message: "Entidad creada exitosamente",
-      data: perfilEntidadDto.paraRespuesta(resultado.perfil),
+      data: perfilEntidadDto.RespuestaEntidadesDto(resultado.perfil),
     });
   } catch (error) {
     if (error.message === "EL_CORREO_YA_EXISTE") {

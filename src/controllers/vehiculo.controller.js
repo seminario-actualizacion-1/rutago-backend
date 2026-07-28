@@ -27,7 +27,7 @@ exports.obtenerTodos = async (req, res) => {
     );
     res.json({
       success: true,
-      data: resultado.data.map(vehiculoDto.paraRespuesta),
+      data: resultado.data.map(vehiculoDto.RespuestaVehiculosDto),
       paginacion: resultado.paginacion,
     });
   } catch (error) {
@@ -38,7 +38,7 @@ exports.obtenerTodos = async (req, res) => {
 exports.obtenerPorId = async (req, res) => {
   try {
     const vehiculo = await vehiculoService.obtenerPorId(req.params.id);
-    res.json({ success: true, data: vehiculoDto.paraRespuesta(vehiculo) });
+    res.json({ success: true, data: vehiculoDto.RespuestaVehiculosDto(vehiculo) });
   } catch (error) {
     manejarError(res, error);
   }
@@ -60,10 +60,9 @@ exports.obtenerUbicacion = async (req, res) => {
 
 exports.actualizarUbicacion = async (req, res) => {
   try {
-    const datos = vehiculoDto.paraActualizarUbicacion(req.body);
     const vehiculo = await vehiculoService.actualizarUbicacion(
       req.params.id,
-      datos,
+      req.body,
     );
     res.json({
       success: true,
@@ -77,7 +76,7 @@ exports.actualizarUbicacion = async (req, res) => {
 
 exports.crearVehiculo = async (req, res) => {
   try {
-    const datos = vehiculoDto.paraCrear(req.body);
+    const datos = req.body;
     if (req.usuario.rolId === ROLES.ENTIDAD) {
       const entidad = await perfilEntidadRepository.obtenerPorUsuario(
         req.usuario.id,
@@ -95,7 +94,7 @@ exports.crearVehiculo = async (req, res) => {
       .json({
         success: true,
         message: "Vehículo creado",
-        data: vehiculoDto.paraRespuesta(vehiculo),
+        data: vehiculoDto.RespuestaVehiculosDto(vehiculo),
       });
   } catch (error) {
     manejarError(res, error);
@@ -123,7 +122,7 @@ exports.actualizarVehiculo = async (req, res) => {
           });
       }
     }
-    const datos = vehiculoDto.paraActualizar(req.body);
+    const datos = req.body;
     const vehiculo = await vehiculoService.actualizarVehiculo(
       req.params.id,
       datos,
@@ -131,7 +130,7 @@ exports.actualizarVehiculo = async (req, res) => {
     res.json({
       success: true,
       message: "Vehículo actualizado",
-      data: vehiculoDto.paraRespuesta(vehiculo),
+      data: vehiculoDto.RespuestaVehiculosDto(vehiculo),
     });
   } catch (error) {
     manejarError(res, error);

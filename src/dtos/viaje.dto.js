@@ -1,34 +1,3 @@
-exports.paraCrear = (data) => ({
-  rutaId: data.rutaId ? parseInt(data.rutaId, 10) : undefined,
-  horarioId: data.horarioId ? parseInt(data.horarioId, 10) : undefined,
-  precioEstimado:
-    data.precioEstimado !== undefined && data.precioEstimado !== null
-      ? parseFloat(data.precioEstimado)
-      : undefined,
-});
-
-exports.paraActualizar = (data) => {
-  const actualizado = {};
-  if (data.rutaId !== undefined) actualizado.rutaId = parseInt(data.rutaId, 10);
-  if (data.horarioId !== undefined)
-    actualizado.horarioId = data.horarioId
-      ? parseInt(data.horarioId, 10)
-      : null;
-  if (data.conductorId !== undefined)
-    actualizado.conductorId = data.conductorId
-      ? parseInt(data.conductorId, 10)
-      : null;
-  if (data.precioEstimado !== undefined) {
-    actualizado.precioEstimado =
-      data.precioEstimado !== null && data.precioEstimado !== ""
-        ? parseFloat(data.precioEstimado)
-        : null;
-  }
-  if (data.estadoId !== undefined)
-    actualizado.estadoId = parseInt(data.estadoId, 10);
-  return actualizado;
-};
-
 const usuarioParaRespuesta = (u) =>
   u
     ? {
@@ -42,7 +11,7 @@ const usuarioParaRespuesta = (u) =>
       }
     : undefined;
 
-exports.paraRespuesta = (model) => {
+exports.RespuestaViajesDto = (model) => {
   if (!model) return null;
   return {
     id: model.id,
@@ -72,6 +41,7 @@ exports.paraRespuesta = (model) => {
           id: model.horario.id,
           horaSalida: model.horario.horaSalida,
           frecuenciaMinutos: model.horario.frecuenciaMinutos,
+          vehiculoPlaca: model.horario.vehiculo?.placa || null,
           capacidadPasajeros:
             model.horario.vehiculo?.capacidadPasajeros || null,
         }

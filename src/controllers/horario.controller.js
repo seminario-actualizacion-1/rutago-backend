@@ -2,6 +2,7 @@ const horarioService = require("../services/horario.service");
 const horarioDto = require("../dtos/horario.dto");
 
 const manejarError = (res, error) => {
+  console.error("[horario]", error);
   if (error.message?.includes("_NO_ENCONTRADO")) {
     return res
       .status(404)
@@ -23,7 +24,7 @@ exports.obtenerTodos = async (req, res) => {
     );
     res.json({
       success: true,
-      data: resultado.data.map(horarioDto.paraRespuesta),
+      data: resultado.data.map(horarioDto.RespuestaHorariosDto),
       paginacion: resultado.paginacion,
     });
   } catch (error) {
@@ -34,7 +35,7 @@ exports.obtenerTodos = async (req, res) => {
 exports.obtenerPorRuta = async (req, res) => {
   try {
     const horarios = await horarioService.obtenerPorRuta(req.params.rutaId);
-    res.json({ success: true, data: horarios.map(horarioDto.paraRespuesta) });
+    res.json({ success: true, data: horarios.map(horarioDto.RespuestaHorariosDto) });
   } catch (error) {
     manejarError(res, error);
   }
@@ -45,7 +46,7 @@ exports.obtenerPorVehiculo = async (req, res) => {
     const horarios = await horarioService.obtenerPorVehiculo(
       req.params.vehiculoId,
     );
-    res.json({ success: true, data: horarios.map(horarioDto.paraRespuesta) });
+    res.json({ success: true, data: horarios.map(horarioDto.RespuestaHorariosDto) });
   } catch (error) {
     manejarError(res, error);
   }
@@ -54,7 +55,7 @@ exports.obtenerPorVehiculo = async (req, res) => {
 exports.obtenerPorId = async (req, res) => {
   try {
     const horario = await horarioService.obtenerPorId(req.params.id);
-    res.json({ success: true, data: horarioDto.paraRespuesta(horario) });
+    res.json({ success: true, data: horarioDto.RespuestaHorariosDto(horario) });
   } catch (error) {
     manejarError(res, error);
   }
@@ -62,14 +63,14 @@ exports.obtenerPorId = async (req, res) => {
 
 exports.crearHorario = async (req, res) => {
   try {
-    const datos = horarioDto.paraCrear(req.body);
+    const datos = req.body;
     const horario = await horarioService.crearHorario(datos);
     res
       .status(201)
       .json({
         success: true,
         message: "Horario creado",
-        data: horarioDto.paraRespuesta(horario),
+        data: horarioDto.RespuestaHorariosDto(horario),
       });
   } catch (error) {
     if (error.message === "HORARIO_YA_EXISTE") {
@@ -86,7 +87,7 @@ exports.crearHorario = async (req, res) => {
 
 exports.actualizarHorario = async (req, res) => {
   try {
-    const datos = horarioDto.paraActualizar(req.body);
+    const datos = req.body;
     const horario = await horarioService.actualizarHorario(
       req.params.id,
       datos,
@@ -94,7 +95,7 @@ exports.actualizarHorario = async (req, res) => {
     res.json({
       success: true,
       message: "Horario actualizado",
-      data: horarioDto.paraRespuesta(horario),
+      data: horarioDto.RespuestaHorariosDto(horario),
     });
   } catch (error) {
     manejarError(res, error);

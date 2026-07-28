@@ -12,15 +12,7 @@ const manejarError = (res, error) => {
 
 exports.registrarUsuario = async (req, res) => {
   try {
-    const datos = usuarioDto.paraCrear(req.body);
-
-    if (!datos.nombres || !datos.apellidos || !datos.correo || !datos.contrasena) {
-      return res.status(400).json({
-        success: false,
-        message: "Todos los campos son obligatorios.",
-      });
-    }
-
+    const datos = req.body;
     if (!datos.rolId) datos.rolId = ROLES.PASAJERO;
 
     const nuevoUsuario = await usuarioService.crearUsuario(datos);
@@ -104,7 +96,7 @@ exports.obtenerTodos = async (req, res) => {
       sortBy,
       sortOrder
     );
-    res.json({ success: true, data: resultado.data.map(usuarioDto.paraRespuesta), paginacion: resultado.paginacion });
+    res.json({ success: true, data: resultado.data.map(usuarioDto.RespuestaUsuariosDto), paginacion: resultado.paginacion });
   } catch (error) {
     manejarError(res, error);
   }
@@ -113,7 +105,7 @@ exports.obtenerTodos = async (req, res) => {
 exports.obtenerPorId = async (req, res) => {
   try {
     const usuario = await usuarioService.obtenerPorId(req.params.id);
-    res.json({ success: true, data: usuarioDto.paraRespuesta(usuario) });
+    res.json({ success: true, data: usuarioDto.RespuestaUsuariosDto(usuario) });
   } catch (error) {
     manejarError(res, error);
   }
@@ -127,7 +119,7 @@ exports.obtenerMiPerfil = async (req, res) => {
         .json({ success: false, message: "Usuario no autenticado" });
     }
     const usuario = await usuarioService.obtenerMiPerfil(req.usuario.id);
-    res.json({ success: true, data: usuarioDto.paraRespuesta(usuario) });
+    res.json({ success: true, data: usuarioDto.RespuestaUsuariosDto(usuario) });
   } catch (error) {
     manejarError(res, error);
   }
@@ -135,9 +127,8 @@ exports.obtenerMiPerfil = async (req, res) => {
 
 exports.actualizarMiPerfil = async (req, res) => {
   try {
-    const datos = usuarioDto.paraActualizar(req.body);
-    const usuario = await usuarioService.actualizarDatos(req.usuario.id, datos);
-    res.json({ success: true, message: "Perfil actualizado", data: usuarioDto.paraRespuesta(usuario) });
+    const usuario = await usuarioService.actualizarDatos(req.usuario.id, req.body);
+    res.json({ success: true, message: "Perfil actualizado", data: usuarioDto.RespuestaUsuariosDto(usuario) });
   } catch (error) {
     manejarError(res, error);
   }
@@ -145,9 +136,8 @@ exports.actualizarMiPerfil = async (req, res) => {
 
 exports.actualizarUsuario = async (req, res) => {
   try {
-    const datos = usuarioDto.paraActualizar(req.body);
-    const usuario = await usuarioService.actualizarDatos(req.params.id, datos);
-    res.json({ success: true, message: "Usuario actualizado", data: usuarioDto.paraRespuesta(usuario) });
+    const usuario = await usuarioService.actualizarDatos(req.params.id, req.body);
+    res.json({ success: true, message: "Usuario actualizado", data: usuarioDto.RespuestaUsuariosDto(usuario) });
   } catch (error) {
     manejarError(res, error);
   }
@@ -155,8 +145,7 @@ exports.actualizarUsuario = async (req, res) => {
 
 exports.cambiarRol = async (req, res) => {
   try {
-    const { rolId } = req.body;
-    const usuario = await usuarioService.actualizarRol(req.params.id, rolId);
+    const usuario = await usuarioService.actualizarRol(req.params.id, req.body.rolId);
     res.json({ success: true, message: "Rol actualizado", data: usuario });
   } catch (error) {
     manejarError(res, error);
