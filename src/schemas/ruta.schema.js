@@ -28,6 +28,7 @@ const crear = z.object({
     .int()
     .positive("El tiempo estimado debe ser un número entero positivo")
     .optional(),
+  rutaGeometria: z.string().optional(),
 });
 
 const actualizar = z.object({
@@ -37,6 +38,7 @@ const actualizar = z.object({
   descripcion: z.string().trim().max(500).optional(),
   distanciaKm: z.coerce.number().positive().optional(),
   tiempoEstimadoMinutos: z.coerce.number().int().positive().optional(),
+  rutaGeometria: z.string().optional(),
 });
 
 module.exports = { crear, actualizar };
