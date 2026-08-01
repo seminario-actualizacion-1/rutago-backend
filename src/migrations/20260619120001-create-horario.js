@@ -1,5 +1,5 @@
 "use strict";
-
+/** @type {import('sequelize-cli').Migration} */
 module.exports = {
   async up(queryInterface, Sequelize) {
     await queryInterface.createTable("Horarios", {
@@ -8,16 +8,6 @@ module.exports = {
         autoIncrement: true,
         primaryKey: true,
         type: Sequelize.INTEGER,
-      },
-      vehiculoId: {
-        type: Sequelize.INTEGER,
-        allowNull: false,
-        references: {
-          model: "Vehiculos",
-          key: "id",
-        },
-        onUpdate: "CASCADE",
-        onDelete: "CASCADE",
       },
       rutaId: {
         type: Sequelize.INTEGER,
@@ -38,6 +28,12 @@ module.exports = {
       },
       diasSemana: {
         type: Sequelize.STRING,
+      },
+      fechaInicio: {
+        type: Sequelize.DATEONLY,
+      },
+      fechaFin: {
+        type: Sequelize.DATEONLY,
       },
       createdAt: {
         allowNull: false,

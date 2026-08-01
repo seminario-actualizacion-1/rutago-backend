@@ -1,57 +1,67 @@
 "use strict";
-
+/** @type {import('sequelize-cli').Migration} */
 module.exports = {
   async up(queryInterface, Sequelize) {
     await queryInterface.createTable("EstadosConductor", {
-      id: { allowNull: false, autoIncrement: true, primaryKey: true, type: Sequelize.INTEGER },
+      id: {
+        allowNull: false,
+        autoIncrement: true,
+        primaryKey: true,
+        type: Sequelize.INTEGER,
+      },
       nombre: { type: Sequelize.STRING(30), allowNull: false, unique: true },
       descripcion: { type: Sequelize.STRING(100), allowNull: true },
       createdAt: { allowNull: false, type: Sequelize.DATE },
       updatedAt: { allowNull: false, type: Sequelize.DATE },
     });
 
-    await queryInterface.sequelize.query(`
-      INSERT IGNORE INTO EstadosConductor (id, nombre, descripcion, createdAt, updatedAt) VALUES
-      (1, 'DISPONIBLE', 'Conductor disponible para asignar viajes', NOW(), NOW()),
-      (2, 'EN_VIAJE', 'Conductor realizando un viaje', NOW(), NOW()),
-      (3, 'INACTIVO', 'Conductor inactivo', NOW(), NOW())
-    `);
-
-    const table = await queryInterface.describeTable("PerfilConductors");
+    const table = await queryInterface.describeTable("Conductores");
     if (!table.estadoId) {
-      await queryInterface.addColumn("PerfilConductors", "estadoId", { type: Sequelize.INTEGER, allowNull: true });
-    }
-    if (table.estado) {
-      await queryInterface.sequelize.query(`UPDATE PerfilConductors SET estadoId = 1 WHERE estado = 'DISPONIBLE'`);
-      await queryInterface.sequelize.query(`UPDATE PerfilConductors SET estadoId = 2 WHERE estado = 'EN_VIAJE'`);
-      await queryInterface.sequelize.query(`UPDATE PerfilConductors SET estadoId = 3 WHERE estado = 'INACTIVO'`);
-      await queryInterface.removeColumn("PerfilConductors", "estado");
+      await queryInterface.addColumn("Conductores", "estadoId", {
+        type: Sequelize.INTEGER,
+        defaultValue: 1,
+      });
     }
     try {
-      await queryInterface.addConstraint("PerfilConductors", {
+      await queryInterface.addConstraint("Conductores", {
         fields: ["estadoId"],
         type: "foreign key",
-        name: "PerfilConductors_estadoId_fk",
+        name: "Conductores_estadoId_fk",
         references: { table: "EstadosConductor", field: "id" },
         onDelete: "SET NULL",
         onUpdate: "CASCADE",
       });
     } catch (e) {
-      if (e.parent?.code !== "ER_DUP_KEYNAME") throw e;
+      if (e.parent?.code !== "ER_DUP_KEYNAME" && e.parent?.code !== "42P17")
+        throw e;
     }
+
+    await queryInterface.bulkInsert("EstadosConductor", [
+      {
+        id: 1,
+        nombre: "DISPONIBLE",
+        descripcion: "Conductor disponible para asignar viajes",
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      },
+      {
+        id: 2,
+        nombre: "EN_VIAJE",
+        descripcion: "Conductor realizando un viaje",
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      },
+      {
+        id: 3,
+        nombre: "INACTIVO",
+        descripcion: "Conductor inactivo",
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      },
+    ]);
   },
 
   async down(queryInterface, Sequelize) {
-    const table = await queryInterface.describeTable("PerfilConductors");
-    if (!table.estado) {
-      await queryInterface.addColumn("PerfilConductors", "estado", { type: Sequelize.STRING, allowNull: true });
-    }
-    if (table.estadoId) {
-      await queryInterface.sequelize.query(`UPDATE PerfilConductors SET estado = 'DISPONIBLE' WHERE estadoId = 1`);
-      await queryInterface.sequelize.query(`UPDATE PerfilConductors SET estado = 'EN_VIAJE' WHERE estadoId = 2`);
-      await queryInterface.sequelize.query(`UPDATE PerfilConductors SET estado = 'INACTIVO' WHERE estadoId = 3`);
-      await queryInterface.removeColumn("PerfilConductors", "estadoId");
-    }
     await queryInterface.dropTable("EstadosConductor");
   },
 };

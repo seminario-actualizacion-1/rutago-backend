@@ -8,23 +8,23 @@ exports.RespuestaVehiculosDto = (model) => {
     modelo: model.modelo,
     color: model.color,
     capacidadPasajeros: model.capacidadPasajeros,
-    entidad: model.perfilEntidad
+    entidad: model.entidad
       ? {
-          id: model.perfilEntidad.id,
-          razonSocial: model.perfilEntidad.razonSocial,
-          nit: model.perfilEntidad.nit,
-          telefonoContacto: model.perfilEntidad.telefonoContacto,
-          usuario: model.perfilEntidad.usuario
+          id: model.entidad.id,
+          razonSocial: model.entidad.razonSocial,
+          nit: model.entidad.nit,
+          telefonoContacto: model.entidad.telefonoContacto,
+          usuario: model.entidad.usuario
             ? {
-                id: model.perfilEntidad.usuario.id,
-                nombres: model.perfilEntidad.usuario.nombres,
-                correo: model.perfilEntidad.usuario.correo,
-                rol: model.perfilEntidad.usuario.rol
+                id: model.entidad.usuario.id,
+                nombres: model.entidad.usuario.nombres,
+                correo: model.entidad.usuario.correo,
+                rol: model.entidad.usuario.rol
                   ? {
-                      id: model.perfilEntidad.usuario.rol.id,
-                      nombreRol: model.perfilEntidad.usuario.rol.nombreRol,
+                      id: model.entidad.usuario.rol.id,
+                      nombreRol: model.entidad.usuario.rol.nombreRol,
                     }
-                  : { id: model.perfilEntidad.usuario.rolId },
+                  : { id: model.entidad.usuario.rolId },
               }
             : undefined,
         }

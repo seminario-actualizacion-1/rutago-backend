@@ -1,6 +1,6 @@
 const usuarioService = require("../services/usuario.service");
 const usuarioDto = require("../dtos/usuario.dto");
-const perfilPasajeroService = require("../services/perfilpasajero.service");
+const pasajeroService = require("../services/pasajero.service");
 const { ROLES } = require("../config/roles");
 
 const manejarError = (res, error) => {
@@ -18,9 +18,9 @@ exports.registrarUsuario = async (req, res) => {
     const nuevoUsuario = await usuarioService.crearUsuario(datos);
 
     if (datos.rolId === ROLES.PASAJERO) {
-      const existente = await perfilPasajeroService.obtenerPorUsuario(nuevoUsuario.id).catch(() => null);
+      const existente = await pasajeroService.obtenerPorUsuario(nuevoUsuario.id).catch(() => null);
       if (!existente) {
-        await perfilPasajeroService.crearPerfil({
+        await pasajeroService.crearPerfil({
           usuarioId: nuevoUsuario.id,
           telefono: datos.telefono,
           direccion: datos.direccion,

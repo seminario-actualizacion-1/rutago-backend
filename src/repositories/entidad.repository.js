@@ -1,5 +1,5 @@
 const { Op } = require("sequelize");
-const { PerfilEntidad, Usuario, Rol } = require("../models");
+const { Entidad, Usuario, Rol } = require("../models");
 const usuarioAttr = {
   model: Usuario,
   as: "usuario",
@@ -16,13 +16,13 @@ const usuarioAttr = {
 };
 
 exports.obtenerTodos = async () => {
-  return await PerfilEntidad.findAll({
+  return await Entidad.findAll({
     include: [usuarioAttr],
   });
 };
 
 exports.obtenerPorId = async (id) => {
-  const entidad = await PerfilEntidad.findByPk(id, {
+  const entidad = await Entidad.findByPk(id, {
     include: [usuarioAttr],
   });
   if (!entidad) throw new Error("ENTIDAD_NO_ENCONTRADA");
@@ -30,24 +30,24 @@ exports.obtenerPorId = async (id) => {
 };
 
 exports.obtenerPorUsuario = async (usuarioId) => {
-  return await PerfilEntidad.findOne({
+  return await Entidad.findOne({
     where: { usuarioId },
     include: [usuarioAttr],
   });
 };
 
 exports.crearEntidad = async (datos) => {
-  return await PerfilEntidad.create(datos);
+  return await Entidad.create(datos);
 };
 
 exports.actualizarEntidad = async (id, datos) => {
-  const entidad = await PerfilEntidad.findByPk(id);
+  const entidad = await Entidad.findByPk(id);
   if (!entidad) throw new Error("ENTIDAD_NO_ENCONTRADA");
   return await entidad.update(datos);
 };
 
-exports.eliminarEntidad = async (id) => {
-  const entidad = await PerfilEntidad.findByPk(id);
+exports.eliminar = async (id) => {
+  const entidad = await Entidad.findByPk(id);
   if (!entidad) throw new Error("ENTIDAD_NO_ENCONTRADA");
   await entidad.destroy();
   return true;
@@ -70,7 +70,7 @@ exports.obtenerTodosConPaginacion = async (
       { "$usuario.correo$": { [Op.like]: `%${q}%` } },
     ];
   }
-  return await PerfilEntidad.findAndCountAll({
+  return await Entidad.findAndCountAll({
     where,
     include: [usuarioAttr],
     limit,

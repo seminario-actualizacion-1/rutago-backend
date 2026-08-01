@@ -1,17 +1,17 @@
 const express = require("express");
 const router = express.Router();
-const perfilPasajeroController = require("../controllers/perfilpasajero.controller");
+const entidadController = require("../controllers/entidad.controller");
 const authMiddleware = require("../middlewares/auth.middleware");
 const roleMiddleware = require("../middlewares/role.middleware");
 const { validarSchema } = require("../middlewares/validator.middleware");
-const perfilPasajeroSchema = require("../schemas/perfilpasajero.schema");
+const entidadSchema = require("../schemas/entidad.schema");
 
 /**
  * @swagger
- * /api/perfiles-pasajero:
+ * /api/entidades:
  *   get:
- *     summary: Obtener todos los perfiles de pasajero (paginado)
- *     tags: [Perfiles Pasajero]
+ *     summary: Obtener todos los entidades (paginado)
+ *     tags: [Entidades]
  *     security:
  *       - bearerAuth: []
  *     parameters:
@@ -43,7 +43,7 @@ const perfilPasajeroSchema = require("../schemas/perfilpasajero.schema");
  *         description: Dirección del ordenamiento
  *     responses:
  *       200:
- *         description: Lista de perfiles de pasajero
+ *         description: Lista de entidades
  *       401:
  *         description: No autenticado
  *       403:
@@ -54,20 +54,20 @@ router.get(
   authMiddleware.verificarToken,
   roleMiddleware.esAdministrador,
   validarSchema(require("../schemas/paginacion.schema").paginacion, "query"),
-  perfilPasajeroController.obtenerTodos,
+  entidadController.obtenerTodos,
 );
 
 /**
  * @swagger
- * /api/perfiles-pasajero/me/perfil:
+ * /api/entidades/me/perfil:
  *   get:
- *     summary: Obtener mi perfil de pasajero
- *     tags: [Perfiles Pasajero]
+ *     summary: Obtener mi entidad
+ *     tags: [Entidades]
  *     security:
  *       - bearerAuth: []
  *     responses:
  *       200:
- *         description: Datos del perfil de pasajero
+ *         description: Datos del entidad
  *       401:
  *         description: No autenticado
  *       403:
@@ -78,16 +78,16 @@ router.get(
 router.get(
   "/me/perfil",
   authMiddleware.verificarToken,
-  roleMiddleware.esPasajero,
-  perfilPasajeroController.obtenerMiPerfil,
+  roleMiddleware.esEntidad,
+  entidadController.obtenerMiEntidad,
 );
 
 /**
  * @swagger
- * /api/perfiles-pasajero/me/perfil:
+ * /api/entidades/me/perfil:
  *   put:
- *     summary: Actualizar mi perfil de pasajero
- *     tags: [Perfiles Pasajero]
+ *     summary: Actualizar mi entidad
+ *     tags: [Entidades]
  *     security:
  *       - bearerAuth: []
  *     requestBody:
@@ -97,9 +97,11 @@ router.get(
  *           schema:
  *             type: object
  *             properties:
- *               telefono:
+ *               nombre:
  *                 type: string
  *               direccion:
+ *                 type: string
+ *               telefono:
  *                 type: string
  *     responses:
  *       200:
@@ -114,46 +116,17 @@ router.get(
 router.put(
   "/me/perfil",
   authMiddleware.verificarToken,
-  roleMiddleware.esPasajero,
-  validarSchema(perfilPasajeroSchema.actualizar),
-  perfilPasajeroController.actualizarMiPerfil,
+  roleMiddleware.esEntidad,
+  validarSchema(entidadSchema.actualizar),
+  entidadController.actualizarMiEntidad,
 );
 
 /**
  * @swagger
- * /api/perfiles-pasajero/usuario/{usuarioId}:
+ * /api/entidades/{id}:
  *   get:
- *     summary: Obtener perfil de pasajero por ID de usuario
- *     tags: [Perfiles Pasajero]
- *     security:
- *       - bearerAuth: []
- *     parameters:
- *       - in: path
- *         name: usuarioId
- *         required: true
- *         schema:
- *           type: integer
- *         description: ID del usuario
- *     responses:
- *       200:
- *         description: Datos del perfil de pasajero
- *       401:
- *         description: No autenticado
- *       404:
- *         description: Perfil no encontrado
- */
-router.get(
-  "/usuario/:usuarioId",
-  authMiddleware.verificarToken,
-  perfilPasajeroController.obtenerPorUsuarioId,
-);
-
-/**
- * @swagger
- * /api/perfiles-pasajero/{id}:
- *   get:
- *     summary: Obtener un perfil de pasajero por ID
- *     tags: [Perfiles Pasajero]
+ *     summary: Obtener un entidad por ID
+ *     tags: [Entidades]
  *     security:
  *       - bearerAuth: []
  *     parameters:
@@ -162,10 +135,10 @@ router.get(
  *         required: true
  *         schema:
  *           type: integer
- *         description: ID del perfil de pasajero
+ *         description: ID del entidad
  *     responses:
  *       200:
- *         description: Datos del perfil de pasajero
+ *         description: Datos del entidad
  *       401:
  *         description: No autenticado
  *       403:
@@ -177,15 +150,15 @@ router.get(
   "/:id",
   authMiddleware.verificarToken,
   roleMiddleware.esAdministrador,
-  perfilPasajeroController.obtenerPorId,
+  entidadController.obtenerPorId,
 );
 
 /**
  * @swagger
- * /api/perfiles-pasajero:
+ * /api/entidades:
  *   post:
- *     summary: Crear un nuevo perfil de pasajero
- *     tags: [Perfiles Pasajero]
+ *     summary: Crear un nuevo entidad
+ *     tags: [Entidades]
  *     security:
  *       - bearerAuth: []
  *     requestBody:
@@ -197,13 +170,15 @@ router.get(
  *             properties:
  *               usuarioId:
  *                 type: integer
- *               telefono:
+ *               nombre:
  *                 type: string
  *               direccion:
  *                 type: string
+ *               telefono:
+ *                 type: string
  *     responses:
  *       201:
- *         description: Perfil de pasajero creado exitosamente
+ *         description: Perfil de entidad creado exitosamente
  *       400:
  *         description: Datos inválidos
  *       401:
@@ -215,16 +190,16 @@ router.post(
   "/",
   authMiddleware.verificarToken,
   roleMiddleware.esAdministrador,
-  validarSchema(perfilPasajeroSchema.crear),
-  perfilPasajeroController.crearPerfil,
+  validarSchema(entidadSchema.crear),
+  entidadController.crearEntidad,
 );
 
 /**
  * @swagger
- * /api/perfiles-pasajero/{id}:
+ * /api/entidades/{id}:
  *   put:
- *     summary: Actualizar un perfil de pasajero por ID
- *     tags: [Perfiles Pasajero]
+ *     summary: Actualizar un entidad por ID
+ *     tags: [Entidades]
  *     security:
  *       - bearerAuth: []
  *     parameters:
@@ -233,7 +208,7 @@ router.post(
  *         required: true
  *         schema:
  *           type: integer
- *         description: ID del perfil de pasajero
+ *         description: ID del entidad
  *     requestBody:
  *       required: true
  *       content:
@@ -243,9 +218,11 @@ router.post(
  *             properties:
  *               usuarioId:
  *                 type: integer
- *               telefono:
+ *               nombre:
  *                 type: string
  *               direccion:
+ *                 type: string
+ *               telefono:
  *                 type: string
  *     responses:
  *       200:
@@ -263,16 +240,16 @@ router.put(
   "/:id",
   authMiddleware.verificarToken,
   roleMiddleware.esAdministrador,
-  validarSchema(perfilPasajeroSchema.actualizar),
-  perfilPasajeroController.actualizarPerfil,
+  validarSchema(entidadSchema.actualizar),
+  entidadController.actualizarEntidad,
 );
 
 /**
  * @swagger
- * /api/perfiles-pasajero/{id}:
+ * /api/entidades/{id}:
  *   delete:
- *     summary: Eliminar un perfil de pasajero por ID
- *     tags: [Perfiles Pasajero]
+ *     summary: Eliminar un entidad por ID
+ *     tags: [Entidades]
  *     security:
  *       - bearerAuth: []
  *     parameters:
@@ -281,7 +258,7 @@ router.put(
  *         required: true
  *         schema:
  *           type: integer
- *         description: ID del perfil de pasajero
+ *         description: ID del entidad
  *     responses:
  *       200:
  *         description: Perfil eliminado exitosamente
@@ -296,15 +273,15 @@ router.delete(
   "/:id",
   authMiddleware.verificarToken,
   roleMiddleware.esAdministrador,
-  perfilPasajeroController.eliminarPerfil,
+  entidadController.eliminar,
 );
 
 /**
  * @swagger
- * /api/perfiles-pasajero/crear-usuario:
+ * /api/entidades/crear-usuario:
  *   post:
- *     summary: Crear usuario pasajero + perfil simultáneamente (admin)
- *     tags: [Perfiles Pasajero]
+ *     summary: Crear usuario entidad + perfil simultáneamente (admin)
+ *     tags: [Entidades]
  *     security:
  *       - bearerAuth: []
  *     requestBody:
@@ -328,17 +305,12 @@ router.delete(
  *               datosPerfil:
  *                 type: object
  *                 properties:
- *                   telefono:
+ *                   razonSocial:
  *                     type: string
  *                   direccion:
  *                     type: string
- *                   tipoDocumentoId:
- *                     type: integer
- *                   numeroDocumento:
+ *                   telefono:
  *                     type: string
- *                   fechaNacimiento:
- *                     type: string
- *                     format: date
  *     responses:
  *       201:
  *         description: Usuario y perfil creados exitosamente
@@ -353,8 +325,8 @@ router.post(
   "/crear-usuario",
   authMiddleware.verificarToken,
   roleMiddleware.esAdministrador,
-  validarSchema(perfilPasajeroSchema.crearConUsuario),
-  perfilPasajeroController.crearConUsuario,
+  validarSchema(entidadSchema.crearConUsuario),
+  entidadController.crearConUsuario,
 );
 
 module.exports = router;

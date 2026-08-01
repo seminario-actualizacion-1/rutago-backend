@@ -1,13 +1,26 @@
 "use strict";
-
+/** @type {import('sequelize-cli').Migration} */
 module.exports = {
-  up: async (queryInterface, Sequelize) => {
+  async up(queryInterface, Sequelize) {
     await queryInterface.createTable("ViajePasajeros", {
-      id: { type: Sequelize.INTEGER, allowNull: false, autoIncrement: true, primaryKey: true },
+      id: {
+        type: Sequelize.INTEGER,
+        allowNull: false,
+        autoIncrement: true,
+        primaryKey: true,
+      },
       viajeId: { type: Sequelize.INTEGER, allowNull: false },
       pasajeroId: { type: Sequelize.INTEGER, allowNull: false },
-      createdAt: { type: Sequelize.DATE, allowNull: false, defaultValue: Sequelize.literal("CURRENT_TIMESTAMP") },
-      updatedAt: { type: Sequelize.DATE, allowNull: false, defaultValue: Sequelize.literal("CURRENT_TIMESTAMP") },
+      createdAt: {
+        type: Sequelize.DATE,
+        allowNull: false,
+        defaultValue: Sequelize.literal("CURRENT_TIMESTAMP"),
+      },
+      updatedAt: {
+        type: Sequelize.DATE,
+        allowNull: false,
+        defaultValue: Sequelize.literal("CURRENT_TIMESTAMP"),
+      },
     });
 
     await queryInterface.addConstraint("ViajePasajeros", {
@@ -23,7 +36,7 @@ module.exports = {
       fields: ["pasajeroId"],
       type: "foreign key",
       name: "ViajePasajeros_pasajeroId_fk",
-      references: { table: "Usuarios", field: "id" },
+      references: { table: "Pasajeros", field: "id" },
       onDelete: "CASCADE",
       onUpdate: "CASCADE",
     });
@@ -33,39 +46,25 @@ module.exports = {
       name: "ViajePasajeros_viajeId_pasajeroId_unique",
     });
 
-    const viajes = await queryInterface.sequelize.query(
-      `SELECT id, pasajeroId FROM Viajes WHERE pasajeroId IS NOT NULL`,
-      { type: queryInterface.sequelize.QueryTypes.SELECT },
-    );
-
-    for (const viaje of viajes) {
-      await queryInterface.sequelize.query(
-        `INSERT INTO ViajePasajeros (viajeId, pasajeroId, createdAt, updatedAt) VALUES (?, ?, NOW(), NOW())`,
-        { replacements: [viaje.id, viaje.pasajeroId] },
+    const viajes = await queryInterface.describeTable("Viajes");
+    if (viajes.pasajeroId) {
+      const filas = await queryInterface.sequelize.query(
+        `SELECT id, "pasajeroId" FROM "Viajes" WHERE "pasajeroId" IS NOT NULL`,
+        { type: queryInterface.sequelize.QueryTypes.SELECT },
       );
-    }
 
-    await queryInterface.removeColumn("Viajes", "pasajeroId");
+      for (const viaje of filas) {
+        await queryInterface.sequelize.query(
+          `INSERT INTO "ViajePasajeros" ("viajeId", "pasajeroId", "createdAt", "updatedAt") VALUES (?, ?, NOW(), NOW())`,
+          { replacements: [viaje.id, viaje.pasajeroId] },
+        );
+      }
+
+      await queryInterface.removeColumn("Viajes", "pasajeroId");
+    }
   },
 
-  down: async (queryInterface, Sequelize) => {
-    await queryInterface.addColumn("Viajes", "pasajeroId", {
-      type: Sequelize.INTEGER,
-      allowNull: true,
-    });
-
-    const relaciones = await queryInterface.sequelize.query(
-      `SELECT viajeId, pasajeroId FROM ViajePasajeros`,
-      { type: queryInterface.sequelize.QueryTypes.SELECT },
-    );
-
-    for (const r of relaciones) {
-      await queryInterface.sequelize.query(
-        `UPDATE Viajes SET pasajeroId = ? WHERE id = ? AND pasajeroId IS NULL`,
-        { replacements: [r.pasajeroId, r.viajeId] },
-      );
-    }
-
+  async down(queryInterface, Sequelize) {
     await queryInterface.dropTable("ViajePasajeros");
   },
 };

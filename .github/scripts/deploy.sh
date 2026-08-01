@@ -20,27 +20,24 @@ if ! grep -q "JWT_SECRET" .env 2>/dev/null; then
 else
   echo "  ✓ JWT_SECRET ya existe en .env"
 fi
+if ! grep -q "MYSQL_DB" .env 2>/dev/null; then
+  echo "⚠️  Faltan las variables MYSQL_* en .env. El script de migración MySQL→PG no podrá conectarse."
+  echo "    Agrégalas manualmente en $HOME/backend/.env:"
+  echo "    MYSQL_HOST=localhost"
+  echo "    MYSQL_PORT=3306"
+  echo "    MYSQL_USER=semi1_rutago"
+  echo "    MYSQL_PASSWORD=<tu_password>"
+  echo "    MYSQL_DB=semi1_rutago_prod"
+else
+  echo "  ✓ MYSQL_* ya existen en .env"
+fi
 echo "→ Instalando dependencias..."
 npm ci --include=dev
-echo "→ Ejecutando migraciones de producción..."
+echo "→ Ejecutando migraciones de producción (estructura + catálogos)..."
 export NODE_ENV=production
 npx sequelize-cli db:migrate --env production
-echo "→ Insertando/actualizando datos de catálogos..."
-npx sequelize-cli db:seed:all --env production
-echo "→ Migrando pasajeros existentes a PerfilPasajero..."
-node scripts/migrarPasajeros.js
-echo "→ Normalizando datos para validaciones..."
-node scripts/migrar-validaciones.js
-echo "→ Agregando columna descripcion a catálogos..."
-node scripts/migrar-descripcion.js
-echo "→ Llenando descripciones de catálogos..."
-node scripts/llenar-descripciones.js
-echo "→ Agregando geometría a tabla Rutas..."
-node scripts/migrar-ruta-geometria.js
-echo "→ Creando viajes para horarios pendientes..."
-node scripts/migrar-viajes-pendientes.js
-echo "→ Migrando días de horarios a fechas..."
-node scripts/migrar-dias-horarios.js
+echo "→ Migrando datos históricos desde MySQL (si está disponible)..."
+node scripts/migrate-mysql-to-pg.js
 echo "→ Eliminando dependencias de desarrollo..."
 npm prune --omit=dev
 echo "→ Reiniciando únicamente RutaGo Backend..."

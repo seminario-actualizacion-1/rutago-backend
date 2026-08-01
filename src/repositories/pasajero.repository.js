@@ -1,5 +1,5 @@
 const { Op } = require("sequelize");
-const { PerfilPasajero, Usuario, Rol, TipoDocumento } = require("../models");
+const { Pasajero, Usuario, Rol, TipoDocumento } = require("../models");
 const usuarioAttr = {
   model: Usuario,
   as: "usuario",
@@ -14,46 +14,46 @@ const usuarioAttr = {
   ],
   include: [{ model: Rol, as: "rol", attributes: ["id", "nombreRol"] }],
 };
-const includePerfilPasajero = [
+const includePasajero = [
   usuarioAttr,
   { model: TipoDocumento, as: "tipoDocumento" },
 ];
 
 exports.obtenerTodos = async () => {
-  return await PerfilPasajero.findAll({
-    include: includePerfilPasajero,
+  return await Pasajero.findAll({
+    include: includePasajero,
   });
 };
 
 exports.obtenerPorId = async (id) => {
-  const perfil = await PerfilPasajero.findByPk(id, {
-    include: includePerfilPasajero,
+  const pasajero = await Pasajero.findByPk(id, {
+    include: includePasajero,
   });
-  if (!perfil) throw new Error("PERFIL_PASAJERO_NO_ENCONTRADO");
-  return perfil;
+  if (!pasajero) throw new Error("PASAJERO_NO_ENCONTRADO");
+  return pasajero;
 };
 
 exports.obtenerPorUsuario = async (usuarioId) => {
-  return await PerfilPasajero.findOne({
+  return await Pasajero.findOne({
     where: { usuarioId },
-    include: includePerfilPasajero,
+    include: includePasajero,
   });
 };
 
-exports.crearPerfil = async (datos) => {
-  return await PerfilPasajero.create(datos);
+exports.crear = async (datos) => {
+  return await Pasajero.create(datos);
 };
 
-exports.actualizarPerfil = async (id, datos) => {
-  const perfil = await PerfilPasajero.findByPk(id);
-  if (!perfil) throw new Error("PERFIL_PASAJERO_NO_ENCONTRADO");
-  return await perfil.update(datos);
+exports.actualizar = async (id, datos) => {
+  const pasajero = await Pasajero.findByPk(id);
+  if (!pasajero) throw new Error("PASAJERO_NO_ENCONTRADO");
+  return await pasajero.update(datos);
 };
 
-exports.eliminarPerfil = async (id) => {
-  const perfil = await PerfilPasajero.findByPk(id);
-  if (!perfil) throw new Error("PERFIL_PASAJERO_NO_ENCONTRADO");
-  await perfil.destroy();
+exports.eliminar = async (id) => {
+  const pasajero = await Pasajero.findByPk(id);
+  if (!pasajero) throw new Error("PASAJERO_NO_ENCONTRADO");
+  await pasajero.destroy();
   return true;
 };
 
@@ -74,9 +74,9 @@ exports.obtenerTodosConPaginacion = async (
       { "$usuario.correo$": { [Op.like]: `%${q}%` } },
     ];
   }
-  return await PerfilPasajero.findAndCountAll({
+  return await Pasajero.findAndCountAll({
     where,
-    include: includePerfilPasajero,
+    include: includePasajero,
     limit,
     offset,
     order: [[sortBy, sortOrder]],
@@ -89,5 +89,5 @@ exports.obtenerUsuarioPorId = async (id) => {
 };
 
 exports.obtenerExistente = async (usuarioId) => {
-  return await PerfilPasajero.findOne({ where: { usuarioId } });
+  return await Pasajero.findOne({ where: { usuarioId } });
 };

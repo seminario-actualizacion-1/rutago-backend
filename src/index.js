@@ -13,12 +13,12 @@ const rolRoutes = require("./routes/rol.routes");
 const comunaRoutes = require("./routes/comuna.routes");
 const barrioRoutes = require("./routes/barrio.routes");
 const vehiculoRoutes = require("./routes/vehiculo.routes");
-const perfilConductorRoutes = require("./routes/perfilconductor.routes");
-const perfilEntidadRoutes = require("./routes/perfilentidad.routes");
+const conductorRoutes = require("./routes/conductor.routes");
+const entidadRoutes = require("./routes/entidad.routes");
 const viajeRoutes = require("./routes/viaje.routes");
 const rutaRoutes = require("./routes/ruta.routes");
 const horarioRoutes = require("./routes/horario.routes");
-const perfilPasajeroRoutes = require("./routes/perfilpasajero.routes");
+const pasajeroRoutes = require("./routes/pasajero.routes");
 const tipoDocumentoRoutes = require("./routes/tipodocumento.routes");
 const estadoVehiculoRoutes = require("./routes/estadovehiculo.routes");
 const estadoConductorRoutes = require("./routes/estadoconductor.routes");
@@ -68,9 +68,9 @@ const swaggerOptions = {
       },
       { name: "Usuarios", description: "Gestión de usuarios" },
       { name: "Roles", description: "Roles del sistema" },
-      { name: "Perfiles Conductor", description: "Perfiles de conductores" },
-      { name: "Perfiles Pasajero", description: "Perfiles de pasajeros" },
-      { name: "Perfiles Entidad", description: "Perfiles de entidades" },
+      { name: "Conductores", description: "Perfiles de conductores" },
+      { name: "Pasajeros", description: "Perfiles de pasajeros" },
+      { name: "Entidades", description: "Perfiles de entidades" },
       { name: "Vehículos", description: "Gestión de vehículos" },
       { name: "Rutas", description: "Gestión de rutas" },
       { name: "Horarios", description: "Horarios de rutas" },
@@ -118,12 +118,12 @@ app.use("/api/roles", rolRoutes);
 app.use("/api/comunas", comunaRoutes);
 app.use("/api/barrios", barrioRoutes);
 app.use("/api/vehiculos", vehiculoRoutes);
-app.use("/api/perfiles-conductor", perfilConductorRoutes);
-app.use("/api/perfiles-entidad", perfilEntidadRoutes);
+app.use("/api/conductores", conductorRoutes);
+app.use("/api/entidades", entidadRoutes);
 app.use("/api/viajes", viajeRoutes);
 app.use("/api/rutas", rutaRoutes);
 app.use("/api/horarios", horarioRoutes);
-app.use("/api/perfiles-pasajero", perfilPasajeroRoutes);
+app.use("/api/pasajeros", pasajeroRoutes);
 app.use("/api/tipos-documento", tipoDocumentoRoutes);
 app.use("/api/estados-vehiculo", estadoVehiculoRoutes);
 app.use("/api/estados-conductor", estadoConductorRoutes);

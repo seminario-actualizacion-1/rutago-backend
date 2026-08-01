@@ -1,17 +1,17 @@
 const express = require("express");
 const router = express.Router();
-const perfilEntidadController = require("../controllers/perfilentidad.controller");
+const conductorController = require("../controllers/conductor.controller");
 const authMiddleware = require("../middlewares/auth.middleware");
 const roleMiddleware = require("../middlewares/role.middleware");
 const { validarSchema } = require("../middlewares/validator.middleware");
-const perfilEntidadSchema = require("../schemas/perfilentidad.schema");
+const conductorSchema = require("../schemas/conductor.schema");
 
 /**
  * @swagger
- * /api/perfiles-entidad:
+ * /api/conductores:
  *   get:
- *     summary: Obtener todos los perfiles de entidad (paginado)
- *     tags: [Perfiles Entidad]
+ *     summary: Obtener todos los conductores (paginado)
+ *     tags: [Conductores]
  *     security:
  *       - bearerAuth: []
  *     parameters:
@@ -43,7 +43,7 @@ const perfilEntidadSchema = require("../schemas/perfilentidad.schema");
  *         description: Dirección del ordenamiento
  *     responses:
  *       200:
- *         description: Lista de perfiles de entidad
+ *         description: Lista de conductores
  *       401:
  *         description: No autenticado
  *       403:
@@ -52,22 +52,21 @@ const perfilEntidadSchema = require("../schemas/perfilentidad.schema");
 router.get(
   "/",
   authMiddleware.verificarToken,
-  roleMiddleware.esAdministrador,
   validarSchema(require("../schemas/paginacion.schema").paginacion, "query"),
-  perfilEntidadController.obtenerTodos,
+  conductorController.obtenerTodos,
 );
 
 /**
  * @swagger
- * /api/perfiles-entidad/me/perfil:
+ * /api/conductores/me/perfil:
  *   get:
- *     summary: Obtener mi perfil de entidad
- *     tags: [Perfiles Entidad]
+ *     summary: Obtener mi conductor
+ *     tags: [Conductores]
  *     security:
  *       - bearerAuth: []
  *     responses:
  *       200:
- *         description: Datos del perfil de entidad
+ *         description: Datos del conductor
  *       401:
  *         description: No autenticado
  *       403:
@@ -78,16 +77,16 @@ router.get(
 router.get(
   "/me/perfil",
   authMiddleware.verificarToken,
-  roleMiddleware.esEntidad,
-  perfilEntidadController.obtenerMiEntidad,
+  roleMiddleware.esConductor,
+  conductorController.obtenerMiPerfil,
 );
 
 /**
  * @swagger
- * /api/perfiles-entidad/me/perfil:
+ * /api/conductores/me/perfil:
  *   put:
- *     summary: Actualizar mi perfil de entidad
- *     tags: [Perfiles Entidad]
+ *     summary: Actualizar mi conductor
+ *     tags: [Conductores]
  *     security:
  *       - bearerAuth: []
  *     requestBody:
@@ -97,12 +96,10 @@ router.get(
  *           schema:
  *             type: object
  *             properties:
- *               nombre:
+ *               licenciaConducir:
  *                 type: string
- *               direccion:
- *                 type: string
- *               telefono:
- *                 type: string
+ *               estadoId:
+ *                 type: integer
  *     responses:
  *       200:
  *         description: Perfil actualizado exitosamente
@@ -116,17 +113,17 @@ router.get(
 router.put(
   "/me/perfil",
   authMiddleware.verificarToken,
-  roleMiddleware.esEntidad,
-  validarSchema(perfilEntidadSchema.actualizar),
-  perfilEntidadController.actualizarMiEntidad,
+  roleMiddleware.esConductor,
+  validarSchema(conductorSchema.actualizar),
+  conductorController.actualizarMiPerfil,
 );
 
 /**
  * @swagger
- * /api/perfiles-entidad/{id}:
+ * /api/conductores/{id}:
  *   get:
- *     summary: Obtener un perfil de entidad por ID
- *     tags: [Perfiles Entidad]
+ *     summary: Obtener un conductor por ID
+ *     tags: [Conductores]
  *     security:
  *       - bearerAuth: []
  *     parameters:
@@ -135,10 +132,10 @@ router.put(
  *         required: true
  *         schema:
  *           type: integer
- *         description: ID del perfil de entidad
+ *         description: ID del conductor
  *     responses:
  *       200:
- *         description: Datos del perfil de entidad
+ *         description: Datos del conductor
  *       401:
  *         description: No autenticado
  *       403:
@@ -149,16 +146,15 @@ router.put(
 router.get(
   "/:id",
   authMiddleware.verificarToken,
-  roleMiddleware.esAdministrador,
-  perfilEntidadController.obtenerPorId,
+  conductorController.obtenerPorId,
 );
 
 /**
  * @swagger
- * /api/perfiles-entidad:
+ * /api/conductores:
  *   post:
- *     summary: Crear un nuevo perfil de entidad
- *     tags: [Perfiles Entidad]
+ *     summary: Crear un nuevo conductor
+ *     tags: [Conductores]
  *     security:
  *       - bearerAuth: []
  *     requestBody:
@@ -170,15 +166,13 @@ router.get(
  *             properties:
  *               usuarioId:
  *                 type: integer
- *               nombre:
+ *               licenciaConducir:
  *                 type: string
- *               direccion:
- *                 type: string
- *               telefono:
- *                 type: string
+ *               estadoId:
+ *                 type: integer
  *     responses:
  *       201:
- *         description: Perfil de entidad creado exitosamente
+ *         description: Perfil de conductor creado exitosamente
  *       400:
  *         description: Datos inválidos
  *       401:
@@ -190,16 +184,16 @@ router.post(
   "/",
   authMiddleware.verificarToken,
   roleMiddleware.esAdministrador,
-  validarSchema(perfilEntidadSchema.crear),
-  perfilEntidadController.crearEntidad,
+  validarSchema(conductorSchema.crear),
+  conductorController.crear,
 );
 
 /**
  * @swagger
- * /api/perfiles-entidad/{id}:
+ * /api/conductores/{id}:
  *   put:
- *     summary: Actualizar un perfil de entidad por ID
- *     tags: [Perfiles Entidad]
+ *     summary: Actualizar un conductor por ID
+ *     tags: [Conductores]
  *     security:
  *       - bearerAuth: []
  *     parameters:
@@ -208,7 +202,7 @@ router.post(
  *         required: true
  *         schema:
  *           type: integer
- *         description: ID del perfil de entidad
+ *         description: ID del conductor
  *     requestBody:
  *       required: true
  *       content:
@@ -218,12 +212,10 @@ router.post(
  *             properties:
  *               usuarioId:
  *                 type: integer
- *               nombre:
+ *               licenciaConducir:
  *                 type: string
- *               direccion:
- *                 type: string
- *               telefono:
- *                 type: string
+ *               estadoId:
+ *                 type: integer
  *     responses:
  *       200:
  *         description: Perfil actualizado exitosamente
@@ -240,16 +232,16 @@ router.put(
   "/:id",
   authMiddleware.verificarToken,
   roleMiddleware.esAdministrador,
-  validarSchema(perfilEntidadSchema.actualizar),
-  perfilEntidadController.actualizarEntidad,
+  validarSchema(conductorSchema.actualizar),
+  conductorController.actualizar,
 );
 
 /**
  * @swagger
- * /api/perfiles-entidad/{id}:
- *   delete:
- *     summary: Eliminar un perfil de entidad por ID
- *     tags: [Perfiles Entidad]
+ * /api/conductores/{id}/estado:
+ *   patch:
+ *     summary: Cambiar el estado de un conductor
+ *     tags: [Conductores]
  *     security:
  *       - bearerAuth: []
  *     parameters:
@@ -258,7 +250,99 @@ router.put(
  *         required: true
  *         schema:
  *           type: integer
- *         description: ID del perfil de entidad
+ *         description: ID del conductor
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - estadoId
+ *             properties:
+ *               estadoId:
+ *                 type: integer
+ *     responses:
+ *       200:
+ *         description: Estado actualizado exitosamente
+ *       400:
+ *         description: Datos inválidos
+ *       401:
+ *         description: No autenticado
+ *       403:
+ *         description: No autorizado
+ *       404:
+ *         description: Perfil no encontrado
+ */
+router.patch(
+  "/:id/estado",
+  authMiddleware.verificarToken,
+  roleMiddleware.esConductor,
+  validarSchema(conductorSchema.cambiarEstado),
+  conductorController.cambiarEstado,
+);
+
+/**
+ * @swagger
+ * /api/conductores/crear-usuario:
+ *   post:
+ *     summary: Crear usuario + conductor en una sola llamada
+ *     tags: [Conductores]
+ *     security:
+ *       - bearerAuth: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - nombres
+ *               - apellidos
+ *               - correo
+ *               - contrasena
+ *             properties:
+ *               nombres:
+ *                 type: string
+ *               apellidos:
+ *                 type: string
+ *               correo:
+ *                 type: string
+ *               contrasena:
+ *                 type: string
+ *               vehiculoId:
+ *                 type: integer
+ *               licenciaConducir:
+ *                 type: string
+ *     responses:
+ *       201:
+ *         description: Conductor creado exitosamente
+ *       400:
+ *         description: Error de validación
+ */
+router.post(
+  "/crear-usuario",
+  authMiddleware.verificarToken,
+  roleMiddleware.esAdministrador,
+  validarSchema(conductorSchema.crearConUsuario),
+  conductorController.crearConUsuario,
+);
+
+/**
+ * @swagger
+ * /api/conductores/{id}:
+ *   delete:
+ *     summary: Eliminar un conductor por ID
+ *     tags: [Conductores]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: integer
+ *         description: ID del conductor
  *     responses:
  *       200:
  *         description: Perfil eliminado exitosamente
@@ -273,60 +357,7 @@ router.delete(
   "/:id",
   authMiddleware.verificarToken,
   roleMiddleware.esAdministrador,
-  perfilEntidadController.eliminarEntidad,
-);
-
-/**
- * @swagger
- * /api/perfiles-entidad/crear-usuario:
- *   post:
- *     summary: Crear usuario entidad + perfil simultáneamente (admin)
- *     tags: [Perfiles Entidad]
- *     security:
- *       - bearerAuth: []
- *     requestBody:
- *       required: true
- *       content:
- *         application/json:
- *           schema:
- *             type: object
- *             properties:
- *               datosUsuario:
- *                 type: object
- *                 properties:
- *                   nombres:
- *                     type: string
- *                   apellidos:
- *                     type: string
- *                   correo:
- *                     type: string
- *                   contrasena:
- *                     type: string
- *               datosPerfil:
- *                 type: object
- *                 properties:
- *                   razonSocial:
- *                     type: string
- *                   direccion:
- *                     type: string
- *                   telefono:
- *                     type: string
- *     responses:
- *       201:
- *         description: Usuario y perfil creados exitosamente
- *       400:
- *         description: Datos inválidos
- *       401:
- *         description: No autenticado
- *       403:
- *         description: No autorizado
- */
-router.post(
-  "/crear-usuario",
-  authMiddleware.verificarToken,
-  roleMiddleware.esAdministrador,
-  validarSchema(perfilEntidadSchema.crearConUsuario),
-  perfilEntidadController.crearConUsuario,
+  conductorController.eliminar,
 );
 
 module.exports = router;

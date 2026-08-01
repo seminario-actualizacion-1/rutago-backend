@@ -1,14 +1,17 @@
 "use strict";
-
+/** @type {import('sequelize-cli').Migration} */
 module.exports = {
-  up: async (queryInterface, Sequelize) => {
-    await queryInterface.addColumn("Horarios", "fechaFin", {
-      type: Sequelize.DATEONLY,
-      allowNull: true,
-    });
+  async up(queryInterface, Sequelize) {
+    const table = await queryInterface.describeTable("Horarios");
+    if (!table.fechaFin) {
+      await queryInterface.addColumn("Horarios", "fechaFin", {
+        type: Sequelize.DATEONLY,
+        allowNull: true,
+      });
+    }
   },
 
-  down: async (queryInterface) => {
+  async down(queryInterface, Sequelize) {
     await queryInterface.removeColumn("Horarios", "fechaFin");
   },
 };

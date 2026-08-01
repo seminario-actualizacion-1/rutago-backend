@@ -1,4 +1,4 @@
-const perfilConductorRepository = require("../repositories/perfilconductor.repository");
+const conductorRepository = require("../repositories/conductor.repository");
 const usuarioRepository = require("../repositories/usuario.repository");
 const viajeRepository = require("../repositories/viaje.repository");
 const { ROLES } = require("../config/roles");
@@ -22,7 +22,7 @@ exports.obtenerTodos = async (
   const limit = parseInt(registrosPorPagina);
 
   const { count, rows } =
-    await perfilConductorRepository.obtenerTodosConPaginacion(
+    await conductorRepository.obtenerTodosConPaginacion(
       limit,
       offset,
       q,
@@ -39,66 +39,52 @@ exports.obtenerTodos = async (
 };
 
 exports.obtenerPorId = async (id) => {
-  return await perfilConductorRepository.obtenerPorId(id);
+  return await conductorRepository.obtenerPorId(id);
 };
 
 exports.obtenerPorUsuario = async (usuarioId) => {
-  const perfil = await perfilConductorRepository.obtenerPorUsuario(usuarioId);
-  if (!perfil) {
-    throw new Error("PERFIL_CONDUCTOR_NO_ENCONTRADO");
+  const conductor = await conductorRepository.obtenerPorUsuario(usuarioId);
+  if (!conductor) {
+    throw new Error("CONDUCTOR_NO_ENCONTRADO");
   }
-  return perfil;
+  return conductor;
 };
 
-exports.crearPerfil = async (datos) => {
-  const { usuarioId, vehiculoId, estadoId } = datos;
+exports.crear = async (datos) => {
+  const { usuarioId, estadoId } = datos;
 
   const usuario =
-    await perfilConductorRepository.obtenerUsuarioPorId(usuarioId);
+    await conductorRepository.obtenerUsuarioPorId(usuarioId);
   if (!usuario) throw new Error("USUARIO_NO_ENCONTRADO");
   if (usuario.rolId !== ROLES.CONDUCTOR)
     throw new Error("EL_USUARIO_NO_ES_CONDUCTOR");
-
-  if (vehiculoId) {
-    const vehiculo =
-      await perfilConductorRepository.obtenerVehiculoPorId(vehiculoId);
-    if (!vehiculo) throw new Error("VEHICULO_NO_ENCONTRADO");
-  }
 
   if (estadoId && !ESTADOS_VALIDOS.includes(Number(estadoId))) {
     throw new Error("ESTADO_CONDUCTOR_INVALIDO");
   }
 
-  const existente = await perfilConductorRepository.obtenerExistente(usuarioId);
+  const existente = await conductorRepository.obtenerExistente(usuarioId);
   if (existente) throw new Error("EL_CONDUCTOR_YA_TIENE_PERFIL");
 
   const datosPermitidos = {
     usuarioId,
-    vehiculoId,
     licenciaConducir: datos.licenciaConducir,
     estadoId: estadoId || ESTADOS_CONDUCTOR.DISPONIBLE,
   };
 
-  return await perfilConductorRepository.crearPerfil(datosPermitidos);
+  return await conductorRepository.crear(datosPermitidos);
 };
 
-exports.actualizarPerfil = async (id, datos) => {
-  if (datos.vehiculoId) {
-    const vehiculo = await perfilConductorRepository.obtenerVehiculoPorId(
-      datos.vehiculoId,
-    );
-    if (!vehiculo) throw new Error("VEHICULO_NO_ENCONTRADO");
-  }
-
+exports.actualizar = async (id, datos) => {
   if (datos.estadoId && !ESTADOS_VALIDOS.includes(Number(datos.estadoId))) {
     throw new Error("ESTADO_CONDUCTOR_INVALIDO");
   }
 
   if (datos.estadoId) {
-    const perfil = await perfilConductorRepository.obtenerPorId(id);
-    if (perfil) {
+    const conductor = await conductorRepository.obtenerPorId(id);
+    if (conductor) {
       const viajesActivos = await viajeRepository.obtenerMisViajes(
-        perfil.usuarioId,
+        conductor.usuarioId,
         true,
       );
       const tieneActivo = viajesActivos.some(
@@ -115,13 +101,13 @@ exports.actualizarPerfil = async (id, datos) => {
     }
   }
 
-  return await perfilConductorRepository.actualizarPerfil(id, datos);
+  return await conductorRepository.actualizar(id, datos);
 };
 
 exports.actualizarMiPerfil = async (usuarioId, datos) => {
-  const perfil = await perfilConductorRepository.obtenerPorUsuario(usuarioId);
-  if (!perfil) {
-    throw new Error("PERFIL_CONDUCTOR_NO_ENCONTRADO");
+  const conductor = await conductorRepository.obtenerPorUsuario(usuarioId);
+  if (!conductor) {
+    throw new Error("CONDUCTOR_NO_ENCONTRADO");
   }
 
   const datosPermitidos = {
@@ -129,8 +115,8 @@ exports.actualizarMiPerfil = async (usuarioId, datos) => {
     estadoId: datos.estadoId,
   };
 
-  return await perfilConductorRepository.actualizarPerfil(
-    perfil.id,
+  return await conductorRepository.actualizar(
+    conductor.id,
     datosPermitidos,
   );
 };
@@ -139,11 +125,11 @@ exports.actualizarEstado = async (id, estadoId) => {
   if (!ESTADOS_VALIDOS.includes(Number(estadoId))) {
     throw new Error("ESTADO_CONDUCTOR_INVALIDO");
   }
-  return await perfilConductorRepository.actualizarEstado(id, estadoId);
+  return await conductorRepository.actualizarEstado(id, estadoId);
 };
 
-exports.eliminarPerfil = async (id) => {
-  return await perfilConductorRepository.eliminarPerfil(id);
+exports.eliminar = async (id) => {
+  return await conductorRepository.eliminar(id);
 };
 
 exports.crearConUsuario = async (datos) => {
@@ -163,12 +149,11 @@ exports.crearConUsuario = async (datos) => {
     rolId: ROLES.CONDUCTOR,
   });
 
-  const perfil = await perfilConductorRepository.crearPerfil({
+  const conductor = await conductorRepository.crear({
     usuarioId: nuevoUsuario.id,
-    vehiculoId: datosPerfil.vehiculoId,
     licenciaConducir: datosPerfil.licenciaConducir,
     estadoId: datosPerfil.estadoId || ESTADOS_CONDUCTOR.DISPONIBLE,
   });
 
-  return { usuario: nuevoUsuario, perfil };
+  return { usuario: nuevoUsuario, conductor };
 };
