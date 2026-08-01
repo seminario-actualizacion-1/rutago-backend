@@ -88,22 +88,22 @@ async function migrar() {
   }
 
   // Cargar datos desde MySQL
-  const usuarios = await loadMySQL("usuarios");
-  const roles = await loadMySQL("roles");
-  const comunas = await loadMySQL("comunas");
-  const barrios = await loadMySQL("barrios");
-  const tiposDocumento = await loadMySQL("tiposdocumento");
-  const estadosConductor = await loadMySQL("estadosconductor");
-  const estadosVehiculo = await loadMySQL("estadosvehiculo");
-  const estadosViaje = await loadMySQL("estadosviaje");
-  const perfilConductores = await loadMySQL("perfilconductors");
-  const perfilEntidades = await loadMySQL("perfilentidads");
-  const perfilPasajeros = await loadMySQL("perfilpasajeros");
-  const vehiculos = await loadMySQL("vehiculos");
-  const rutas = await loadMySQL("rutas");
-  const horarios = await loadMySQL("horarios");
-  const viajes = await loadMySQL("viajes");
-  const viajePasajeros = await loadMySQL("viajepasajeros");
+  const usuarios = await loadMySQL("Usuarios");
+  const roles = await loadMySQL("Roles");
+  const comunas = await loadMySQL("Comunas");
+  const barrios = await loadMySQL("Barrios");
+  const tiposDocumento = await loadMySQL("TiposDocumento");
+  const estadosConductor = await loadMySQL("EstadosConductor");
+  const estadosVehiculo = await loadMySQL("EstadosVehiculo");
+  const estadosViaje = await loadMySQL("EstadosViaje");
+  const perfilConductores = await loadMySQL("PerfilConductors");
+  const perfilEntidades = await loadMySQL("PerfilEntidads");
+  const perfilPasajeros = await loadMySQL("PerfilPasajeros");
+  const vehiculos = await loadMySQL("Vehiculos");
+  const rutas = await loadMySQL("Rutas");
+  const horarios = await loadMySQL("Horarios");
+  const viajes = await loadMySQL("Viajes");
+  const viajePasajeros = await loadMySQL("ViajePasajeros");
 
   console.log("Datos cargados:");
   console.log(
