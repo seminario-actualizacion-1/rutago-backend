@@ -1,6 +1,5 @@
 const {
-  PerfilConductor,
-  Vehiculo,
+  Conductor,
   Usuario,
   Rol,
   EstadoConductor,
@@ -21,10 +20,9 @@ const usuarioAttr = {
 };
 
 exports.obtenerTodos = async () => {
-  return await PerfilConductor.findAll({
+  return await Conductor.findAll({
     include: [
       usuarioAttr,
-      { model: Vehiculo, as: "vehiculo" },
       {
         model: EstadoConductor,
         as: "estadoConductor",
@@ -35,10 +33,9 @@ exports.obtenerTodos = async () => {
 };
 
 exports.obtenerPorId = async (id) => {
-  const perfil = await PerfilConductor.findByPk(id, {
+  const conductor = await Conductor.findByPk(id, {
     include: [
       usuarioAttr,
-      { model: Vehiculo, as: "vehiculo" },
       {
         model: EstadoConductor,
         as: "estadoConductor",
@@ -46,16 +43,15 @@ exports.obtenerPorId = async (id) => {
       },
     ],
   });
-  if (!perfil) throw new Error("PERFIL_CONDUCTOR_NO_ENCONTRADO");
-  return perfil;
+  if (!conductor) throw new Error("CONDUCTOR_NO_ENCONTRADO");
+  return conductor;
 };
 
 exports.obtenerPorUsuario = async (usuarioId) => {
-  return await PerfilConductor.findOne({
+  return await Conductor.findOne({
     where: { usuarioId },
     include: [
       usuarioAttr,
-      { model: Vehiculo, as: "vehiculo" },
       {
         model: EstadoConductor,
         as: "estadoConductor",
@@ -65,26 +61,26 @@ exports.obtenerPorUsuario = async (usuarioId) => {
   });
 };
 
-exports.crearPerfil = async (datos) => {
-  return await PerfilConductor.create(datos);
+exports.crear = async (datos) => {
+  return await Conductor.create(datos);
 };
 
-exports.actualizarPerfil = async (id, datos) => {
-  const perfil = await PerfilConductor.findByPk(id);
-  if (!perfil) throw new Error("PERFIL_CONDUCTOR_NO_ENCONTRADO");
-  return await perfil.update(datos);
+exports.actualizar = async (id, datos) => {
+  const conductor = await Conductor.findByPk(id);
+  if (!conductor) throw new Error("CONDUCTOR_NO_ENCONTRADO");
+  return await conductor.update(datos);
 };
 
 exports.actualizarEstado = async (id, estadoId) => {
-  const perfil = await PerfilConductor.findByPk(id);
-  if (!perfil) throw new Error("PERFIL_CONDUCTOR_NO_ENCONTRADO");
-  return await perfil.update({ estadoId });
+  const conductor = await Conductor.findByPk(id);
+  if (!conductor) throw new Error("CONDUCTOR_NO_ENCONTRADO");
+  return await conductor.update({ estadoId });
 };
 
-exports.eliminarPerfil = async (id) => {
-  const perfil = await PerfilConductor.findByPk(id);
-  if (!perfil) throw new Error("PERFIL_CONDUCTOR_NO_ENCONTRADO");
-  await perfil.destroy();
+exports.eliminar = async (id) => {
+  const conductor = await Conductor.findByPk(id);
+  if (!conductor) throw new Error("CONDUCTOR_NO_ENCONTRADO");
+  await conductor.destroy();
   return true;
 };
 
@@ -104,11 +100,10 @@ exports.obtenerTodosConPaginacion = async (
       { "$usuario.correo$": { [Op.like]: `%${q}%` } },
     ];
   }
-  return await PerfilConductor.findAndCountAll({
+  return await Conductor.findAndCountAll({
     where,
     include: [
       usuarioAttr,
-      { model: Vehiculo, as: "vehiculo" },
       {
         model: EstadoConductor,
         as: "estadoConductor",
@@ -126,25 +121,6 @@ exports.obtenerUsuarioPorId = async (id) => {
   return await require("../models").Usuario.findByPk(id);
 };
 
-exports.obtenerVehiculoPorId = async (id) => {
-  return await Vehiculo.findByPk(id);
-};
-
-exports.obtenerPorVehiculo = async (vehiculoId) => {
-  return await PerfilConductor.findOne({
-    where: { vehiculoId },
-    include: [
-      usuarioAttr,
-      { model: Vehiculo, as: "vehiculo" },
-      {
-        model: EstadoConductor,
-        as: "estadoConductor",
-        attributes: ["id", "nombre"],
-      },
-    ],
-  });
-};
-
 exports.obtenerExistente = async (usuarioId) => {
-  return await PerfilConductor.findOne({ where: { usuarioId } });
+  return await Conductor.findOne({ where: { usuarioId } });
 };

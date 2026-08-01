@@ -1,5 +1,5 @@
 "use strict";
-
+/** @type {import('sequelize-cli').Migration} */
 module.exports = {
   async up(queryInterface, Sequelize) {
     await queryInterface.createTable("Rutas", {
@@ -41,6 +41,9 @@ module.exports = {
       },
       tiempoEstimadoMinutos: {
         type: Sequelize.INTEGER,
+      },
+      rutaGeometria: {
+        type: Sequelize.TEXT,
       },
       createdAt: {
         allowNull: false,

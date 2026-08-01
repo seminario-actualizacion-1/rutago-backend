@@ -1,5 +1,5 @@
 const { Op } = require("sequelize");
-const { Ruta, Comuna, Barrio, Horario, Vehiculo } = require("../models");
+const { Ruta, Comuna, Barrio, Horario } = require("../models");
 
 exports.obtenerTodas = async () => {
   return await Ruta.findAll({
@@ -47,7 +47,6 @@ exports.obtenerPorId = async (id) => {
       {
         model: Horario,
         as: "horarios",
-        include: [{ model: Vehiculo, as: "vehiculo" }],
       },
     ],
   });
@@ -56,9 +55,6 @@ exports.obtenerPorId = async (id) => {
 };
 
 exports.buscarPorDestino = async (destino) => {
-  const { Op } = require("sequelize");
-  const { PerfilEntidad } = require("../models");
-
   return await Ruta.findAll({
     include: [
       { model: Comuna, as: "origen" },
@@ -66,18 +62,6 @@ exports.buscarPorDestino = async (destino) => {
       {
         model: Horario,
         as: "horarios",
-        include: [
-          {
-            model: Vehiculo,
-            as: "vehiculo",
-            include: [
-              {
-                model: PerfilEntidad,
-                as: "perfilEntidad",
-              },
-            ],
-          },
-        ],
       },
     ],
     where: {

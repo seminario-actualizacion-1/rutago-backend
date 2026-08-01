@@ -1,10 +1,9 @@
 const { Op } = require("sequelize");
-const { Horario, Vehiculo, Ruta } = require("../models");
+const { Horario, Ruta } = require("../models");
 
 exports.obtenerTodos = async () => {
   return await Horario.findAll({
     include: [
-      { model: Vehiculo, as: "vehiculo" },
       { model: Ruta, as: "ruta" },
     ],
   });
@@ -21,14 +20,12 @@ exports.obtenerTodosConPaginacion = async (
   if (q) {
     where[Op.or] = [
       { horaSalida: { [Op.like]: `%${q}%` } },
-      { "$vehiculo.placa$": { [Op.like]: `%${q}%` } },
       { "$ruta.nombre$": { [Op.like]: `%${q}%` } },
     ];
   }
   return await Horario.findAndCountAll({
     where,
     include: [
-      { model: Vehiculo, as: "vehiculo" },
       { model: Ruta, as: "ruta" },
     ],
     limit,
@@ -41,7 +38,6 @@ exports.obtenerTodosConPaginacion = async (
 exports.obtenerPorId = async (id) => {
   const horario = await Horario.findByPk(id, {
     include: [
-      { model: Vehiculo, as: "vehiculo" },
       { model: Ruta, as: "ruta" },
     ],
   });
@@ -53,17 +49,6 @@ exports.obtenerPorRuta = async (rutaId) => {
   return await Horario.findAll({
     where: { rutaId },
     include: [
-      { model: Vehiculo, as: "vehiculo" },
-      { model: Ruta, as: "ruta" },
-    ],
-  });
-};
-
-exports.obtenerPorVehiculo = async (vehiculoId) => {
-  return await Horario.findAll({
-    where: { vehiculoId },
-    include: [
-      { model: Vehiculo, as: "vehiculo" },
       { model: Ruta, as: "ruta" },
     ],
   });

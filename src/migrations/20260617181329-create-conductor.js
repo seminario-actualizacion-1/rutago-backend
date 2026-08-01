@@ -2,40 +2,22 @@
 /** @type {import('sequelize-cli').Migration} */
 module.exports = {
   async up(queryInterface, Sequelize) {
-    await queryInterface.createTable("Vehiculos", {
+    await queryInterface.createTable("Conductores", {
       id: {
         allowNull: false,
         autoIncrement: true,
         primaryKey: true,
         type: Sequelize.INTEGER,
       },
-      placa: {
-        type: Sequelize.STRING,
+      usuarioId: {
+        type: Sequelize.INTEGER,
         unique: true,
-      },
-      marca: {
-        type: Sequelize.STRING,
-      },
-      modelo: {
-        type: Sequelize.STRING,
-      },
-      color: {
-        type: Sequelize.STRING,
-      },
-      capacidadPasajeros: {
-        type: Sequelize.INTEGER,
-      },
-      tipoVehiculo: {
-        type: Sequelize.STRING,
-      },
-      numeroInterno: {
-        type: Sequelize.STRING,
-      },
-      entidadId: {
-        type: Sequelize.INTEGER,
-        references: { model: "Entidades", key: "id" },
+        references: { model: "Usuarios", key: "id" },
         onUpdate: "CASCADE",
-        onDelete: "SET NULL",
+        onDelete: "CASCADE",
+      },
+      licenciaConducir: {
+        type: Sequelize.STRING,
       },
       estadoId: {
         type: Sequelize.INTEGER,
@@ -52,6 +34,6 @@ module.exports = {
     });
   },
   async down(queryInterface, Sequelize) {
-    await queryInterface.dropTable("Vehiculos");
+    await queryInterface.dropTable("Conductores");
   },
 };

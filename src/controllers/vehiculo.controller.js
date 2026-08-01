@@ -1,5 +1,5 @@
 const vehiculoService = require("../services/vehiculo.service");
-const perfilEntidadRepository = require("../repositories/perfilentidad.repository");
+const entidadRepository = require("../repositories/entidad.repository");
 const vehiculoRepository = require("../repositories/vehiculo.repository");
 const { ROLES } = require("../config/roles");
 const vehiculoDto = require("../dtos/vehiculo.dto");
@@ -78,7 +78,7 @@ exports.crearVehiculo = async (req, res) => {
   try {
     const datos = req.body;
     if (req.usuario.rolId === ROLES.ENTIDAD) {
-      const entidad = await perfilEntidadRepository.obtenerPorUsuario(
+      const entidad = await entidadRepository.obtenerPorUsuario(
         req.usuario.id,
       );
       if (!entidad) {
@@ -104,7 +104,7 @@ exports.crearVehiculo = async (req, res) => {
 exports.actualizarVehiculo = async (req, res) => {
   try {
     if (req.usuario.rolId === ROLES.ENTIDAD) {
-      const entidad = await perfilEntidadRepository.obtenerPorUsuario(
+      const entidad = await entidadRepository.obtenerPorUsuario(
         req.usuario.id,
       );
       if (!entidad) {
@@ -140,7 +140,7 @@ exports.actualizarVehiculo = async (req, res) => {
 exports.eliminarVehiculo = async (req, res) => {
   try {
     if (req.usuario.rolId === ROLES.ENTIDAD) {
-      const entidad = await perfilEntidadRepository.obtenerPorUsuario(
+      const entidad = await entidadRepository.obtenerPorUsuario(
         req.usuario.id,
       );
       if (!entidad) {

@@ -13,13 +13,17 @@ module.exports = (sequelize, DataTypes) => {
         as: "comuna",
         onDelete: "RESTRICT",
       });
-      Barrio.hasMany(models.Viaje, {
-        foreignKey: "barrioOrigenId",
-        as: "viajesOrigen",
+
+      Barrio.belongsToMany(models.Ruta, {
+        through: models.RutaBarrio,
+        foreignKey: "barrioId",
+        otherKey: "rutaId",
+        as: "rutas",
       });
-      Barrio.hasMany(models.Viaje, {
-        foreignKey: "barrioDestinoId",
-        as: "viajesDestino",
+
+      Barrio.hasMany(models.RutaBarrio, {
+        foreignKey: "barrioId",
+        as: "rutaBarrios",
       });
     }
   }

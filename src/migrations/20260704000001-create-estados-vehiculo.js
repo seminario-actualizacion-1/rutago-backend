@@ -1,34 +1,28 @@
 "use strict";
-
+/** @type {import('sequelize-cli').Migration} */
 module.exports = {
   async up(queryInterface, Sequelize) {
     // Crear catálogo si no existe
     await queryInterface.createTable("EstadosVehiculo", {
-      id: { allowNull: false, autoIncrement: true, primaryKey: true, type: Sequelize.INTEGER },
+      id: {
+        allowNull: false,
+        autoIncrement: true,
+        primaryKey: true,
+        type: Sequelize.INTEGER,
+      },
       nombre: { type: Sequelize.STRING(30), allowNull: false, unique: true },
       descripcion: { type: Sequelize.STRING(100), allowNull: true },
       createdAt: { allowNull: false, type: Sequelize.DATE },
       updatedAt: { allowNull: false, type: Sequelize.DATE },
     });
 
-    // Insertar datos del catálogo (idempotente)
-    await queryInterface.sequelize.query(`
-      INSERT IGNORE INTO EstadosVehiculo (id, nombre, descripcion, createdAt, updatedAt) VALUES
-      (1, 'EN_TERMINAL', 'Vehículo en terminal disponible', NOW(), NOW()),
-      (2, 'EN_RUTA', 'Vehículo en ruta', NOW(), NOW()),
-      (3, 'PROXIMO', 'Vehículo próximo a salir', NOW(), NOW())
-    `);
-
-    // Migrar columna estado → estadoId
+    // Agregar columna estadoId si no existe
     const table = await queryInterface.describeTable("Vehiculos");
     if (!table.estadoId) {
-      await queryInterface.addColumn("Vehiculos", "estadoId", { type: Sequelize.INTEGER, allowNull: true });
-    }
-    if (table.estado) {
-      await queryInterface.sequelize.query(`UPDATE Vehiculos SET estadoId = 1 WHERE estado = 'EN_TERMINAL'`);
-      await queryInterface.sequelize.query(`UPDATE Vehiculos SET estadoId = 2 WHERE estado = 'EN_RUTA'`);
-      await queryInterface.sequelize.query(`UPDATE Vehiculos SET estadoId = 3 WHERE estado = 'PROXIMO'`);
-      await queryInterface.removeColumn("Vehiculos", "estado");
+      await queryInterface.addColumn("Vehiculos", "estadoId", {
+        type: Sequelize.INTEGER,
+        allowNull: true,
+      });
     }
     // Agregar FK si no existe
     try {
@@ -43,21 +37,35 @@ module.exports = {
     } catch (e) {
       if (e.parent?.code !== "ER_DUP_KEYNAME") throw e;
     }
+
+    await queryInterface.bulkInsert("EstadosVehiculo", [
+      {
+        id: 1,
+        nombre: "EN_TERMINAL",
+        descripcion: "Vehículo en terminal disponible",
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      },
+      {
+        id: 2,
+        nombre: "EN_RUTA",
+        descripcion: "Vehículo en ruta",
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      },
+      {
+        id: 3,
+        nombre: "PROXIMO",
+        descripcion: "Vehículo próximo a salir",
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      },
+    ]);
   },
 
   async down(queryInterface, Sequelize) {
     const table = await queryInterface.describeTable("Vehiculos");
-    if (!table.estado) {
-      await queryInterface.addColumn("Vehiculos", "estado", {
-        type: Sequelize.ENUM("EN_TERMINAL", "EN_RUTA", "PROXIMO"),
-        defaultValue: "EN_TERMINAL",
-        allowNull: true,
-      });
-    }
     if (table.estadoId) {
-      await queryInterface.sequelize.query(`UPDATE Vehiculos SET estado = 'EN_TERMINAL' WHERE estadoId = 1`);
-      await queryInterface.sequelize.query(`UPDATE Vehiculos SET estado = 'EN_RUTA' WHERE estadoId = 2`);
-      await queryInterface.sequelize.query(`UPDATE Vehiculos SET estado = 'PROXIMO' WHERE estadoId = 3`);
       await queryInterface.removeColumn("Vehiculos", "estadoId");
     }
     await queryInterface.dropTable("EstadosVehiculo");

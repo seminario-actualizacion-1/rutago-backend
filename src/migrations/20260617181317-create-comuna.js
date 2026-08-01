@@ -10,7 +10,8 @@ module.exports = {
         type: Sequelize.INTEGER,
       },
       nombre: {
-        type: Sequelize.STRING,
+        type: Sequelize.STRING(100),
+        allowNull: false,
       },
       createdAt: {
         allowNull: false,
@@ -21,6 +22,17 @@ module.exports = {
         type: Sequelize.DATE,
       },
     });
+
+    const comunas = [];
+    for (let i = 1; i <= 12; i++) {
+      comunas.push({
+        id: i,
+        nombre: "Comuna " + i,
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      });
+    }
+    await queryInterface.bulkInsert("Comunas", comunas);
   },
   async down(queryInterface, Sequelize) {
     await queryInterface.dropTable("Comunas");

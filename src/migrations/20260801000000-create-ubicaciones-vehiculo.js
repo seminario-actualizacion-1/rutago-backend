@@ -2,27 +2,31 @@
 /** @type {import('sequelize-cli').Migration} */
 module.exports = {
   async up(queryInterface, Sequelize) {
-    await queryInterface.createTable("PerfilEntidads", {
+    await queryInterface.createTable("UbicacionesVehiculo", {
       id: {
         allowNull: false,
         autoIncrement: true,
         primaryKey: true,
         type: Sequelize.INTEGER,
       },
-      usuarioId: {
+      vehiculoId: {
         type: Sequelize.INTEGER,
-        references: { model: "Usuarios", key: "id" },
+        allowNull: false,
+        references: { model: "Vehiculos", key: "id" },
         onUpdate: "CASCADE",
         onDelete: "CASCADE",
       },
-      razonSocial: {
-        type: Sequelize.STRING,
+      latitud: {
+        type: Sequelize.DECIMAL(10, 8),
+        allowNull: false,
       },
-      nit: {
-        type: Sequelize.STRING,
+      longitud: {
+        type: Sequelize.DECIMAL(11, 8),
+        allowNull: false,
       },
-      telefonoContacto: {
-        type: Sequelize.STRING,
+      fechaHora: {
+        type: Sequelize.DATE,
+        allowNull: false,
       },
       createdAt: {
         allowNull: false,
@@ -34,7 +38,8 @@ module.exports = {
       },
     });
   },
+
   async down(queryInterface, Sequelize) {
-    await queryInterface.dropTable("PerfilEntidads");
+    await queryInterface.dropTable("UbicacionesVehiculo");
   },
 };

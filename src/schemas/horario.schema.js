@@ -5,10 +5,6 @@ const crear = z.object({
     .number({ required_error: "La ruta es obligatoria" })
     .int()
     .positive("La ruta debe ser un número entero positivo"),
-  vehiculoId: z.coerce
-    .number({ required_error: "El vehículo es obligatorio" })
-    .int()
-    .positive("El vehículo debe ser un número entero positivo"),
   horaSalida: z
     .string({ required_error: "La hora de salida es obligatoria" })
     .trim()
@@ -35,7 +31,6 @@ const crear = z.object({
 
 const actualizar = z.object({
   rutaId: z.coerce.number().int().positive().optional(),
-  vehiculoId: z.coerce.number().int().positive().optional(),
   horaSalida: z
     .string()
     .trim()

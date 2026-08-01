@@ -1,5 +1,4 @@
 const horarioRepository = require("../repositories/horario.repository");
-const vehiculoRepository = require("../repositories/vehiculo.repository");
 const rutaRepository = require("../repositories/ruta.repository");
 
 
@@ -36,20 +35,11 @@ exports.obtenerPorRuta = async (rutaId) => {
   return await horarioRepository.obtenerPorRuta(rutaId);
 };
 
-exports.obtenerPorVehiculo = async (vehiculoId) => {
-  return await horarioRepository.obtenerPorVehiculo(vehiculoId);
-};
-
 exports.crearHorario = async (datos) => {
-  const { vehiculoId, rutaId, horaSalida } = datos;
+  const { rutaId, horaSalida } = datos;
 
-  if (!vehiculoId || !rutaId || !horaSalida) {
-    throw new Error("VEHICULO_RUTA_Y_HORA_SON_OBLIGATORIOS");
-  }
-
-  const vehiculo = await vehiculoRepository.obtenerPorId(vehiculoId);
-  if (!vehiculo) {
-    throw new Error("VEHICULO_NO_ENCONTRADO");
+  if (!rutaId || !horaSalida) {
+    throw new Error("RUTA_Y_HORA_SON_OBLIGATORIOS");
   }
 
   const ruta = await rutaRepository.obtenerPorId(rutaId);
@@ -61,20 +51,13 @@ exports.crearHorario = async (datos) => {
 };
 
 exports.actualizarHorario = async (id, datos) => {
-  const { vehiculoId, rutaId, horaSalida } = datos;
+  const { rutaId, horaSalida } = datos;
 
-  if (!vehiculoId || !rutaId || !horaSalida) {
-    throw new Error("VEHICULO_RUTA_Y_HORA_SON_OBLIGATORIOS");
-  }
-
-  const vehiculo = await vehiculoRepository.obtenerPorId(vehiculoId);
-  if (!vehiculo) {
-    throw new Error("VEHICULO_NO_ENCONTRADO");
-  }
-
-  const ruta = await rutaRepository.obtenerPorId(rutaId);
-  if (!ruta) {
-    throw new Error("RUTA_NO_ENCONTRADA");
+  if (rutaId) {
+    const ruta = await rutaRepository.obtenerPorId(rutaId);
+    if (!ruta) {
+      throw new Error("RUTA_NO_ENCONTRADA");
+    }
   }
 
   return await horarioRepository.actualizarHorario(id, datos);

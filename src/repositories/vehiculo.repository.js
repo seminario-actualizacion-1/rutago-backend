@@ -1,14 +1,14 @@
 const { Op } = require("sequelize");
 const {
   Vehiculo,
-  PerfilEntidad,
+  Entidad,
   EstadoVehiculo,
   Usuario,
   Rol,
 } = require("../models");
 const includeEntidad = {
-  model: PerfilEntidad,
-  as: "perfilEntidad",
+  model: Entidad,
+  as: "entidad",
   include: [
     {
       model: Usuario,
@@ -85,5 +85,5 @@ exports.eliminarVehiculo = async (id) => {
 };
 
 exports.obtenerEntidadPorId = async (id) => {
-  return await PerfilEntidad.findByPk(id);
+  return await Entidad.findByPk(id);
 };
