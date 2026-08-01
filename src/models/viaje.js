@@ -8,19 +8,19 @@ module.exports = (sequelize, DataTypes) => {
         as: "pasajeros",
       });
 
-      Viaje.belongsTo(models.Usuario, {
+      Viaje.belongsTo(models.Conductor, {
         foreignKey: "conductorId",
         as: "conductor",
-      });
-
-      Viaje.belongsTo(models.Ruta, {
-        foreignKey: "rutaId",
-        as: "ruta",
       });
 
       Viaje.belongsTo(models.Horario, {
         foreignKey: "horarioId",
         as: "horario",
+      });
+
+      Viaje.belongsTo(models.Vehiculo, {
+        foreignKey: "vehiculoId",
+        as: "vehiculo",
       });
 
       Viaje.belongsTo(models.EstadoViaje, {
@@ -32,13 +32,16 @@ module.exports = (sequelize, DataTypes) => {
   Viaje.init(
     {
       conductorId: DataTypes.INTEGER,
-      rutaId: DataTypes.INTEGER,
       horarioId: DataTypes.INTEGER,
+      vehiculoId: DataTypes.INTEGER,
       estadoId: {
         type: DataTypes.INTEGER,
         defaultValue: 1,
       },
       precioEstimado: DataTypes.DECIMAL,
+      horaInicio: DataTypes.DATE,
+      horaFin: DataTypes.DATE,
+      kilometrosRecorridos: DataTypes.DECIMAL,
     },
     {
       sequelize,

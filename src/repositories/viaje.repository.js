@@ -9,53 +9,58 @@ const {
   Rol,
   EstadoViaje,
   Comuna,
+  Conductor,
+  Pasajero,
 } = require("../models");
 const { ESTADOS_VIAJE } = require("../config/estados");
 
-const usuarioAttr = (as) => ({
-  model: Usuario,
-  as,
-  attributes: [
-    "id",
-    "nombres",
-    "apellidos",
-    "correo",
-    "rolId",
-    "createdAt",
-    "updatedAt",
-  ],
-  include: [{ model: Rol, as: "rol", attributes: ["id", "nombreRol"] }],
-});
+const conductorAttr = {
+  model: Conductor,
+  as: "conductor",
+  attributes: ["id", "usuarioId"],
+  include: [{
+    model: Usuario,
+    as: "usuario",
+    attributes: ["id", "nombres", "apellidos", "correo", "rolId", "createdAt", "updatedAt"],
+    include: [{ model: Rol, as: "rol", attributes: ["id", "nombreRol"] }],
+  }],
+};
+
+const pasajeroAttr = {
+  model: Pasajero,
+  as: "pasajero",
+  attributes: ["id", "usuarioId"],
+  include: [{
+    model: Usuario,
+    as: "usuario",
+    attributes: ["id", "nombres", "apellidos", "correo", "rolId", "createdAt", "updatedAt"],
+    include: [{ model: Rol, as: "rol", attributes: ["id", "nombreRol"] }],
+  }],
+};
 
 const includeDefault = [
-  { model: ViajePasajero, as: "pasajeros", include: [usuarioAttr("pasajero")] },
-  usuarioAttr("conductor"),
-  {
-    model: Ruta,
-    as: "ruta",
-    attributes: [
-      "id",
-      "nombre",
-      "distanciaKm",
-      "tiempoEstimadoMinutos",
-      "rutaGeometria",
-    ],
-    include: [
-      { model: Comuna, as: "origen", attributes: ["id", "nombre"] },
-      { model: Comuna, as: "destino", attributes: ["id", "nombre"] },
-    ],
-  },
+  { model: ViajePasajero, as: "pasajeros", include: [pasajeroAttr] },
+  conductorAttr,
   {
     model: Horario,
     as: "horario",
     attributes: ["id", "horaSalida", "frecuenciaMinutos"],
     include: [
       {
-        model: Vehiculo,
-        as: "vehiculo",
-        attributes: ["id", "placa", "capacidadPasajeros"],
+        model: Ruta,
+        as: "ruta",
+        attributes: ["id", "nombre", "distanciaKm", "tiempoEstimadoMinutos", "rutaGeometria"],
+        include: [
+          { model: Comuna, as: "origen", attributes: ["id", "nombre"] },
+          { model: Comuna, as: "destino", attributes: ["id", "nombre"] },
+        ],
       },
     ],
+  },
+  {
+    model: Vehiculo,
+    as: "vehiculo",
+    attributes: ["id", "placa", "capacidadPasajeros"],
   },
   { model: EstadoViaje, as: "estadoViaje", attributes: ["id", "nombre"] },
 ];
@@ -78,11 +83,11 @@ exports.obtenerTodosConPaginacion = async (
   const where = {};
   if (q) {
     where[Op.or] = [
-      { "$pasajeros.pasajero.nombres$": { [Op.like]: `%${q}%` } },
-      { "$pasajeros.pasajero.apellidos$": { [Op.like]: `%${q}%` } },
-      { "$conductor.nombres$": { [Op.like]: `%${q}%` } },
-      { "$conductor.apellidos$": { [Op.like]: `%${q}%` } },
-      { "$ruta.nombre$": { [Op.like]: `%${q}%` } },
+      { "$pasajeros.pasajero.usuario.nombres$": { [Op.like]: `%${q}%` } },
+      { "$pasajeros.pasajero.usuario.apellidos$": { [Op.like]: `%${q}%` } },
+      { "$conductor.usuario.nombres$": { [Op.like]: `%${q}%` } },
+      { "$conductor.usuario.apellidos$": { [Op.like]: `%${q}%` } },
+      { "$horario.ruta.nombre$": { [Op.like]: `%${q}%` } },
     ];
   }
   if (estadoId) {
@@ -106,21 +111,12 @@ exports.obtenerPorId = async (id) => {
   return viaje;
 };
 
-exports.obtenerDisponibles = async (vehiculoId) => {
-  const where = {
-    estadoId: ESTADOS_VIAJE.BUSCANDO,
-    conductorId: null,
-  };
-  if (vehiculoId) {
-    const horarios = await Horario.findAll({
-      attributes: ["id"],
-      where: { vehiculoId },
-      raw: true,
-    });
-    where.horarioId = { [Op.in]: horarios.map((h) => h.id) };
-  }
+exports.obtenerDisponibles = async () => {
   return await Viaje.findAll({
-    where,
+    where: {
+      estadoId: ESTADOS_VIAJE.BUSCANDO,
+      conductorId: null,
+    },
     include: includeDefault,
     order: [["createdAt", "DESC"]],
   });
@@ -150,8 +146,8 @@ exports.obtenerDisponiblesPasajero = async (pasajeroId) => {
 
 exports.obtenerMisViajes = async (usuarioId, esConductor) => {
   const where = esConductor
-    ? { conductorId: usuarioId }
-    : { "$pasajeros.pasajeroId$": usuarioId };
+    ? { "$conductor.usuarioId$": usuarioId }
+    : { "$pasajeros.pasajero.usuarioId$": usuarioId };
 
   return await Viaje.findAll({
     where,

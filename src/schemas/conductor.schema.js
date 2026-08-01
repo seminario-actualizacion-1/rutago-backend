@@ -10,13 +10,11 @@ const crear = z.object({
     .trim()
     .max(50, "La licencia no debe exceder 50 caracteres")
     .optional(),
-  vehiculoId: z.coerce.number().int().positive().optional(),
   estadoId: z.coerce.number().int().positive().optional(),
 });
 
 const actualizar = z.object({
   licenciaConducir: z.string().trim().max(50).optional(),
-  vehiculoId: z.coerce.number().int().positive().optional(),
   estadoId: z.coerce.number().int().positive().optional(),
 });
 
@@ -40,7 +38,6 @@ const crearConUsuario = z
     contrasena: z
       .string({ required_error: "La contraseña es obligatoria" })
       .min(6, "La contraseña debe tener al menos 6 caracteres"),
-    vehiculoId: z.coerce.number().int().positive().optional(),
     licenciaConducir: z.string().trim().max(50).optional(),
     estadoId: z.coerce.number().int().positive().optional(),
   })

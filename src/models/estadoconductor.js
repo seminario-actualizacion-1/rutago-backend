@@ -3,9 +3,9 @@ const { Model } = require("sequelize");
 module.exports = (sequelize, DataTypes) => {
   class EstadoConductor extends Model {
     static associate(models) {
-      EstadoConductor.hasMany(models.PerfilConductor, {
+      EstadoConductor.hasMany(models.Conductor, {
         foreignKey: "estadoId",
-        as: "perfilesConductor",
+        as: "conductores",
       });
     }
   }

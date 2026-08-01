@@ -1,35 +1,27 @@
 "use strict";
-
+/** @type {import('sequelize-cli').Migration} */
 module.exports = {
   async up(queryInterface, Sequelize) {
     await queryInterface.createTable("EstadosViaje", {
-      id: { allowNull: false, autoIncrement: true, primaryKey: true, type: Sequelize.INTEGER },
+      id: {
+        allowNull: false,
+        autoIncrement: true,
+        primaryKey: true,
+        type: Sequelize.INTEGER,
+      },
       nombre: { type: Sequelize.STRING(30), allowNull: false, unique: true },
       descripcion: { type: Sequelize.STRING(100), allowNull: true },
       createdAt: { allowNull: false, type: Sequelize.DATE },
       updatedAt: { allowNull: false, type: Sequelize.DATE },
     });
 
-    await queryInterface.sequelize.query(`
-      INSERT IGNORE INTO EstadosViaje (id, nombre, descripcion, createdAt, updatedAt) VALUES
-      (1, 'BUSCANDO', 'Buscando conductor disponible', NOW(), NOW()),
-      (2, 'ACEPTADO', 'Viaje aceptado por el conductor', NOW(), NOW()),
-      (3, 'EN_CURSO', 'Viaje en curso', NOW(), NOW()),
-      (4, 'FINALIZADO', 'Viaje finalizado exitosamente', NOW(), NOW()),
-      (5, 'CANCELADO', 'Viaje cancelado', NOW(), NOW())
-    `);
-
     const table = await queryInterface.describeTable("Viajes");
     if (!table.estadoId) {
-      await queryInterface.addColumn("Viajes", "estadoId", { type: Sequelize.INTEGER, allowNull: true });
-    }
-    if (table.estado) {
-      await queryInterface.sequelize.query(`UPDATE Viajes SET estadoId = 1 WHERE estado = 'BUSCANDO'`);
-      await queryInterface.sequelize.query(`UPDATE Viajes SET estadoId = 2 WHERE estado = 'ACEPTADO'`);
-      await queryInterface.sequelize.query(`UPDATE Viajes SET estadoId = 3 WHERE estado = 'EN_CURSO'`);
-      await queryInterface.sequelize.query(`UPDATE Viajes SET estadoId = 4 WHERE estado = 'FINALIZADO'`);
-      await queryInterface.sequelize.query(`UPDATE Viajes SET estadoId = 5 WHERE estado = 'CANCELADO'`);
-      await queryInterface.removeColumn("Viajes", "estado");
+      await queryInterface.addColumn("Viajes", "estadoId", {
+        type: Sequelize.INTEGER,
+        allowNull: true,
+        defaultValue: 1,
+      });
     }
     try {
       await queryInterface.addConstraint("Viajes", {
@@ -41,21 +33,52 @@ module.exports = {
         onUpdate: "CASCADE",
       });
     } catch (e) {
-      if (e.parent?.code !== "ER_DUP_KEYNAME") throw e;
+      if (e.parent?.code !== "ER_DUP_KEYNAME" && e.parent?.code !== "42P17")
+        throw e;
     }
+
+    await queryInterface.bulkInsert("EstadosViaje", [
+      {
+        id: 1,
+        nombre: "BUSCANDO",
+        descripcion: "Buscando conductor disponible",
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      },
+      {
+        id: 2,
+        nombre: "ACEPTADO",
+        descripcion: "Viaje aceptado por el conductor",
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      },
+      {
+        id: 3,
+        nombre: "EN_CURSO",
+        descripcion: "Viaje en curso",
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      },
+      {
+        id: 4,
+        nombre: "FINALIZADO",
+        descripcion: "Viaje finalizado exitosamente",
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      },
+      {
+        id: 5,
+        nombre: "CANCELADO",
+        descripcion: "Viaje cancelado",
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      },
+    ]);
   },
 
   async down(queryInterface, Sequelize) {
     const table = await queryInterface.describeTable("Viajes");
-    if (!table.estado) {
-      await queryInterface.addColumn("Viajes", "estado", { type: Sequelize.STRING, allowNull: true });
-    }
     if (table.estadoId) {
-      await queryInterface.sequelize.query(`UPDATE Viajes SET estado = 'BUSCANDO' WHERE estadoId = 1`);
-      await queryInterface.sequelize.query(`UPDATE Viajes SET estado = 'ACEPTADO' WHERE estadoId = 2`);
-      await queryInterface.sequelize.query(`UPDATE Viajes SET estado = 'EN_CURSO' WHERE estadoId = 3`);
-      await queryInterface.sequelize.query(`UPDATE Viajes SET estado = 'FINALIZADO' WHERE estadoId = 4`);
-      await queryInterface.sequelize.query(`UPDATE Viajes SET estado = 'CANCELADO' WHERE estadoId = 5`);
       await queryInterface.removeColumn("Viajes", "estadoId");
     }
     await queryInterface.dropTable("EstadosViaje");

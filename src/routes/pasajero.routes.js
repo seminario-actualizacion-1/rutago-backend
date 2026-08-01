@@ -1,17 +1,17 @@
 const express = require("express");
 const router = express.Router();
-const perfilConductorController = require("../controllers/perfilconductor.controller");
+const pasajeroController = require("../controllers/pasajero.controller");
 const authMiddleware = require("../middlewares/auth.middleware");
 const roleMiddleware = require("../middlewares/role.middleware");
 const { validarSchema } = require("../middlewares/validator.middleware");
-const perfilConductorSchema = require("../schemas/perfilconductor.schema");
+const pasajeroSchema = require("../schemas/pasajero.schema");
 
 /**
  * @swagger
- * /api/perfiles-conductor:
+ * /api/pasajeros:
  *   get:
- *     summary: Obtener todos los perfiles de conductor (paginado)
- *     tags: [Perfiles Conductor]
+ *     summary: Obtener todos los pasajeros (paginado)
+ *     tags: [Pasajeros]
  *     security:
  *       - bearerAuth: []
  *     parameters:
@@ -43,7 +43,7 @@ const perfilConductorSchema = require("../schemas/perfilconductor.schema");
  *         description: Dirección del ordenamiento
  *     responses:
  *       200:
- *         description: Lista de perfiles de conductor
+ *         description: Lista de pasajeros
  *       401:
  *         description: No autenticado
  *       403:
@@ -52,21 +52,22 @@ const perfilConductorSchema = require("../schemas/perfilconductor.schema");
 router.get(
   "/",
   authMiddleware.verificarToken,
+  roleMiddleware.esAdministrador,
   validarSchema(require("../schemas/paginacion.schema").paginacion, "query"),
-  perfilConductorController.obtenerTodos,
+  pasajeroController.obtenerTodos,
 );
 
 /**
  * @swagger
- * /api/perfiles-conductor/me/perfil:
+ * /api/pasajeros/me/perfil:
  *   get:
- *     summary: Obtener mi perfil de conductor
- *     tags: [Perfiles Conductor]
+ *     summary: Obtener mi pasajero
+ *     tags: [Pasajeros]
  *     security:
  *       - bearerAuth: []
  *     responses:
  *       200:
- *         description: Datos del perfil de conductor
+ *         description: Datos del pasajero
  *       401:
  *         description: No autenticado
  *       403:
@@ -77,16 +78,16 @@ router.get(
 router.get(
   "/me/perfil",
   authMiddleware.verificarToken,
-  roleMiddleware.esConductor,
-  perfilConductorController.obtenerMiPerfil,
+  roleMiddleware.esPasajero,
+  pasajeroController.obtenerMiPerfil,
 );
 
 /**
  * @swagger
- * /api/perfiles-conductor/me/perfil:
+ * /api/pasajeros/me/perfil:
  *   put:
- *     summary: Actualizar mi perfil de conductor
- *     tags: [Perfiles Conductor]
+ *     summary: Actualizar mi pasajero
+ *     tags: [Pasajeros]
  *     security:
  *       - bearerAuth: []
  *     requestBody:
@@ -96,10 +97,10 @@ router.get(
  *           schema:
  *             type: object
  *             properties:
- *               licenciaConducir:
+ *               telefono:
  *                 type: string
- *               estadoId:
- *                 type: integer
+ *               direccion:
+ *                 type: string
  *     responses:
  *       200:
  *         description: Perfil actualizado exitosamente
@@ -113,17 +114,46 @@ router.get(
 router.put(
   "/me/perfil",
   authMiddleware.verificarToken,
-  roleMiddleware.esConductor,
-  validarSchema(perfilConductorSchema.actualizar),
-  perfilConductorController.actualizarMiPerfil,
+  roleMiddleware.esPasajero,
+  validarSchema(pasajeroSchema.actualizar),
+  pasajeroController.actualizarMiPerfil,
 );
 
 /**
  * @swagger
- * /api/perfiles-conductor/{id}:
+ * /api/pasajeros/usuario/{usuarioId}:
  *   get:
- *     summary: Obtener un perfil de conductor por ID
- *     tags: [Perfiles Conductor]
+ *     summary: Obtener pasajero por ID de usuario
+ *     tags: [Pasajeros]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: usuarioId
+ *         required: true
+ *         schema:
+ *           type: integer
+ *         description: ID del usuario
+ *     responses:
+ *       200:
+ *         description: Datos del pasajero
+ *       401:
+ *         description: No autenticado
+ *       404:
+ *         description: Perfil no encontrado
+ */
+router.get(
+  "/usuario/:usuarioId",
+  authMiddleware.verificarToken,
+  pasajeroController.obtenerPorUsuarioId,
+);
+
+/**
+ * @swagger
+ * /api/pasajeros/{id}:
+ *   get:
+ *     summary: Obtener un pasajero por ID
+ *     tags: [Pasajeros]
  *     security:
  *       - bearerAuth: []
  *     parameters:
@@ -132,10 +162,10 @@ router.put(
  *         required: true
  *         schema:
  *           type: integer
- *         description: ID del perfil de conductor
+ *         description: ID del pasajero
  *     responses:
  *       200:
- *         description: Datos del perfil de conductor
+ *         description: Datos del pasajero
  *       401:
  *         description: No autenticado
  *       403:
@@ -146,15 +176,16 @@ router.put(
 router.get(
   "/:id",
   authMiddleware.verificarToken,
-  perfilConductorController.obtenerPorId,
+  roleMiddleware.esAdministrador,
+  pasajeroController.obtenerPorId,
 );
 
 /**
  * @swagger
- * /api/perfiles-conductor:
+ * /api/pasajeros:
  *   post:
- *     summary: Crear un nuevo perfil de conductor
- *     tags: [Perfiles Conductor]
+ *     summary: Crear un nuevo pasajero
+ *     tags: [Pasajeros]
  *     security:
  *       - bearerAuth: []
  *     requestBody:
@@ -166,13 +197,13 @@ router.get(
  *             properties:
  *               usuarioId:
  *                 type: integer
- *               licenciaConducir:
+ *               telefono:
  *                 type: string
- *               estadoId:
- *                 type: integer
+ *               direccion:
+ *                 type: string
  *     responses:
  *       201:
- *         description: Perfil de conductor creado exitosamente
+ *         description: Perfil de pasajero creado exitosamente
  *       400:
  *         description: Datos inválidos
  *       401:
@@ -184,16 +215,16 @@ router.post(
   "/",
   authMiddleware.verificarToken,
   roleMiddleware.esAdministrador,
-  validarSchema(perfilConductorSchema.crear),
-  perfilConductorController.crearPerfil,
+  validarSchema(pasajeroSchema.crear),
+  pasajeroController.crear,
 );
 
 /**
  * @swagger
- * /api/perfiles-conductor/{id}:
+ * /api/pasajeros/{id}:
  *   put:
- *     summary: Actualizar un perfil de conductor por ID
- *     tags: [Perfiles Conductor]
+ *     summary: Actualizar un pasajero por ID
+ *     tags: [Pasajeros]
  *     security:
  *       - bearerAuth: []
  *     parameters:
@@ -202,7 +233,7 @@ router.post(
  *         required: true
  *         schema:
  *           type: integer
- *         description: ID del perfil de conductor
+ *         description: ID del pasajero
  *     requestBody:
  *       required: true
  *       content:
@@ -212,10 +243,10 @@ router.post(
  *             properties:
  *               usuarioId:
  *                 type: integer
- *               licenciaConducir:
+ *               telefono:
  *                 type: string
- *               estadoId:
- *                 type: integer
+ *               direccion:
+ *                 type: string
  *     responses:
  *       200:
  *         description: Perfil actualizado exitosamente
@@ -232,108 +263,16 @@ router.put(
   "/:id",
   authMiddleware.verificarToken,
   roleMiddleware.esAdministrador,
-  validarSchema(perfilConductorSchema.actualizar),
-  perfilConductorController.actualizarPerfil,
+  validarSchema(pasajeroSchema.actualizar),
+  pasajeroController.actualizar,
 );
 
 /**
  * @swagger
- * /api/perfiles-conductor/{id}/estado:
- *   patch:
- *     summary: Cambiar el estado de un perfil de conductor
- *     tags: [Perfiles Conductor]
- *     security:
- *       - bearerAuth: []
- *     parameters:
- *       - in: path
- *         name: id
- *         required: true
- *         schema:
- *           type: integer
- *         description: ID del perfil de conductor
- *     requestBody:
- *       required: true
- *       content:
- *         application/json:
- *           schema:
- *             type: object
- *             required:
- *               - estadoId
- *             properties:
- *               estadoId:
- *                 type: integer
- *     responses:
- *       200:
- *         description: Estado actualizado exitosamente
- *       400:
- *         description: Datos inválidos
- *       401:
- *         description: No autenticado
- *       403:
- *         description: No autorizado
- *       404:
- *         description: Perfil no encontrado
- */
-router.patch(
-  "/:id/estado",
-  authMiddleware.verificarToken,
-  roleMiddleware.esConductor,
-  validarSchema(perfilConductorSchema.cambiarEstado),
-  perfilConductorController.cambiarEstado,
-);
-
-/**
- * @swagger
- * /api/perfiles-conductor/crear-usuario:
- *   post:
- *     summary: Crear usuario + perfil de conductor en una sola llamada
- *     tags: [Perfiles Conductor]
- *     security:
- *       - bearerAuth: []
- *     requestBody:
- *       required: true
- *       content:
- *         application/json:
- *           schema:
- *             type: object
- *             required:
- *               - nombres
- *               - apellidos
- *               - correo
- *               - contrasena
- *             properties:
- *               nombres:
- *                 type: string
- *               apellidos:
- *                 type: string
- *               correo:
- *                 type: string
- *               contrasena:
- *                 type: string
- *               vehiculoId:
- *                 type: integer
- *               licenciaConducir:
- *                 type: string
- *     responses:
- *       201:
- *         description: Conductor creado exitosamente
- *       400:
- *         description: Error de validación
- */
-router.post(
-  "/crear-usuario",
-  authMiddleware.verificarToken,
-  roleMiddleware.esAdministrador,
-  validarSchema(perfilConductorSchema.crearConUsuario),
-  perfilConductorController.crearConUsuario,
-);
-
-/**
- * @swagger
- * /api/perfiles-conductor/{id}:
+ * /api/pasajeros/{id}:
  *   delete:
- *     summary: Eliminar un perfil de conductor por ID
- *     tags: [Perfiles Conductor]
+ *     summary: Eliminar un pasajero por ID
+ *     tags: [Pasajeros]
  *     security:
  *       - bearerAuth: []
  *     parameters:
@@ -342,7 +281,7 @@ router.post(
  *         required: true
  *         schema:
  *           type: integer
- *         description: ID del perfil de conductor
+ *         description: ID del pasajero
  *     responses:
  *       200:
  *         description: Perfil eliminado exitosamente
@@ -357,7 +296,65 @@ router.delete(
   "/:id",
   authMiddleware.verificarToken,
   roleMiddleware.esAdministrador,
-  perfilConductorController.eliminarPerfil,
+  pasajeroController.eliminar,
+);
+
+/**
+ * @swagger
+ * /api/pasajeros/crear-usuario:
+ *   post:
+ *     summary: Crear usuario pasajero + perfil simultáneamente (admin)
+ *     tags: [Pasajeros]
+ *     security:
+ *       - bearerAuth: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               datosUsuario:
+ *                 type: object
+ *                 properties:
+ *                   nombres:
+ *                     type: string
+ *                   apellidos:
+ *                     type: string
+ *                   correo:
+ *                     type: string
+ *                   contrasena:
+ *                     type: string
+ *               datosPerfil:
+ *                 type: object
+ *                 properties:
+ *                   telefono:
+ *                     type: string
+ *                   direccion:
+ *                     type: string
+ *                   tipoDocumentoId:
+ *                     type: integer
+ *                   numeroDocumento:
+ *                     type: string
+ *                   fechaNacimiento:
+ *                     type: string
+ *                     format: date
+ *     responses:
+ *       201:
+ *         description: Usuario y perfil creados exitosamente
+ *       400:
+ *         description: Datos inválidos
+ *       401:
+ *         description: No autenticado
+ *       403:
+ *         description: No autorizado
+ */
+router.post(
+  "/crear-usuario",
+  authMiddleware.verificarToken,
+  roleMiddleware.esAdministrador,
+  validarSchema(pasajeroSchema.crearConUsuario),
+  pasajeroController.crearConUsuario,
 );
 
 module.exports = router;

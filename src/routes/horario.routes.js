@@ -106,12 +106,6 @@ router.get(
  *       404:
  *         description: Vehículo no encontrado
  */
-router.get(
-  "/vehiculo/:vehiculoId",
-  authMiddleware.verificarToken,
-  horarioController.obtenerPorVehiculo,
-);
-
 /**
  * @swagger
  * /api/horarios/{id}:

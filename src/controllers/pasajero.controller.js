@@ -1,5 +1,5 @@
-const perfilPasajeroService = require("../services/perfilpasajero.service");
-const perfilPasajeroDto = require("../dtos/perfilpasajero.dto");
+const pasajeroService = require("../services/pasajero.service");
+const pasajeroDto = require("../dtos/pasajero.dto");
 
 const manejarError = (res, error) => {
   if (error.message?.includes("_NO_ENCONTRADO")) {
@@ -22,7 +22,7 @@ exports.obtenerTodos = async (req, res) => {
   try {
     const { paginaActual, registrosPorPagina, q, sortBy, sortOrder } =
       req.query;
-    const resultado = await perfilPasajeroService.obtenerTodos(
+    const resultado = await pasajeroService.obtenerTodos(
       paginaActual,
       registrosPorPagina,
       q,
@@ -31,7 +31,7 @@ exports.obtenerTodos = async (req, res) => {
     );
     res.json({
       success: true,
-      data: resultado.data.map(perfilPasajeroDto.RespuestaPasajerosDto),
+      data: resultado.data.map(pasajeroDto.RespuestaPasajerosDto),
       paginacion: resultado.paginacion,
     });
   } catch (error) {
@@ -41,8 +41,8 @@ exports.obtenerTodos = async (req, res) => {
 
 exports.obtenerPorId = async (req, res) => {
   try {
-    const perfil = await perfilPasajeroService.obtenerPorId(req.params.id);
-    res.json({ success: true, data: perfilPasajeroDto.RespuestaPasajerosDto(perfil) });
+    const pasajero = await pasajeroService.obtenerPorId(req.params.id);
+    res.json({ success: true, data: pasajeroDto.RespuestaPasajerosDto(pasajero) });
   } catch (error) {
     manejarError(res, error);
   }
@@ -50,12 +50,12 @@ exports.obtenerPorId = async (req, res) => {
 
 exports.obtenerPorUsuarioId = async (req, res) => {
   try {
-    const perfil = await perfilPasajeroService.obtenerPorUsuario(
+    const pasajero = await pasajeroService.obtenerPorUsuario(
       req.params.usuarioId,
     );
-    res.json({ success: true, data: perfilPasajeroDto.RespuestaPasajerosDto(perfil) });
+    res.json({ success: true, data: pasajeroDto.RespuestaPasajerosDto(pasajero) });
   } catch (error) {
-    if (error.message === "PERFIL_PASAJERO_NO_ENCONTRADO") {
+    if (error.message === "PASAJERO_NO_ENCONTRADO") {
       return res
         .status(404)
         .json({ success: false, message: "Perfil de pasajero no encontrado" });
@@ -66,12 +66,12 @@ exports.obtenerPorUsuarioId = async (req, res) => {
 
 exports.obtenerMiPerfil = async (req, res) => {
   try {
-    const perfil = await perfilPasajeroService.obtenerPorUsuario(
+    const pasajero = await pasajeroService.obtenerPorUsuario(
       req.usuario.id,
     );
-    res.json({ success: true, data: perfilPasajeroDto.RespuestaPasajerosDto(perfil) });
+    res.json({ success: true, data: pasajeroDto.RespuestaPasajerosDto(pasajero) });
   } catch (error) {
-    if (error.message === "PERFIL_PASAJERO_NO_ENCONTRADO") {
+    if (error.message === "PASAJERO_NO_ENCONTRADO") {
       return res
         .status(404)
         .json({ success: false, message: "No tienes perfil de pasajero" });
@@ -80,31 +80,31 @@ exports.obtenerMiPerfil = async (req, res) => {
   }
 };
 
-exports.crearPerfil = async (req, res) => {
+exports.crear = async (req, res) => {
   try {
     const datos = req.body;
-    const perfil = await perfilPasajeroService.crearPerfil(datos);
+    const pasajero = await pasajeroService.crear(datos);
     res.status(201).json({
       success: true,
-      message: "Perfil de pasajero creado",
-      data: perfilPasajeroDto.RespuestaPasajerosDto(perfil),
+      message: "Pasajero creado",
+      data: pasajeroDto.RespuestaPasajerosDto(pasajero),
     });
   } catch (error) {
     manejarError(res, error);
   }
 };
 
-exports.actualizarPerfil = async (req, res) => {
+exports.actualizar = async (req, res) => {
   try {
     const datos = req.body;
-    const perfil = await perfilPasajeroService.actualizarPerfil(
+    const pasajero = await pasajeroService.actualizar(
       req.params.id,
       datos,
     );
     res.json({
       success: true,
-      message: "Perfil actualizado",
-      data: perfilPasajeroDto.RespuestaPasajerosDto(perfil),
+      message: "Pasajero actualizado",
+      data: pasajeroDto.RespuestaPasajerosDto(pasajero),
     });
   } catch (error) {
     manejarError(res, error);
@@ -114,14 +114,14 @@ exports.actualizarPerfil = async (req, res) => {
 exports.actualizarMiPerfil = async (req, res) => {
   try {
     const datos = req.body;
-    const perfil = await perfilPasajeroService.actualizarMiPerfil(
+    const pasajero = await pasajeroService.actualizarMiPerfil(
       req.usuario.id,
       datos,
     );
     res.json({
       success: true,
-      message: "Perfil de pasajero actualizado",
-      data: perfilPasajeroDto.RespuestaPasajerosDto(perfil),
+      message: "Pasajero actualizado",
+      data: pasajeroDto.RespuestaPasajerosDto(pasajero),
     });
   } catch (error) {
     manejarError(res, error);
@@ -130,21 +130,21 @@ exports.actualizarMiPerfil = async (req, res) => {
 
 exports.crearConUsuario = async (req, res) => {
   try {
-    const resultado = await perfilPasajeroService.crearConUsuario(req.body);
+    const resultado = await pasajeroService.crearConUsuario(req.body);
     res.status(201).json({
       success: true,
       message: "Pasajero creado exitosamente",
-      data: perfilPasajeroDto.RespuestaPasajerosDto(resultado.perfil),
+      data: pasajeroDto.RespuestaPasajerosDto(resultado.pasajero),
     });
   } catch (error) {
     manejarError(res, error);
   }
 };
 
-exports.eliminarPerfil = async (req, res) => {
+exports.eliminar = async (req, res) => {
   try {
-    await perfilPasajeroService.eliminarPerfil(req.params.id);
-    res.json({ success: true, message: "Perfil eliminado" });
+    await pasajeroService.eliminar(req.params.id);
+    res.json({ success: true, message: "Pasajero eliminado" });
   } catch (error) {
     manejarError(res, error);
   }

@@ -1,4 +1,4 @@
-const perfilPasajeroRepository = require("../repositories/perfilpasajero.repository");
+const pasajeroRepository = require("../repositories/pasajero.repository");
 const usuarioRepository = require("../repositories/usuario.repository");
 const { ROLES } = require("../config/roles");
 const {
@@ -18,7 +18,7 @@ exports.obtenerTodos = async (
   const limit = parseInt(registrosPorPagina);
 
   const { count, rows } =
-    await perfilPasajeroRepository.obtenerTodosConPaginacion(
+    await pasajeroRepository.obtenerTodosConPaginacion(
       limit,
       offset,
       q,
@@ -35,24 +35,24 @@ exports.obtenerTodos = async (
 };
 
 exports.obtenerPorId = async (id) => {
-  return await perfilPasajeroRepository.obtenerPorId(id);
+  return await pasajeroRepository.obtenerPorId(id);
 };
 
 exports.obtenerPorUsuario = async (usuarioId) => {
-  const perfil = await perfilPasajeroRepository.obtenerPorUsuario(usuarioId);
-  if (!perfil) throw new Error("PERFIL_PASAJERO_NO_ENCONTRADO");
-  return perfil;
+  const pasajero = await pasajeroRepository.obtenerPorUsuario(usuarioId);
+  if (!pasajero) throw new Error("PASAJERO_NO_ENCONTRADO");
+  return pasajero;
 };
 
-exports.crearPerfil = async (datos) => {
+exports.crear = async (datos) => {
   const { usuarioId } = datos;
 
-  const usuario = await perfilPasajeroRepository.obtenerUsuarioPorId(usuarioId);
+  const usuario = await pasajeroRepository.obtenerUsuarioPorId(usuarioId);
   if (!usuario) throw new Error("USUARIO_NO_ENCONTRADO");
   if (usuario.rolId !== ROLES.PASAJERO)
     throw new Error("EL_USUARIO_NO_ES_PASAJERO");
 
-  const existente = await perfilPasajeroRepository.obtenerExistente(usuarioId);
+  const existente = await pasajeroRepository.obtenerExistente(usuarioId);
   if (existente) throw new Error("EL_PASAJERO_YA_TIENE_PERFIL");
 
   const datosPermitidos = {
@@ -64,16 +64,16 @@ exports.crearPerfil = async (datos) => {
     fechaNacimiento: datos.fechaNacimiento,
   };
 
-  return await perfilPasajeroRepository.crearPerfil(datosPermitidos);
+  return await pasajeroRepository.crear(datosPermitidos);
 };
 
-exports.actualizarPerfil = async (id, datos) => {
-  return await perfilPasajeroRepository.actualizarPerfil(id, datos);
+exports.actualizar = async (id, datos) => {
+  return await pasajeroRepository.actualizarPerfil(id, datos);
 };
 
 exports.actualizarMiPerfil = async (usuarioId, datos) => {
-  const perfil = await perfilPasajeroRepository.obtenerPorUsuario(usuarioId);
-  if (!perfil) throw new Error("PERFIL_PASAJERO_NO_ENCONTRADO");
+  const pasajero = await pasajeroRepository.obtenerPorUsuario(usuarioId);
+  if (!pasajero) throw new Error("PASAJERO_NO_ENCONTRADO");
 
   const datosPermitidos = {
     telefono: datos.telefono,
@@ -83,14 +83,14 @@ exports.actualizarMiPerfil = async (usuarioId, datos) => {
     fechaNacimiento: datos.fechaNacimiento,
   };
 
-  return await perfilPasajeroRepository.actualizarPerfil(
-    perfil.id,
+  return await pasajeroRepository.actualizar(
+    pasajero.id,
     datosPermitidos,
   );
 };
 
-exports.eliminarPerfil = async (id) => {
-  return await perfilPasajeroRepository.eliminarPerfil(id);
+exports.eliminar = async (id) => {
+  return await pasajeroRepository.eliminar(id);
 };
 
 exports.crearConUsuario = async (datos) => {
@@ -110,7 +110,7 @@ exports.crearConUsuario = async (datos) => {
     rolId: ROLES.PASAJERO,
   });
 
-  const perfil = await perfilPasajeroRepository.crearPerfil({
+  const pasajero = await pasajeroRepository.crear({
     usuarioId: nuevoUsuario.id,
     telefono: datosPerfil.telefono,
     direccion: datosPerfil.direccion,
@@ -119,5 +119,5 @@ exports.crearConUsuario = async (datos) => {
     fechaNacimiento: datosPerfil.fechaNacimiento,
   });
 
-  return { usuario: nuevoUsuario, perfil };
+  return { usuario: nuevoUsuario, pasajero };
 };

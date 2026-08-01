@@ -3,7 +3,7 @@
 ![Node.js](https://img.shields.io/badge/Node.js-18-339933?style=flat&logo=nodedotjs)
 ![Express](https://img.shields.io/badge/Express-4.21-000000?style=flat&logo=express)
 ![Sequelize](https://img.shields.io/badge/Sequelize-6-52B0E7?style=flat&logo=sequelize)
-![MySQL](https://img.shields.io/badge/MySQL-8.0-4479A1?style=flat&logo=mysql)
+![PostgreSQL](https://img.shields.io/badge/PostgreSQL-16-336791?style=flat&logo=postgresql)
 ![JWT](https://img.shields.io/badge/JWT-black?style=flat&logo=jsonwebtoken)
 ![Zod](https://img.shields.io/badge/Zod-3.23-3E67B1?style=flat&logo=zod)
 
@@ -46,7 +46,7 @@ Angel Santiago Estupiñan Gomez<br>
 ## 🛠️ Tecnologías
 
 - ⚙️ **Node.js 18** + **Express 4.21** — Framework backend
-- 🗄️ **Sequelize 6** + **MySQL 8** — ORM y persistencia
+- 🗄️ **Sequelize 6** + **PostgreSQL 16** — ORM y persistencia
 - 🔐 **JWT** + **bcrypt** — Autenticación y hash
 - ✅ **Zod** — Validación de schemas
 - 🛡️ **express-rate-limit** — Seguridad y rate limiting
@@ -58,7 +58,7 @@ Angel Santiago Estupiñan Gomez<br>
 ## 📋 Requisitos previos
 
 - Node.js >= 18
-- MySQL >= 8.0
+- PostgreSQL >= 16
 - npm o yarn
 
 ---
@@ -72,19 +72,18 @@ rutago-backend/
 ├── .github/
 │   ├── workflows/          # GitHub Actions (blank.yml)
 │   └── scripts/            # Scripts de deploy
-├── scripts/                # Scripts auxiliares
+├── scripts/                # Scripts auxiliares (migrate-mysql-to-pg.js)
 ├── src/
 │   ├── config/             # Configuración (DB, Zod, estados)
 │   ├── controllers/        # Controladores por módulo
 │   ├── dtos/               # DTOs de respuesta
 │   ├── helpers/            # Utilidades (paginación)
 │   ├── middlewares/        # Auth, role y validación Zod
-│   ├── migrations/         # Migraciones Sequelize
+│   ├── migrations/         # Migraciones Sequelize (estructura + catálogos)
 │   ├── models/             # Modelos Sequelize
 │   ├── repositories/       # Capa de acceso a datos
 │   ├── routes/             # Definición de rutas
 │   ├── schemas/            # Schemas de validación Zod
-│   ├── seeders/            # Seeders con datos iniciales
 │   ├── services/           # Lógica de negocio
 │   └── index.js            # Punto de entrada
 ├── .env                    # Variables de entorno
@@ -124,7 +123,7 @@ Backend (Express.js + Sequelize)
   ─── https://rutago.seminario1.eleueleo.com/api
       │
       ▼
-MySQL 8.0
+PostgreSQL 16
 ```
 
 El frontend se sirve desde el mismo dominio VPS. Las peticiones a `/api` son redirigidas al backend mediante un proxy reverso (Nginx/systemd). El backend gestiona autenticación JWT, roles y operaciones CRUD con paginación, búsqueda y ordenamiento.
@@ -180,31 +179,39 @@ npm install
 
 ## 🔧 Configuración de variables de entorno
 
-El archivo `.env` debe estar en la raíz del backend. Ejemplo mínimo:
+El archivo `.env` debe estar en la raíz del backend. Ejemplo mínimo (ver `.env.example`):
 
 ```env
 PORT=8082
+API_URL=http://localhost:8082
 HOST=localhost
-PORT_DB=3306
-USER_DB=root
-DB_PASSWORD=tu_password
+PORT_DB=5432
+USER_DB=postgres
+DB_PASSWORD=tu_contrasena_segura
 DB_NAME=rutago_db
+CORS_ORIGIN=http://localhost:5173
 JWT_SECRET=tu_clave_super_secreta
-JWT_EXPIRES_IN=15m
+JWT_EXPIRES_IN=8h
 JWT_REFRESH_EXPIRES_IN=7d
-API_URL=https://rutago.seminario1.eleueleo.com/api
-CORS_ORIGIN=https://rutago.seminario1.eleueleo.com
+```
+
+Opcional — solo si se migrarán datos históricos desde una base MySQL previa:
+
+```env
+MYSQL_HOST=localhost
+MYSQL_PORT=3306
+MYSQL_USER=usuario_mysql
+MYSQL_PASSWORD=clave_mysql
+MYSQL_DB=nombre_bd_mysql
 ```
 
 <a id="base-de-datos-con-sequelize"></a>
 
 ## 🗄️ Base de datos con Sequelize
 
-Las migraciones y seeders se ejecutan con Sequelize CLI.
+Las migraciones crean las tablas **y** los catálogos (roles, comunas, barrios, estados, tipos de documento) en una sola corrida.
 
 ### Migraciones
-
-Crean y modifican las tablas en la base de datos.
 
 ```bash
 # Ejecutar todas las migraciones pendientes
@@ -217,16 +224,12 @@ npx sequelize-cli db:migrate:undo
 npx sequelize-cli db:migrate:undo --name 20260704000001-create-estados-vehiculo.js
 ```
 
-### Seeders
+### Migración de datos históricos (opcional)
 
-Llnan las tablas con datos iniciales (roles, comunas, barrios, estados).
+Si existe una base MySQL previa, el script `scripts/migrate-mysql-to-pg.js` copia los datos históricos a PostgreSQL de forma idempotente (no duplica registros).
 
 ```bash
-# Ejecutar todos los seeders
-npx sequelize-cli db:seed:all
-
-# Deshacer todos los seeders
-npx sequelize-cli db:seed:undo:all
+node scripts/migrate-mysql-to-pg.js
 ```
 
 ### Orden recomendado al clonar el proyecto por primera vez
@@ -234,7 +237,7 @@ npx sequelize-cli db:seed:undo:all
 ```bash
 npm install
 npx sequelize-cli db:migrate
-npx sequelize-cli db:seed:all
+node scripts/migrate-mysql-to-pg.js   # opcional, solo si hay MySQL previo
 npm start
 ```
 
@@ -276,23 +279,23 @@ npm start
 | PUT    | /api/vehiculos/:id/ubicacion | Conductor     | Actualizar ubicación         |
 | DELETE | /api/vehiculos/:id           | Admin/Entidad | Eliminar vehículo            |
 
-### Perfiles (Conductor, Pasajero, Entidad)
+### Conductores, Pasajeros, Entidades
 
-| Método | Ruta                                      | Roles  | Descripción                       |
-| ------ | ----------------------------------------- | ------ | --------------------------------- |
-| GET    | /api/perfiles-conductor                   | Admin  | Listar perfiles de conductor      |
-| GET    | /api/perfiles-conductor/me/perfil         | Cond.  | Obtener mi perfil de conductor    |
-| PUT    | /api/perfiles-conductor/me/perfil         | Cond.  | Actualizar mi perfil de conductor |
-| PATCH  | /api/perfiles-conductor/:id/estado        | Admin  | Cambiar estado del conductor      |
-| POST   | /api/perfiles-conductor/crear-con-usuario | Admin  | Crear conductor con usuario nuevo |
-| GET    | /api/perfiles-pasajero                    | Admin  | Listar perfiles de pasajero       |
-| GET    | /api/perfiles-pasajero/me/perfil          | Pasaj. | Obtener mi perfil de pasajero     |
-| PUT    | /api/perfiles-pasajero/me/perfil          | Pasaj. | Actualizar mi perfil de pasajero  |
-| POST   | /api/perfiles-pasajero/crear-con-usuario  | Admin  | Crear pasajero con usuario nuevo  |
-| GET    | /api/perfiles-entidad                     | Admin  | Listar perfiles de entidad        |
-| GET    | /api/perfiles-entidad/me/perfil           | Entid. | Obtener mi perfil de entidad      |
-| PUT    | /api/perfiles-entidad/me/perfil           | Entid. | Actualizar mi perfil de entidad   |
-| POST   | /api/perfiles-entidad/crear-con-usuario   | Admin  | Crear entidad con usuario nuevo   |
+| Método | Ruta                                  | Roles | Descripción                          |
+| ------ | ------------------------------------- | ----- | ------------------------------------ |
+| GET    | /api/conductores                      | Admin | Listar conductores                   |
+| GET    | /api/conductores/me/perfil            | Cond. | Obtener mi perfil de conductor       |
+| PUT    | /api/conductores/me/perfil            | Cond. | Actualizar mi perfil de conductor    |
+| PATCH  | /api/conductores/:id/estado           | Admin | Cambiar estado del conductor         |
+| POST   | /api/conductores/crear-con-usuario    | Admin | Crear conductor con usuario nuevo    |
+| GET    | /api/pasajeros                        | Admin | Listar pasajeros                     |
+| GET    | /api/pasajeros/me/perfil              | Pasaj. | Obtener mi perfil de pasajero        |
+| PUT    | /api/pasajeros/me/perfil              | Pasaj. | Actualizar mi perfil de pasajero     |
+| POST   | /api/pasajeros/crear-con-usuario      | Admin | Crear pasajero con usuario nuevo     |
+| GET    | /api/entidades                        | Admin | Listar entidades                     |
+| GET    | /api/entidades/me/perfil              | Entid. | Obtener mi perfil de entidad         |
+| PUT    | /api/entidades/me/perfil              | Entid. | Actualizar mi perfil de entidad      |
+| POST   | /api/entidades/crear-con-usuario      | Admin | Crear entidad con usuario nuevo      |
 
 ### Catálogos
 
@@ -366,18 +369,22 @@ Push a main
      ↓
 Checkout código
      ↓
-npm install
+Conexión SSH al VPS
+     ↓
+git pull --ff-only origin main
+     ↓
+npm ci --include=dev
      ↓
 Ejecutar migraciones (npx sequelize-cli db:migrate)
      ↓
-Ejecutar seeders (npx sequelize-cli db:seed:all)
+Migrar datos históricos desde MySQL (scripts/migrate-mysql-to-pg.js)
      ↓
-rsync archivos → VPS
+npm prune --omit=dev
      ↓
-sudo systemctl restart rutago-backend
+sudo systemctl restart rutago.service
 ```
 
-El pipeline ejecuta migraciones y seeders automáticamente antes de reiniciar el servicio, garantizando que la estructura de la BD esté siempre actualizada en producción.
+El pipeline ejecuta migraciones (estructura + catálogos) automáticamente antes de reiniciar el servicio, garantizando que la base de datos esté siempre actualizada en producción. Los datos históricos se copian desde la base MySQL previa si está disponible.
 
 ---
 
@@ -393,7 +400,8 @@ El pipeline ejecuta migraciones y seeders automáticamente antes de reiniciar el
 - Catálogos dinámicos desde BD: estados de vehículo, conductor, viaje y tipos de documento.
 - CRUD completo con paginación, búsqueda (`q`) y ordenamiento (`sortBy`/`sortOrder`) en 10 módulos: Usuarios, Vehículos, Rutas, Horarios, Conductores, Pasajeros, Entidades, Barrios, Comunas, Viajes.
 - Datos reales de Buenaventura (12 comunas, 104 barrios).
-- Migraciones y seeders con Sequelize, ejecutados automáticamente en el pipeline de deploy.
+- Migraciones con Sequelize (estructura + catálogos), ejecutadas automáticamente en el pipeline de deploy.
+- Migración de datos históricos de MySQL a PostgreSQL (scripts/migrate-mysql-to-pg.js).
 - CI/CD con GitHub Actions: despliegue automático al hacer push a `main`.
 - Actualización y reinicio automático del servicio (systemctl) en el VPS.
 - Protección de rutas por rol (middleware `roleMiddleware`).
@@ -404,11 +412,11 @@ El pipeline ejecuta migraciones y seeders automáticamente antes de reiniciar el
 
 ### 🚧 En desarrollo
 
+- PostGIS y geometrías espaciales (polígonos de comunas/barrios, rutas LINESTRING, vehículos POINT).
 - Endpoints de geolocalización en tiempo real (WebSockets).
 
 ### 📌 Pendiente
 
-- Migración de MySQL a PostgreSQL + PostGIS (datos espaciales).
 - Seguimiento GPS en tiempo real.
 - Estado de buses en tiempo real.
 - Notificaciones automáticas.

@@ -1,7 +1,8 @@
 "use strict";
+/** @type {import('sequelize-cli').Migration} */
 module.exports = {
   async up(queryInterface, Sequelize) {
-    await queryInterface.createTable("PerfilPasajeros", {
+    await queryInterface.createTable("Pasajeros", {
       id: {
         allowNull: false,
         autoIncrement: true,
@@ -21,11 +22,15 @@ module.exports = {
       direccion: {
         type: Sequelize.STRING(255),
       },
-      tipoDocumento: {
-        type: Sequelize.STRING(10),
+      tipoDocumentoId: {
+        type: Sequelize.INTEGER,
+      },
+      barrioId: {
+        type: Sequelize.INTEGER,
       },
       numeroDocumento: {
         type: Sequelize.STRING(20),
+        unique: true,
       },
       fechaNacimiento: {
         type: Sequelize.DATEONLY,
@@ -41,6 +46,6 @@ module.exports = {
     });
   },
   async down(queryInterface) {
-    await queryInterface.dropTable("PerfilPasajeros");
+    await queryInterface.dropTable("Pasajeros");
   },
 };

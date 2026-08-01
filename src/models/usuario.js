@@ -5,26 +5,19 @@ module.exports = (sequelize, DataTypes) => {
   class Usuario extends Model {
     static associate(models) {
       Usuario.belongsTo(models.Rol, { foreignKey: "rolId", as: "rol" });
-      Usuario.hasOne(models.PerfilConductor, {
+      Usuario.hasOne(models.Conductor, {
         foreignKey: "usuarioId",
-        as: "perfilConductor",
+        as: "conductor",
       });
-      Usuario.hasOne(models.PerfilEntidad, {
+      Usuario.hasOne(models.Entidad, {
         foreignKey: "usuarioId",
-        as: "perfilEntidad",
+        as: "entidad",
       });
-      Usuario.hasOne(models.PerfilPasajero, {
+      Usuario.hasOne(models.Pasajero, {
         foreignKey: "usuarioId",
-        as: "perfilPasajero",
+        as: "pasajero",
       });
-      Usuario.hasMany(models.ViajePasajero, {
-        foreignKey: "pasajeroId",
-        as: "inscripcionesViaje",
-      });
-      Usuario.hasMany(models.Viaje, {
-        foreignKey: "conductorId",
-        as: "viajesComoConductor",
-      });
+
     }
   }
   Usuario.init(
@@ -52,6 +45,10 @@ module.exports = (sequelize, DataTypes) => {
       },
       resetPasswordToken: DataTypes.STRING,
       resetPasswordExpires: DataTypes.DATE,
+      activo: {
+        type: DataTypes.BOOLEAN,
+        defaultValue: true,
+      },
     },
     {
       sequelize,

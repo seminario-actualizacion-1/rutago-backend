@@ -12,36 +12,29 @@ exports.RespuestaUsuariosDto = (model) => {
           descripcion: model.rol.descripcion,
         }
       : { id: model.rolId },
-    perfilConductor: model.perfilConductor
+    conductor: model.conductor
+        ? {
+            id: model.conductor.id,
+            licenciaConducir: model.conductor.licenciaConducir,
+            estadoId: model.conductor.estadoId,
+          }
+      : undefined,
+    entidad: model.entidad
       ? {
-          id: model.perfilConductor.id,
-          vehiculoId: model.perfilConductor.vehiculoId,
-          licenciaConducir: model.perfilConductor.licenciaConducir,
-          estadoId: model.perfilConductor.estadoId,
-          vehiculo: model.perfilConductor.vehiculo
-            ? {
-                id: model.perfilConductor.vehiculo.id,
-                placa: model.perfilConductor.vehiculo.placa,
-              }
-            : null,
+          id: model.entidad.id,
+          razonSocial: model.entidad.razonSocial,
+          nit: model.entidad.nit,
+          telefonoContacto: model.entidad.telefonoContacto,
         }
       : undefined,
-    perfilEntidad: model.perfilEntidad
+    pasajero: model.pasajero
       ? {
-          id: model.perfilEntidad.id,
-          razonSocial: model.perfilEntidad.razonSocial,
-          nit: model.perfilEntidad.nit,
-          telefonoContacto: model.perfilEntidad.telefonoContacto,
-        }
-      : undefined,
-    perfilPasajero: model.perfilPasajero
-      ? {
-          id: model.perfilPasajero.id,
-          telefono: model.perfilPasajero.telefono,
-          direccion: model.perfilPasajero.direccion,
-          tipoDocumentoId: model.perfilPasajero.tipoDocumentoId,
-          numeroDocumento: model.perfilPasajero.numeroDocumento,
-          fechaNacimiento: model.perfilPasajero.fechaNacimiento,
+          id: model.pasajero.id,
+          telefono: model.pasajero.telefono,
+          direccion: model.pasajero.direccion,
+          tipoDocumentoId: model.pasajero.tipoDocumentoId,
+          numeroDocumento: model.pasajero.numeroDocumento,
+          fechaNacimiento: model.pasajero.fechaNacimiento,
         }
       : undefined,
     createdAt: model.createdAt,

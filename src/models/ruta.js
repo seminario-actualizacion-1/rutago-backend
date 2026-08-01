@@ -6,10 +6,15 @@ module.exports = (sequelize, DataTypes) => {
       Ruta.belongsTo(models.Comuna, { foreignKey: "origenId", as: "origen" });
       Ruta.belongsTo(models.Comuna, { foreignKey: "destinoId", as: "destino" });
       Ruta.belongsToMany(models.Barrio, {
-        through: "RutaBarrio",
+        through: models.RutaBarrio,
         foreignKey: "rutaId",
         otherKey: "barrioId",
         as: "barrios",
+      });
+
+      Ruta.hasMany(models.RutaBarrio, {
+        foreignKey: "rutaId",
+        as: "rutaBarrios",
       });
       Ruta.hasMany(models.Horario, { foreignKey: "rutaId", as: "horarios" });
     }

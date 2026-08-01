@@ -1,4 +1,4 @@
-const perfilEntidadRepository = require("../repositories/perfilentidad.repository");
+const entidadRepository = require("../repositories/entidad.repository");
 const usuarioRepository = require("../repositories/usuario.repository");
 const { ROLES, NOMBRES_ROL } = require("../config/roles");
 const {
@@ -18,7 +18,7 @@ exports.obtenerTodos = async (
   const limit = parseInt(registrosPorPagina);
 
   const { count, rows } =
-    await perfilEntidadRepository.obtenerTodosConPaginacion(
+    await entidadRepository.obtenerTodosConPaginacion(
       limit,
       offset,
       q,
@@ -35,11 +35,11 @@ exports.obtenerTodos = async (
 };
 
 exports.obtenerPorId = async (id) => {
-  return await perfilEntidadRepository.obtenerPorId(id);
+  return await entidadRepository.obtenerPorId(id);
 };
 
 exports.obtenerPorUsuario = async (usuarioId) => {
-  const entidad = await perfilEntidadRepository.obtenerPorUsuario(usuarioId);
+  const entidad = await entidadRepository.obtenerPorUsuario(usuarioId);
   if (!entidad) {
     throw new Error("ENTIDAD_NO_ENCONTRADA");
   }
@@ -53,13 +53,13 @@ exports.crearEntidad = async (datos) => {
     throw new Error("USUARIO_Y_RAZON_SOCIAL_SON_OBLIGATORIOS");
   }
 
-  const usuario = await perfilEntidadRepository.obtenerUsuarioPorId(usuarioId);
+  const usuario = await entidadRepository.obtenerUsuarioPorId(usuarioId);
   if (!usuario) throw new Error("USUARIO_NO_ENCONTRADO");
   if (!usuario.rol || usuario.rol.nombreRol !== NOMBRES_ROL[ROLES.ENTIDAD]) {
     throw new Error("EL_USUARIO_NO_ES_ENTIDAD");
   }
 
-  const existente = await perfilEntidadRepository.obtenerPorUsuario(usuarioId);
+  const existente = await entidadRepository.obtenerPorUsuario(usuarioId);
   if (existente) throw new Error("LA_ENTIDAD_YA_TIENE_PERFIL");
 
   const datosPermitidos = {
@@ -69,24 +69,24 @@ exports.crearEntidad = async (datos) => {
     telefonoContacto: datos.telefonoContacto,
   };
 
-  return await perfilEntidadRepository.crearEntidad(datosPermitidos);
+  return await entidadRepository.crearEntidad(datosPermitidos);
 };
 
 exports.actualizarEntidad = async (id, datos) => {
-  return await perfilEntidadRepository.actualizarEntidad(id, datos);
+  return await entidadRepository.actualizarEntidad(id, datos);
 };
 
 exports.actualizarMiEntidad = async (usuarioId, datos) => {
-  const entidad = await perfilEntidadRepository.obtenerPorUsuario(usuarioId);
+  const entidad = await entidadRepository.obtenerPorUsuario(usuarioId);
   if (!entidad) {
     throw new Error("ENTIDAD_NO_ENCONTRADA");
   }
 
-  return await perfilEntidadRepository.actualizarEntidad(entidad.id, datos);
+  return await entidadRepository.actualizarEntidad(entidad.id, datos);
 };
 
-exports.eliminarEntidad = async (id) => {
-  return await perfilEntidadRepository.eliminarEntidad(id);
+exports.eliminar = async (id) => {
+  return await entidadRepository.eliminar(id);
 };
 
 exports.crearConUsuario = async (datos) => {
@@ -106,12 +106,12 @@ exports.crearConUsuario = async (datos) => {
     rolId: ROLES.ENTIDAD,
   });
 
-  const perfil = await perfilEntidadRepository.crearEntidad({
+  const entidad = await entidadRepository.crearEntidad({
     usuarioId: nuevoUsuario.id,
     razonSocial: datosPerfil.razonSocial,
     nit: datosPerfil.nit,
     telefonoContacto: datosPerfil.telefonoContacto,
   });
 
-  return { usuario: nuevoUsuario, perfil };
+  return { usuario: nuevoUsuario, entidad };
 };

@@ -11,28 +11,31 @@ const usuarioParaRespuesta = (u) =>
       }
     : undefined;
 
+const usuarioDelPerfil = (p) =>
+  p?.usuario ? usuarioParaRespuesta(p.usuario) : undefined;
+
 exports.RespuestaViajesDto = (model) => {
   if (!model) return null;
   return {
     id: model.id,
     pasajeros: (model.pasajeros || []).map((vp) =>
-      usuarioParaRespuesta(vp.pasajero),
+      usuarioDelPerfil(vp.pasajero),
     ),
-    conductor: usuarioParaRespuesta(model.conductor),
-    ruta: model.ruta
+    conductor: usuarioDelPerfil(model.conductor),
+    ruta: model.horario?.ruta
       ? {
-          id: model.ruta.id,
-          nombre: model.ruta.nombre,
-          distanciaKm: model.ruta.distanciaKm
-            ? parseFloat(model.ruta.distanciaKm)
+          id: model.horario.ruta.id,
+          nombre: model.horario.ruta.nombre,
+          distanciaKm: model.horario.ruta.distanciaKm
+            ? parseFloat(model.horario.ruta.distanciaKm)
             : null,
-          tiempoEstimadoMinutos: model.ruta.tiempoEstimadoMinutos,
-          rutaGeometria: model.ruta.rutaGeometria || null,
-          origen: model.ruta.origen
-            ? { id: model.ruta.origen.id, nombre: model.ruta.origen.nombre }
+          tiempoEstimadoMinutos: model.horario.ruta.tiempoEstimadoMinutos,
+          rutaGeometria: model.horario.ruta.rutaGeometria || null,
+          origen: model.horario.ruta.origen
+            ? { id: model.horario.ruta.origen.id, nombre: model.horario.ruta.origen.nombre }
             : undefined,
-          destino: model.ruta.destino
-            ? { id: model.ruta.destino.id, nombre: model.ruta.destino.nombre }
+          destino: model.horario.ruta.destino
+            ? { id: model.horario.ruta.destino.id, nombre: model.horario.ruta.destino.nombre }
             : undefined,
         }
       : undefined,
@@ -41,9 +44,13 @@ exports.RespuestaViajesDto = (model) => {
           id: model.horario.id,
           horaSalida: model.horario.horaSalida,
           frecuenciaMinutos: model.horario.frecuenciaMinutos,
-          vehiculoPlaca: model.horario.vehiculo?.placa || null,
-          capacidadPasajeros:
-            model.horario.vehiculo?.capacidadPasajeros || null,
+        }
+      : undefined,
+    vehiculo: model.vehiculo
+      ? {
+          id: model.vehiculo.id,
+          placa: model.vehiculo.placa,
+          capacidadPasajeros: model.vehiculo.capacidadPasajeros,
         }
       : undefined,
     estado: model.estadoViaje

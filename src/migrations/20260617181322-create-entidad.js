@@ -2,7 +2,7 @@
 /** @type {import('sequelize-cli').Migration} */
 module.exports = {
   async up(queryInterface, Sequelize) {
-    await queryInterface.createTable("PerfilConductors", {
+    await queryInterface.createTable("Entidades", {
       id: {
         allowNull: false,
         autoIncrement: true,
@@ -11,20 +11,25 @@ module.exports = {
       },
       usuarioId: {
         type: Sequelize.INTEGER,
+        unique: true,
         references: { model: "Usuarios", key: "id" },
         onUpdate: "CASCADE",
         onDelete: "CASCADE",
       },
-      vehiculoId: {
-        type: Sequelize.INTEGER,
-        references: { model: "Vehiculos", key: "id" },
-        onUpdate: "CASCADE",
-        onDelete: "SET NULL",
-      },
-      licenciaConducir: {
+      razonSocial: {
         type: Sequelize.STRING,
       },
-      estado: {
+      nit: {
+        type: Sequelize.STRING,
+        unique: true,
+      },
+      telefonoContacto: {
+        type: Sequelize.STRING,
+      },
+      direccion: {
+        type: Sequelize.STRING,
+      },
+      correo: {
         type: Sequelize.STRING,
       },
       createdAt: {
@@ -38,6 +43,6 @@ module.exports = {
     });
   },
   async down(queryInterface, Sequelize) {
-    await queryInterface.dropTable("PerfilConductors");
+    await queryInterface.dropTable("Entidades");
   },
 };

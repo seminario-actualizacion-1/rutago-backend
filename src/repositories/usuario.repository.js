@@ -1,9 +1,9 @@
 const {
   Usuario,
   Rol,
-  PerfilConductor,
-  PerfilEntidad,
-  PerfilPasajero,
+  Conductor,
+  Entidad,
+  Pasajero,
 } = require("../models");
 const { Op } = require("sequelize");
 
@@ -15,9 +15,9 @@ exports.buscarPorId = async (id) => {
   return await Usuario.findByPk(id, {
     include: [
       { model: Rol, as: "rol" },
-      { model: PerfilConductor, as: "perfilConductor" },
-      { model: PerfilEntidad, as: "perfilEntidad" },
-      { model: PerfilPasajero, as: "perfilPasajero" },
+      { model: Conductor, as: "conductor" },
+      { model: Entidad, as: "entidad" },
+      { model: Pasajero, as: "pasajero" },
     ],
   });
 };
@@ -26,9 +26,9 @@ exports.buscarTodos = async () => {
   return await Usuario.findAll({
     include: [
       { model: Rol, as: "rol" },
-      { model: PerfilConductor, as: "perfilConductor" },
-      { model: PerfilEntidad, as: "perfilEntidad" },
-      { model: PerfilPasajero, as: "perfilPasajero" },
+      { model: Conductor, as: "conductor" },
+      { model: Entidad, as: "entidad" },
+      { model: Pasajero, as: "pasajero" },
     ],
     order: [["id", "ASC"]],
   });
@@ -63,9 +63,9 @@ exports.buscarTodosConPaginacion = async (
     where,
     include: [
       { model: Rol, as: "rol" },
-      { model: PerfilConductor, as: "perfilConductor" },
-      { model: PerfilEntidad, as: "perfilEntidad" },
-      { model: PerfilPasajero, as: "perfilPasajero" },
+      { model: Conductor, as: "conductor" },
+      { model: Entidad, as: "entidad" },
+      { model: Pasajero, as: "pasajero" },
     ],
     limit,
     offset,

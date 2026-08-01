@@ -9,35 +9,32 @@ module.exports = {
         primaryKey: true,
         type: Sequelize.INTEGER,
       },
-      pasajeroId: {
-        type: Sequelize.INTEGER,
-        references: { model: "Usuarios", key: "id" },
-        onUpdate: "CASCADE",
-        onDelete: "RESTRICT",
-      },
       conductorId: {
         type: Sequelize.INTEGER,
-        references: { model: "Usuarios", key: "id" },
+        references: { model: "Conductores", key: "id" },
         onUpdate: "CASCADE",
         onDelete: "SET NULL",
       },
-      barrioOrigenId: {
+      vehiculoId: {
         type: Sequelize.INTEGER,
-        references: { model: "Barrios", key: "id" },
+        references: { model: "Vehiculos", key: "id" },
         onUpdate: "CASCADE",
-        onDelete: "RESTRICT",
-      },
-      barrioDestinoId: {
-        type: Sequelize.INTEGER,
-        references: { model: "Barrios", key: "id" },
-        onUpdate: "CASCADE",
-        onDelete: "RESTRICT",
-      },
-      estado: {
-        type: Sequelize.STRING,
+        onDelete: "SET NULL",
       },
       precioEstimado: {
         type: Sequelize.DECIMAL,
+      },
+      horaInicio: {
+        type: Sequelize.DATE,
+        allowNull: true,
+      },
+      horaFin: {
+        type: Sequelize.DATE,
+        allowNull: true,
+      },
+      kilometrosRecorridos: {
+        type: Sequelize.DECIMAL,
+        allowNull: true,
       },
       createdAt: {
         allowNull: false,

@@ -41,17 +41,6 @@ exports.obtenerPorRuta = async (req, res) => {
   }
 };
 
-exports.obtenerPorVehiculo = async (req, res) => {
-  try {
-    const horarios = await horarioService.obtenerPorVehiculo(
-      req.params.vehiculoId,
-    );
-    res.json({ success: true, data: horarios.map(horarioDto.RespuestaHorariosDto) });
-  } catch (error) {
-    manejarError(res, error);
-  }
-};
-
 exports.obtenerPorId = async (req, res) => {
   try {
     const horario = await horarioService.obtenerPorId(req.params.id);
