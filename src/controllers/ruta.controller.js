@@ -44,13 +44,11 @@ exports.crearRuta = async (req, res) => {
   try {
     const datos = req.body;
     const ruta = await rutaService.crearRuta(datos);
-    res
-      .status(201)
-      .json({
-        success: true,
-        message: "Ruta creada",
-        data: rutaDto.RespuestaRutasDto(ruta),
-      });
+    res.status(201).json({
+      success: true,
+      message: "Ruta creada",
+      data: rutaDto.RespuestaRutasDto(ruta),
+    });
   } catch (error) {
     if (error.message === "RUTA_YA_EXISTE") {
       return res

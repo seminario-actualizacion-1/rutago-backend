@@ -18,9 +18,11 @@ exports.registrarUsuario = async (req, res) => {
     const nuevoUsuario = await usuarioService.crearUsuario(datos);
 
     if (datos.rolId === ROLES.PASAJERO) {
-      const existente = await pasajeroService.obtenerPorUsuario(nuevoUsuario.id).catch(() => null);
+      const existente = await pasajeroService
+        .obtenerPorUsuario(nuevoUsuario.id)
+        .catch(() => null);
       if (!existente) {
-        await pasajeroService.crearPerfil({
+        await pasajeroService.crear({
           usuarioId: nuevoUsuario.id,
           telefono: datos.telefono,
           direccion: datos.direccion,
@@ -66,9 +68,19 @@ exports.recuperarContrasena = async (req, res) => {
   try {
     const { correo } = req.body;
     await usuarioService.solicitarRecuperacion(correo);
-    res.json({ success: true, message: "Si el correo está registrado, recibirás un enlace de recuperación" });
+    res.json({
+      success: true,
+      message:
+        "Si el correo está registrado, recibirás un enlace de recuperación",
+    });
   } catch (error) {
-    res.status(400).json({ success: false, message: "Si el correo está registrado, recibirás un enlace de recuperación" });
+    res
+      .status(400)
+      .json({
+        success: false,
+        message:
+          "Si el correo está registrado, recibirás un enlace de recuperación",
+      });
   }
 };
 
@@ -87,16 +99,28 @@ exports.cambiarContrasena = async (req, res) => {
 
 exports.obtenerTodos = async (req, res) => {
   try {
-    const { paginaActual, registrosPorPagina, q, rolId, correo, sortBy, sortOrder } = req.query;
+    const {
+      paginaActual,
+      registrosPorPagina,
+      q,
+      rolId,
+      correo,
+      sortBy,
+      sortOrder,
+    } = req.query;
     const filtrosAplicados = { rolId, correo, q };
     const resultado = await usuarioService.obtenerTodos(
       paginaActual,
       registrosPorPagina,
       filtrosAplicados,
       sortBy,
-      sortOrder
+      sortOrder,
     );
-    res.json({ success: true, data: resultado.data.map(usuarioDto.RespuestaUsuariosDto), paginacion: resultado.paginacion });
+    res.json({
+      success: true,
+      data: resultado.data.map(usuarioDto.RespuestaUsuariosDto),
+      paginacion: resultado.paginacion,
+    });
   } catch (error) {
     manejarError(res, error);
   }
@@ -127,8 +151,15 @@ exports.obtenerMiPerfil = async (req, res) => {
 
 exports.actualizarMiPerfil = async (req, res) => {
   try {
-    const usuario = await usuarioService.actualizarDatos(req.usuario.id, req.body);
-    res.json({ success: true, message: "Perfil actualizado", data: usuarioDto.RespuestaUsuariosDto(usuario) });
+    const usuario = await usuarioService.actualizarDatos(
+      req.usuario.id,
+      req.body,
+    );
+    res.json({
+      success: true,
+      message: "Perfil actualizado",
+      data: usuarioDto.RespuestaUsuariosDto(usuario),
+    });
   } catch (error) {
     manejarError(res, error);
   }
@@ -136,8 +167,15 @@ exports.actualizarMiPerfil = async (req, res) => {
 
 exports.actualizarUsuario = async (req, res) => {
   try {
-    const usuario = await usuarioService.actualizarDatos(req.params.id, req.body);
-    res.json({ success: true, message: "Usuario actualizado", data: usuarioDto.RespuestaUsuariosDto(usuario) });
+    const usuario = await usuarioService.actualizarDatos(
+      req.params.id,
+      req.body,
+    );
+    res.json({
+      success: true,
+      message: "Usuario actualizado",
+      data: usuarioDto.RespuestaUsuariosDto(usuario),
+    });
   } catch (error) {
     manejarError(res, error);
   }
@@ -145,7 +183,10 @@ exports.actualizarUsuario = async (req, res) => {
 
 exports.cambiarRol = async (req, res) => {
   try {
-    const usuario = await usuarioService.actualizarRol(req.params.id, req.body.rolId);
+    const usuario = await usuarioService.actualizarRol(
+      req.params.id,
+      req.body.rolId,
+    );
     res.json({ success: true, message: "Rol actualizado", data: usuario });
   } catch (error) {
     manejarError(res, error);
@@ -160,5 +201,3 @@ exports.eliminarUsuario = async (req, res) => {
     manejarError(res, error);
   }
 };
-
-

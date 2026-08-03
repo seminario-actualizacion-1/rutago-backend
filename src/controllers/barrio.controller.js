@@ -43,7 +43,10 @@ exports.obtenerPorId = async (req, res) => {
 exports.obtenerPorComuna = async (req, res) => {
   try {
     const barrios = await barrioService.obtenerPorComuna(req.params.comunaId);
-    res.json({ success: true, data: barrios.map(barrioDto.RespuestaBarriosDto) });
+    res.json({
+      success: true,
+      data: barrios.map(barrioDto.RespuestaBarriosDto),
+    });
   } catch (error) {
     manejarError(res, error);
   }
@@ -53,13 +56,11 @@ exports.crearBarrio = async (req, res) => {
   try {
     const datos = req.body;
     const barrio = await barrioService.crearBarrio(datos);
-    res
-      .status(201)
-      .json({
-        success: true,
-        message: "Barrio creado",
-        data: barrioDto.RespuestaBarriosDto(barrio),
-      });
+    res.status(201).json({
+      success: true,
+      message: "Barrio creado",
+      data: barrioDto.RespuestaBarriosDto(barrio),
+    });
   } catch (error) {
     manejarError(res, error);
   }

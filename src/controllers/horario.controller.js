@@ -35,7 +35,10 @@ exports.obtenerTodos = async (req, res) => {
 exports.obtenerPorRuta = async (req, res) => {
   try {
     const horarios = await horarioService.obtenerPorRuta(req.params.rutaId);
-    res.json({ success: true, data: horarios.map(horarioDto.RespuestaHorariosDto) });
+    res.json({
+      success: true,
+      data: horarios.map(horarioDto.RespuestaHorariosDto),
+    });
   } catch (error) {
     manejarError(res, error);
   }
@@ -54,21 +57,17 @@ exports.crearHorario = async (req, res) => {
   try {
     const datos = req.body;
     const horario = await horarioService.crearHorario(datos);
-    res
-      .status(201)
-      .json({
-        success: true,
-        message: "Horario creado",
-        data: horarioDto.RespuestaHorariosDto(horario),
-      });
+    res.status(201).json({
+      success: true,
+      message: "Horario creado",
+      data: horarioDto.RespuestaHorariosDto(horario),
+    });
   } catch (error) {
     if (error.message === "HORARIO_YA_EXISTE") {
-      return res
-        .status(400)
-        .json({
-          success: false,
-          message: "Ya existe un horario con esos datos",
-        });
+      return res.status(400).json({
+        success: false,
+        message: "Ya existe un horario con esos datos",
+      });
     }
     manejarError(res, error);
   }

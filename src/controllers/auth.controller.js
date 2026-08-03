@@ -7,13 +7,11 @@ exports.login = async (req, res) => {
       req.body.correo,
       req.body.contrasena,
     );
-    return res
-      .status(200)
-      .json({
-        success: true,
-        message: "Inicio de sesión exitoso.",
-        ...resultado,
-      });
+    return res.status(200).json({
+      success: true,
+      message: "Inicio de sesión exitoso.",
+      ...resultado,
+    });
   } catch (error) {
     if (error.message === "CREDENCIALES_INVALIDAS") {
       return res
@@ -60,11 +58,9 @@ exports.verificarToken = async (req, res) => {
     });
   } catch (error) {
     console.error("Error en verificarToken:", error);
-    return res
-      .status(401)
-      .json({
-        success: false,
-        message: "Token inválido o usuario no encontrado",
-      });
+    return res.status(401).json({
+      success: false,
+      message: "Token inválido o usuario no encontrado",
+    });
   }
 };

@@ -34,7 +34,10 @@ exports.obtenerTodos = async (req, res) => {
 exports.obtenerPorId = async (req, res) => {
   try {
     const entidad = await entidadService.obtenerPorId(req.params.id);
-    res.json({ success: true, data: entidadDto.RespuestaEntidadesDto(entidad) });
+    res.json({
+      success: true,
+      data: entidadDto.RespuestaEntidadesDto(entidad),
+    });
   } catch (error) {
     manejarError(res, error);
   }
@@ -42,10 +45,11 @@ exports.obtenerPorId = async (req, res) => {
 
 exports.obtenerMiEntidad = async (req, res) => {
   try {
-    const entidad = await entidadService.obtenerPorUsuario(
-      req.usuario.id,
-    );
-    res.json({ success: true, data: entidadDto.RespuestaEntidadesDto(entidad) });
+    const entidad = await entidadService.obtenerPorUsuario(req.usuario.id);
+    res.json({
+      success: true,
+      data: entidadDto.RespuestaEntidadesDto(entidad),
+    });
   } catch (error) {
     if (error.message === "ENTIDAD_NO_ENCONTRADA") {
       return res
@@ -114,12 +118,10 @@ exports.crearConUsuario = async (req, res) => {
     });
   } catch (error) {
     if (error.message === "EL_CORREO_YA_EXISTE") {
-      return res
-        .status(400)
-        .json({
-          success: false,
-          message: "El correo electrónico ya está registrado.",
-        });
+      return res.status(400).json({
+        success: false,
+        message: "El correo electrónico ya está registrado.",
+      });
     }
     manejarError(res, error);
   }
