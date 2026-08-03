@@ -8,12 +8,10 @@ const manejarError = (res, error) => {
       .json({ success: false, message: "Recurso no encontrado" });
   }
   if (error.message === "EL_CORREO_YA_EXISTE") {
-    return res
-      .status(400)
-      .json({
-        success: false,
-        message: "El correo electrónico ya está registrado.",
-      });
+    return res.status(400).json({
+      success: false,
+      message: "El correo electrónico ya está registrado.",
+    });
   }
   res.status(400).json({ success: false, message: error.message });
 };
@@ -42,7 +40,10 @@ exports.obtenerTodos = async (req, res) => {
 exports.obtenerPorId = async (req, res) => {
   try {
     const pasajero = await pasajeroService.obtenerPorId(req.params.id);
-    res.json({ success: true, data: pasajeroDto.RespuestaPasajerosDto(pasajero) });
+    res.json({
+      success: true,
+      data: pasajeroDto.RespuestaPasajerosDto(pasajero),
+    });
   } catch (error) {
     manejarError(res, error);
   }
@@ -53,7 +54,10 @@ exports.obtenerPorUsuarioId = async (req, res) => {
     const pasajero = await pasajeroService.obtenerPorUsuario(
       req.params.usuarioId,
     );
-    res.json({ success: true, data: pasajeroDto.RespuestaPasajerosDto(pasajero) });
+    res.json({
+      success: true,
+      data: pasajeroDto.RespuestaPasajerosDto(pasajero),
+    });
   } catch (error) {
     if (error.message === "PASAJERO_NO_ENCONTRADO") {
       return res
@@ -66,10 +70,11 @@ exports.obtenerPorUsuarioId = async (req, res) => {
 
 exports.obtenerMiPerfil = async (req, res) => {
   try {
-    const pasajero = await pasajeroService.obtenerPorUsuario(
-      req.usuario.id,
-    );
-    res.json({ success: true, data: pasajeroDto.RespuestaPasajerosDto(pasajero) });
+    const pasajero = await pasajeroService.obtenerPorUsuario(req.usuario.id);
+    res.json({
+      success: true,
+      data: pasajeroDto.RespuestaPasajerosDto(pasajero),
+    });
   } catch (error) {
     if (error.message === "PASAJERO_NO_ENCONTRADO") {
       return res
@@ -97,10 +102,7 @@ exports.crear = async (req, res) => {
 exports.actualizar = async (req, res) => {
   try {
     const datos = req.body;
-    const pasajero = await pasajeroService.actualizar(
-      req.params.id,
-      datos,
-    );
+    const pasajero = await pasajeroService.actualizar(req.params.id, datos);
     res.json({
       success: true,
       message: "Pasajero actualizado",

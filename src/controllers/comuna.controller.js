@@ -40,13 +40,11 @@ exports.crearComuna = async (req, res) => {
   try {
     const datos = req.body;
     const comuna = await comunaService.crearComuna(datos);
-    res
-      .status(201)
-      .json({
-        success: true,
-        message: "Comuna creada",
-        data: comunaDto.RespuestaComunasDto(comuna),
-      });
+    res.status(201).json({
+      success: true,
+      message: "Comuna creada",
+      data: comunaDto.RespuestaComunasDto(comuna),
+    });
   } catch (error) {
     manejarError(res, error);
   }

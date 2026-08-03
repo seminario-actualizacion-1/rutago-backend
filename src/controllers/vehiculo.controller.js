@@ -38,7 +38,10 @@ exports.obtenerTodos = async (req, res) => {
 exports.obtenerPorId = async (req, res) => {
   try {
     const vehiculo = await vehiculoService.obtenerPorId(req.params.id);
-    res.json({ success: true, data: vehiculoDto.RespuestaVehiculosDto(vehiculo) });
+    res.json({
+      success: true,
+      data: vehiculoDto.RespuestaVehiculosDto(vehiculo),
+    });
   } catch (error) {
     manejarError(res, error);
   }
@@ -78,9 +81,7 @@ exports.crearVehiculo = async (req, res) => {
   try {
     const datos = req.body;
     if (req.usuario.rolId === ROLES.ENTIDAD) {
-      const entidad = await entidadRepository.obtenerPorUsuario(
-        req.usuario.id,
-      );
+      const entidad = await entidadRepository.obtenerPorUsuario(req.usuario.id);
       if (!entidad) {
         return res
           .status(400)
@@ -89,13 +90,11 @@ exports.crearVehiculo = async (req, res) => {
       datos.entidadId = entidad.id;
     }
     const vehiculo = await vehiculoService.crearVehiculo(datos);
-    res
-      .status(201)
-      .json({
-        success: true,
-        message: "Vehículo creado",
-        data: vehiculoDto.RespuestaVehiculosDto(vehiculo),
-      });
+    res.status(201).json({
+      success: true,
+      message: "Vehículo creado",
+      data: vehiculoDto.RespuestaVehiculosDto(vehiculo),
+    });
   } catch (error) {
     manejarError(res, error);
   }
@@ -104,9 +103,7 @@ exports.crearVehiculo = async (req, res) => {
 exports.actualizarVehiculo = async (req, res) => {
   try {
     if (req.usuario.rolId === ROLES.ENTIDAD) {
-      const entidad = await entidadRepository.obtenerPorUsuario(
-        req.usuario.id,
-      );
+      const entidad = await entidadRepository.obtenerPorUsuario(req.usuario.id);
       if (!entidad) {
         return res
           .status(400)
@@ -114,12 +111,10 @@ exports.actualizarVehiculo = async (req, res) => {
       }
       const vehiculo = await vehiculoRepository.obtenerPorId(req.params.id);
       if (vehiculo.entidadId !== entidad.id) {
-        return res
-          .status(403)
-          .json({
-            success: false,
-            message: "No puedes modificar vehículos de otra entidad.",
-          });
+        return res.status(403).json({
+          success: false,
+          message: "No puedes modificar vehículos de otra entidad.",
+        });
       }
     }
     const datos = req.body;
@@ -140,9 +135,7 @@ exports.actualizarVehiculo = async (req, res) => {
 exports.eliminarVehiculo = async (req, res) => {
   try {
     if (req.usuario.rolId === ROLES.ENTIDAD) {
-      const entidad = await entidadRepository.obtenerPorUsuario(
-        req.usuario.id,
-      );
+      const entidad = await entidadRepository.obtenerPorUsuario(req.usuario.id);
       if (!entidad) {
         return res
           .status(400)
@@ -150,12 +143,10 @@ exports.eliminarVehiculo = async (req, res) => {
       }
       const vehiculo = await vehiculoRepository.obtenerPorId(req.params.id);
       if (vehiculo.entidadId !== entidad.id) {
-        return res
-          .status(403)
-          .json({
-            success: false,
-            message: "No puedes eliminar vehículos de otra entidad.",
-          });
+        return res.status(403).json({
+          success: false,
+          message: "No puedes eliminar vehículos de otra entidad.",
+        });
       }
     }
     await vehiculoService.eliminarVehiculo(req.params.id);
