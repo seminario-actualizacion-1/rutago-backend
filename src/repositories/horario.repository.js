@@ -1,14 +1,6 @@
 const { Op } = require("sequelize");
 const { Horario, Ruta } = require("../models");
 
-exports.obtenerTodos = async () => {
-  return await Horario.findAll({
-    include: [
-      { model: Ruta, as: "ruta" },
-    ],
-  });
-};
-
 exports.obtenerTodosConPaginacion = async (
   limit,
   offset,

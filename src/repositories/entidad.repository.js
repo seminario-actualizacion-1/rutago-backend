@@ -15,12 +15,6 @@ const usuarioAttr = {
   include: [{ model: Rol, as: "rol", attributes: ["id", "nombreRol"] }],
 };
 
-exports.obtenerTodos = async () => {
-  return await Entidad.findAll({
-    include: [usuarioAttr],
-  });
-};
-
 exports.obtenerPorId = async (id) => {
   const entidad = await Entidad.findByPk(id, {
     include: [usuarioAttr],

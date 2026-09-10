@@ -19,19 +19,6 @@ const usuarioAttr = {
   include: [{ model: Rol, as: "rol", attributes: ["id", "nombreRol"] }],
 };
 
-exports.obtenerTodos = async () => {
-  return await Conductor.findAll({
-    include: [
-      usuarioAttr,
-      {
-        model: EstadoConductor,
-        as: "estadoConductor",
-        attributes: ["id", "nombre"],
-      },
-    ],
-  });
-};
-
 exports.obtenerPorId = async (id) => {
   const conductor = await Conductor.findByPk(id, {
     include: [

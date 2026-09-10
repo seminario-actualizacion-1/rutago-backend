@@ -34,7 +34,7 @@ exports.refrescarToken = async (refreshToken) => {
   try {
     const decoded = jwt.verify(refreshToken, config.jwt.secreto);
     if (decoded.type !== "refresh") throw new Error("REFRESH_INVALIDO");
-    const usuario = await usuarioRepository.obtenerPorId(decoded.id);
+    const usuario = await usuarioRepository.buscarPorId(decoded.id);
     if (!usuario) throw new Error("USUARIO_NO_ENCONTRADO");
     return {
       token: generarToken(usuario),

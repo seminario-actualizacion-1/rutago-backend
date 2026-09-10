@@ -19,12 +19,6 @@ const includePasajero = [
   { model: TipoDocumento, as: "tipoDocumento" },
 ];
 
-exports.obtenerTodos = async () => {
-  return await Pasajero.findAll({
-    include: includePasajero,
-  });
-};
-
 exports.obtenerPorId = async (id) => {
   const pasajero = await Pasajero.findByPk(id, {
     include: includePasajero,

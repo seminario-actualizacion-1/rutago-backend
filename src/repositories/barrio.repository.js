@@ -1,10 +1,6 @@
 const { Op } = require("sequelize");
 const { Barrio, Comuna } = require("../models");
 
-exports.obtenerTodos = async () => {
-  return await Barrio.findAll({ include: [{ model: Comuna, as: "comuna" }] });
-};
-
 exports.obtenerPorId = async (id) => {
   const barrio = await Barrio.findByPk(id, {
     include: [{ model: Comuna, as: "comuna" }],

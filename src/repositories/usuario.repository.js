@@ -22,18 +22,6 @@ exports.buscarPorId = async (id) => {
   });
 };
 
-exports.buscarTodos = async () => {
-  return await Usuario.findAll({
-    include: [
-      { model: Rol, as: "rol" },
-      { model: Conductor, as: "conductor" },
-      { model: Entidad, as: "entidad" },
-      { model: Pasajero, as: "pasajero" },
-    ],
-    order: [["id", "ASC"]],
-  });
-};
-
 exports.buscarTodosConPaginacion = async (
   limit,
   offset,

@@ -8,7 +8,7 @@
  *
  * Variables de entorno para MySQL (opcionales):
  *   MYSQL_HOST, MYSQL_PORT, MYSQL_USER, MYSQL_PASSWORD, MYSQL_DB
- *   Si no se definen, usa valores por defecto (localhost:3306, root, sqz991711, rutago_db).
+ *   Si no se definen, se omite la migración de datos históricos (no hay secretos en el código).
  */
 "use strict";
 
@@ -41,12 +41,18 @@ async function pg(sql, params = []) {
 const MYSQL_HOST = process.env.MYSQL_HOST || "localhost";
 const MYSQL_PORT = parseInt(process.env.MYSQL_PORT || "3306", 10);
 const MYSQL_USER = process.env.MYSQL_USER || "root";
-const MYSQL_PASS = process.env.MYSQL_PASSWORD || "sqz991711";
+const MYSQL_PASS = process.env.MYSQL_PASSWORD;
 const MYSQL_DB = process.env.MYSQL_DB || "rutago_db";
 
 let mysqlConn = null;
 
 async function conectarMySQL() {
+  if (!MYSQL_PASS) {
+    console.log(
+      "! MYSQL_PASSWORD no está definida. Se omite migración histórica.",
+    );
+    return false;
+  }
   try {
     mysqlConn = await mysql.createConnection({
       host: MYSQL_HOST,
