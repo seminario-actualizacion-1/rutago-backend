@@ -18,11 +18,6 @@ module.exports = (sequelize, DataTypes) => {
         as: "estadoVehiculo",
       });
 
-      Vehiculo.hasMany(models.UbicacionVehiculo, {
-        foreignKey: "vehiculoId",
-        as: "ubicaciones",
-      });
-
       Vehiculo.hasMany(models.Viaje, {
         foreignKey: "vehiculoId",
         as: "viajes",

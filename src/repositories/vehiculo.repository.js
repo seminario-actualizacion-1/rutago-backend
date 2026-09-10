@@ -23,12 +23,6 @@ const includeVehiculo = [
   { model: EstadoVehiculo, as: "estadoVehiculo" },
 ];
 
-exports.obtenerTodos = async () => {
-  return await Vehiculo.findAll({
-    include: includeVehiculo,
-  });
-};
-
 exports.obtenerTodosConPaginacion = async (
   limit,
   offset,

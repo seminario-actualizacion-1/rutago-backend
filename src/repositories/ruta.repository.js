@@ -1,15 +1,6 @@
 const { Op } = require("sequelize");
 const { Ruta, Comuna, Barrio, Horario } = require("../models");
 
-exports.obtenerTodas = async () => {
-  return await Ruta.findAll({
-    include: [
-      { model: Comuna, as: "origen" },
-      { model: Comuna, as: "destino" },
-    ],
-  });
-};
-
 exports.obtenerTodasConPaginacion = async (
   limit,
   offset,

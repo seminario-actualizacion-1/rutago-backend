@@ -65,13 +65,6 @@ const includeDefault = [
   { model: EstadoViaje, as: "estadoViaje", attributes: ["id", "nombre"] },
 ];
 
-exports.obtenerTodos = async () => {
-  return await Viaje.findAll({
-    include: includeDefault,
-    order: [["createdAt", "DESC"]],
-  });
-};
-
 exports.obtenerTodosConPaginacion = async (
   limit,
   offset,

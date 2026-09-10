@@ -195,13 +195,12 @@ exports.actualizarViaje = async (id, datos) => {
 
     if (nuevoCondId && nuevoCondId !== viejoCondId) {
       datos.conductorId = nuevoCondId;
-      datos.conductorId = nuevoCondId;
       datos.estadoId = ESTADOS_VIAJE.ACEPTADO;
       await actualizarEstadoVehiculo(viaje, ESTADOS_VIAJE.ACEPTADO);
 
       if (viaje.horarioId) {
         const existente = await viajeRepository.obtenerPorConductorYHorario(
-          nuevoCondPerfilId, viaje.horarioId, id,
+          nuevoCondId, viaje.horarioId, id,
         );
         if (existente) throw new Error("CONDUCTOR_OCUPADO_EN_HORARIO");
       }

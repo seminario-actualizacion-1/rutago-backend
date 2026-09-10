@@ -1,10 +1,6 @@
 const { Op } = require("sequelize");
 const { Comuna } = require("../models");
 
-exports.obtenerTodas = async () => {
-  return await Comuna.findAll();
-};
-
 exports.obtenerPorId = async (id) => {
   const comuna = await Comuna.findByPk(id);
   if (!comuna) throw new Error("COMUNA_NO_ENCONTRADA");
