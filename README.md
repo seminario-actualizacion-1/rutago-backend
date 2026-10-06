@@ -448,4 +448,4 @@ El pipeline ejecuta migraciones (estructura + catálogos) automáticamente antes
 
 [Frontend](https://github.com/seminario-actualizacion-1/rutago-frontend)
 
-prueba de integracion GITHUB -SLACK
+
